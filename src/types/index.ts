@@ -10,6 +10,7 @@ export interface Transaction {
   category: string;
   source?: string;
   isRecurring?: boolean;
+  isNecessary?: boolean;
 }
 
 export type InvestmentCategory = 'CEDEARs' | 'FCI' | 'Acciones Arg' | 'ONs Dólar' | 'Cripto' | 'Otro';

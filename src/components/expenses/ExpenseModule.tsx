@@ -30,6 +30,7 @@ export const ExpenseModule = () => {
   const [currency, setCurrency] = useState<Currency>('ARS');
   const [category, setCategory] = useState('Comida');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isNecessary, setIsNecessary] = useState(false);
 
   // ── Recurring form ─────────────────────────────────────────
   const emptyRecurring = { name: '', amount: '', currency: 'ARS' as Currency, category: 'Servicios', dayOfMonth: '1' };
@@ -44,7 +45,7 @@ export const ExpenseModule = () => {
     e.preventDefault();
     if (!desc || !amount) return;
     
-    const txData = { description: desc, amount: Number(amount), currency, date, type: 'expense' as const, category };
+    const txData = { description: desc, amount: Number(amount), currency, date, type: 'expense' as const, category, isNecessary };
     
     if (editingTxId) {
       updateTransaction(editingTxId, txData);
@@ -53,7 +54,7 @@ export const ExpenseModule = () => {
       addTransaction(txData);
     }
     
-    setDesc(''); setAmount('');
+    setDesc(''); setAmount(''); setIsNecessary(false);
   };
 
   const handleEdit = (t: any) => {
@@ -63,6 +64,7 @@ export const ExpenseModule = () => {
     setCurrency(t.currency);
     setCategory(t.category);
     setDate(t.date);
+    setIsNecessary(t.isNecessary || false);
     setActiveTab('gastos');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -164,6 +166,16 @@ export const ExpenseModule = () => {
                   <DatePicker value={date} onChange={setDate} />
                 </div>
               </div>
+              
+              <div className="flex items-center gap-2 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-all" onClick={() => setIsNecessary(!isNecessary)}>
+                <div className={`w-10 h-6 rounded-full transition-all flex items-center px-1 ${isNecessary ? 'bg-emerald-500' : 'bg-white/10'}`}>
+                  <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-all ${isNecessary ? 'translate-x-4' : 'translate-x-0'}`} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs font-bold text-text-primary uppercase tracking-wider">Inversión Necesaria / Planificada</p>
+                  <p className="text-[10px] text-text-secondary">Evita que Nexus te recrimine por este gasto.</p>
+                </div>
+              </div>
               <div className="flex gap-3">
                 <button type="submit" className={`btn ${editingTxId ? 'btn-primary bg-amber-500 hover:bg-amber-600 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'btn-primary'} flex-1 mt-2`}>
                   {editingTxId ? 'Actualizar Gasto' : 'Registrar Gasto'}
@@ -203,7 +215,10 @@ export const ExpenseModule = () => {
                           <Plus size={12} className="rotate-45" /> {/* Use a small icon for edit or pen */}
                         </button>
                       </div>
-                      <p className="text-xs text-text-secondary">{t.category} · {t.date}</p>
+                      <p className="text-xs text-text-secondary">
+                        {t.category} · {t.date}
+                        {t.isNecessary && <span className="ml-2 text-[10px] font-black bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded uppercase tracking-tighter">Necesario</span>}
+                      </p>
                     </div>
                     <span className="font-mono font-bold text-rose-400">{formatMoney(t.amount, t.currency)}</span>
                   </div>

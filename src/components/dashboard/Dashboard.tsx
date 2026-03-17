@@ -8,8 +8,12 @@ import { KpiGrid } from './sections/KpiGrid';
 import { ExpenseAnalysisSection } from './sections/ExpenseAnalysisSection';
 import { IntelligenceSection } from './sections/IntelligenceSection';
 import { RecentActivityList, MainGoals } from './sections/RecentActivity';
+import { NexusAdvisor } from './sections/NexusAdvisor';
+import { NexusChat } from '../ai/NexusChat';
+
 export const Dashboard = () => {
   const { transactions, investments, goals, exchangeRates, updateTransaction } = useFinanceStore();
+  const [isChatOpen, setIsChatOpen] = React.useState(false);
 
   // ── Net Worth ───────────────────────────────────────────────
   // Inversiones (valor actual de mercado)
@@ -92,6 +96,8 @@ export const Dashboard = () => {
           investmentsCount={investments.length}
         />
 
+        <NexusAdvisor onOpenChat={() => setIsChatOpen(true)} />
+
         <IntelligenceSection 
           transactions={transactions}
           netWorthUSD={netWorthUSD}
@@ -129,6 +135,11 @@ export const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      <NexusChat 
+        isOpen={isChatOpen} 
+        onClose={() => setIsChatOpen(false)} 
+      />
     </div>
   );
 };
