@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import { RefreshCw, Edit3, Check, X, Wifi, WifiOff } from 'lucide-react';
+import { RefreshCw, Edit3, Wifi } from 'lucide-react';
 
 const RATE_LABELS: Record<string, { label: string; color: string }> = {
   usdToCripto: { label: 'Cripto', color: 'text-purple-400' },
@@ -71,98 +71,89 @@ export const ExchangeRateWidget = () => {
     : null;
 
   return (
-    <div className="bg-bg-card border border-white/10 rounded-2xl p-5">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="font-bold text-text-primary text-sm">Cotizaciones USD/ARS</h3>
-          {lastUpdated ? (
-            <p className="text-xs text-text-secondary flex items-center gap-1 mt-0.5">
-              <Wifi size={10} className="text-emerald-400" /> Actualizado: {lastUpdated}
-            </p>
-          ) : (
-            <p className="text-xs text-text-secondary flex items-center gap-1 mt-0.5">
-              <WifiOff size={10} className="text-amber-400" /> Sin actualizar — valores iniciales
-            </p>
-          )}
+    <div className="w-full bg-white/5 backdrop-blur-md border-y border-white/10 px-4 py-2 flex flex-wrap items-center justify-between gap-4 animate-in slide-in-from-top duration-700">
+      <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
+        <div className="flex flex-col">
+          <span className="text-[10px] font-black uppercase tracking-tighter text-text-secondary opacity-50">Mercado USD</span>
+          <div className="flex items-center gap-1">
+            <Wifi size={10} className={safeRates.lastUpdated ? "text-emerald-400" : "text-amber-400"} />
+            <span className="text-[10px] font-bold text-text-secondary">{lastUpdated || 'Sin conexión'}</span>
+          </div>
         </div>
-        <div className="flex gap-2">
-          {!editMode ? (
-            <>
-              <button
-                onClick={() => { setDraft(safeRates); setEditMode(true); }}
-                className="p-1.5 rounded-lg border border-white/10 hover:bg-white/10 text-text-secondary"
-                title="Editar manualmente"
-              >
-                <Edit3 size={14} />
-              </button>
-              <button
-                onClick={handleFetch}
-                disabled={loading}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold disabled:opacity-60"
-              >
-                <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
-                {loading ? 'Actualizando...' : 'Actualizar'}
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={() => setEditMode(false)} className="p-1.5 rounded-lg border border-white/10 hover:bg-white/10 text-text-secondary"><X size={14} /></button>
-              <button onClick={handleSaveDraft} className="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white"><Check size={14} /></button>
-            </>
-          )}
-        </div>
-      </div>
 
-      {error && (
-        <p className="text-xs text-rose-400 mb-3 bg-rose-500/10 border border-rose-500/20 px-3 py-2 rounded-lg">⚠️ {error}</p>
-      )}
-
-      {/* Rates grid */}
-      <div className="grid grid-cols-5 gap-2 mb-3">
         {Object.entries(RATE_LABELS).map(([key, meta]) => {
           const value = safeRates[key as keyof typeof safeRates] as number;
-          const draftValue = draft[key as keyof typeof draft] as number;
           const isCripto = key === 'usdToCripto';
           return (
-            <div
-              key={key}
-              className={`rounded-xl p-2.5 text-center border transition-all ${isCripto ? 'bg-purple-500/10 border-purple-500/30' : 'bg-white/3 border-white/8'}`}
-            >
-              <div className={`text-xs font-bold mb-1 ${meta.color}`}>{meta.label}</div>
-              {editMode ? (
-                <input
-                  type="number"
-                  className="w-full text-center bg-white/10 border border-white/20 rounded-lg text-xs font-mono font-bold text-text-primary p-1"
-                  value={draftValue}
-                  onChange={e => setDraft(d => ({ ...d, [key]: Number(e.target.value) }))}
-                />
-              ) : (
-                <div className={`text-sm font-black ${isCripto ? 'text-purple-300' : 'text-text-primary'}`}>
-                  ${value.toLocaleString('es-AR')}
-                </div>
-              )}
-              {isCripto && <div className="text-xs text-purple-500 mt-0.5">⭐ principal</div>}
+            <div key={key} className="flex flex-col border-l border-white/10 pl-4 min-w-[80px]">
+              <span className={`text-[10px] font-black uppercase tracking-tight ${meta.color}`}>{meta.label}</span>
+              <span className={`text-sm font-black tracking-tighter ${isCripto ? 'text-text-primary' : 'text-text-primary/80'}`}>
+                ${value.toLocaleString('es-AR')}
+              </span>
             </div>
           );
         })}
+
+        <div className="flex flex-col border-l border-white/10 pl-4 pr-4">
+          <span className="text-[10px] font-black uppercase tracking-tight text-text-secondary">EUR/USD</span>
+          <span className="text-sm font-black tracking-tighter text-text-primary/80">
+            {safeRates.eurToUsd.toFixed(3)}
+          </span>
+        </div>
       </div>
 
-      {/* EUR/USD */}
-      <div className="flex items-center justify-between px-3 py-2 bg-white/3 rounded-lg border border-white/8 text-xs">
-        <span className="text-text-secondary">EUR → USD</span>
-        {editMode ? (
-          <input
-            type="number"
-            step="0.001"
-            className="w-20 text-right bg-white/10 border border-white/20 rounded px-2 py-1 font-mono text-text-primary"
-            value={draft.eurToUsd}
-            onChange={e => setDraft(d => ({ ...d, eurToUsd: Number(e.target.value) }))}
-          />
-        ) : (
-          <span className="font-mono font-bold text-text-primary">1 EUR = {safeRates.eurToUsd.toFixed(4)} USD</span>
-        )}
+      <div className="flex items-center gap-2">
+        {error && <span className="text-[10px] text-rose-400 animate-pulse">⚠️ Error</span>}
+        <button
+          onClick={handleFetch}
+          disabled={loading}
+          className="p-2 rounded-full hover:bg-white/10 text-text-secondary transition-all active:scale-95 disabled:opacity-50"
+        >
+          <RefreshCw size={14} className={loading ? 'animate-spin text-indigo-400' : ''} />
+        </button>
+        <button
+          onClick={() => { setDraft(safeRates); setEditMode(true); }}
+          className="p-2 rounded-full hover:bg-white/10 text-text-secondary transition-all"
+        >
+          <Edit3 size={14} />
+        </button>
       </div>
+
+      {/* Manual Input Modal (Minimal) */}
+      {editMode && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-bg-card border border-white/20 p-6 rounded-3xl w-full max-w-md shadow-2xl">
+            <h3 className="text-xl font-black mb-6">Ajustar Cotizaciones</h3>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {Object.entries(RATE_LABELS).map(([key, meta]) => (
+                <div key={key}>
+                  <label className={`text-[10px] font-bold uppercase mb-1 block ${meta.color}`}>{meta.label}</label>
+                  <input
+                    type="number"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm font-bold font-mono focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                    value={draft[key as keyof typeof draft] as number}
+                    onChange={e => setDraft(d => ({ ...d, [key]: Number(e.target.value) }))}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setEditMode(false)}
+                className="flex-1 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 font-bold transition-all"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleSaveDraft}
+                className="flex-1 px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold transition-all shadow-lg shadow-indigo-600/20"
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

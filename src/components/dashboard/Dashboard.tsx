@@ -6,7 +6,8 @@ import { toUSD } from '../../utils/finance';
 import { NetWorthSection } from './sections/NetWorthSection';
 import { KpiGrid } from './sections/KpiGrid';
 import { ExpenseAnalysisSection } from './sections/ExpenseAnalysisSection';
-import { RecentActivity } from './sections/RecentActivity';
+import { IntelligenceSection } from './sections/IntelligenceSection';
+import { RecentActivityList, MainGoals } from './sections/RecentActivity';
 export const Dashboard = () => {
   const { transactions, investments, goals, exchangeRates, updateTransaction } = useFinanceStore();
 
@@ -61,55 +62,72 @@ export const Dashboard = () => {
   const topCategory = expenseByCategory[0] || { name: 'N/A', value: 0 };
 
   return (
-    <div className="p-6 md:p-10 max-w-[1400px] mx-auto animate-in fade-in zoom-in-95 duration-500">
-      <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
+    <div className="animate-in fade-in duration-500">
+      <ExchangeRateWidget />
+      
+      <div className="p-6 md:p-10 max-w-[1400px] mx-auto flex flex-col gap-12">
+        <header className="flex flex-col gap-2">
+          <h1 className="text-4xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400">
             Dashboard
           </h1>
-          <p className="text-text-secondary mt-1 text-lg">Resumen financiero a hoy.</p>
-        </div>
-      </header>
+          <p className="text-text-secondary font-medium opacity-60">
+            Tu centro de comando financiero.
+          </p>
+        </header>
 
-      <NetWorthSection 
-        netWorthUSD={netWorthUSD}
-        invTotalUSD={invTotalUSD}
-        goalsUSD={goalsUSD}
-        exchangeRates={exchangeRates}
-      />
-
-      <KpiGrid 
-        incomeUSD={incomeUSD}
-        expenseUSD={expenseUSD}
-        savingsRate={savingsRate}
-        topCategoryName={topCategory.name}
-        topCategoryValue={topCategory.value}
-        invTotalUSD={invTotalUSD}
-        investmentsCount={investments.length}
-      />
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
-        <ExpenseAnalysisSection 
-          expenseByCategory={expenseByCategory}
-          expenseUSD={expenseUSD}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          thisMthTx={thisMthTx}
+        <NetWorthSection 
+          netWorthUSD={netWorthUSD}
+          invTotalUSD={invTotalUSD}
+          goalsUSD={goalsUSD}
           exchangeRates={exchangeRates}
-          updateTransaction={updateTransaction}
-          txIcons={txIcons}
         />
-      </div>
 
-      <RecentActivity 
-        transactions={transactions}
-        goals={goals}
-        exchangeRates={exchangeRates}
-        txIcons={txIcons}
-      />
-      
-      <div className="mt-8 flex justify-end">
-        <ExchangeRateWidget />
+        <KpiGrid 
+          incomeUSD={incomeUSD}
+          expenseUSD={expenseUSD}
+          savingsRate={savingsRate}
+          topCategoryName={topCategory.name}
+          topCategoryValue={topCategory.value}
+          invTotalUSD={invTotalUSD}
+          investmentsCount={investments.length}
+        />
+
+        <IntelligenceSection 
+          transactions={transactions}
+          netWorthUSD={netWorthUSD}
+          exchangeRates={exchangeRates}
+        />
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8 mt-12">
+          <div className="lg:col-span-12">
+            <ExpenseAnalysisSection 
+              expenseByCategory={expenseByCategory}
+              expenseUSD={expenseUSD}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              thisMthTx={thisMthTx}
+              exchangeRates={exchangeRates}
+              updateTransaction={updateTransaction}
+              txIcons={txIcons}
+            />
+          </div>
+          <div className="lg:col-span-8">
+            <RecentActivityList 
+              transactions={transactions}
+              exchangeRates={exchangeRates}
+              txIcons={txIcons}
+              goals={goals}
+            />
+          </div>
+          <div className="lg:col-span-4">
+            <MainGoals 
+              transactions={transactions}
+              exchangeRates={exchangeRates}
+              txIcons={txIcons}
+              goals={goals}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

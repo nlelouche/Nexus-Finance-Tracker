@@ -1,20 +1,19 @@
 import React, { useState, useMemo } from 'react';
 import { Card } from '../ui';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import { TrendingUp, Bitcoin, Building, Layers, Search, Plus, Upload, Download, Settings, X, Calculator, Activity, Percent, Trash2 } from 'lucide-react';
+import { TrendingUp, Bitcoin, Building, Layers, Search, Plus, Upload, Download, Settings, X, Calculator, Trash2 } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { calculateAssetTWRR, projectFuture } from '../../utils/metrics';
+import { PortfolioRebalancer } from './sections/PortfolioRebalancer';
 import type { InvestmentCategory, InvestmentStrategy, Currency } from '../../types';
 
 export const InvestmentModule = () => {
-  const { investments, targetAllocations, addAllocationEntry, updateAllocationEntry, removeAllocationEntry, updateInvestmentCurrent, injectInvestment, withdrawInvestment, addInvestment, deleteInvestment, exchangeRates } = useFinanceStore();
+  const { investments, updateInvestmentCurrent, injectInvestment, withdrawInvestment, addInvestment, deleteInvestment, exchangeRates } = useFinanceStore();
 
   const [activeModal, setActiveModal] = useState<'none' | 'inject' | 'withdraw' | 'assistant' | 'create' | 'm2m' | 'settings'>('none');
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const [modalAmount, setModalAmount] = useState('');
   const [modalCryptoAmount, setModalCryptoAmount] = useState('');
-  const [assistantAmount, setAssistantAmount] = useState<string>('1000');
-  const [isEditingAllocation, setIsEditingAllocation] = useState(false);
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [bulkPrices, setBulkPrices] = useState<Record<string, string>>({});
 
@@ -93,8 +92,10 @@ export const InvestmentModule = () => {
 
   const handleOpenAssistant = () => {
       setActiveModal('assistant');
-      setIsEditingAllocation(false);
   };
+
+  const selectedAsset = investments.find(inv => inv.id === selectedAssetId);
+  const isCryptoModal = selectedAsset?.category === 'Cripto';
 
   const handleConfirmAction = () => {
       if (!selectedAssetId) return;
@@ -139,44 +140,6 @@ export const InvestmentModule = () => {
     setIsBulkUpdating(true);
   };
 
-  const selectedAsset = investments.find(inv => inv.id === selectedAssetId);
-  const isCryptoModal = selectedAsset?.category === 'Cripto';
-
-  // Assistant Logic — ahora usa AllocationEntry[]
-  const allocationAdvice = useMemo(() => {
-    if (!assistantAmount || isNaN(Number(assistantAmount)) || Number(assistantAmount) <= 0) return [];
-    const amountToInvest = Number(assistantAmount);
-    const newTotal = totalCurrent + amountToInvest;
-
-    const advice = targetAllocations.map(entry => {
-      // Para calcular cuánto tenés HOY en cada "bucket" del asistente, buscamos inversiones
-      // cuyo nombre coincida (match parcial, case insensitive) — es una heurística deliberately simple.
-      // En el futuro se puede vincular por ID. Por ahora calcula solo sobre % del total.
-      const currentAmount = totalCurrent * (entry.percentage / 100);
-      const idealAmount = newTotal * (entry.percentage / 100);
-      const diff = Math.max(0, idealAmount - currentAmount);
-      return {
-        id: entry.id,
-        name: entry.name,
-        targetPct: entry.percentage,
-        currentAmount,
-        suggestionToInvest: diff
-      };
-    });
-
-    const totalDiff = advice.reduce((s, a) => s + a.suggestionToInvest, 0);
-    if (totalDiff > 0) {
-      advice.forEach(a => {
-        a.suggestionToInvest = (a.suggestionToInvest / totalDiff) * amountToInvest;
-      });
-    }
-    return advice.filter(a => a.suggestionToInvest > 0).sort((a, b) => b.suggestionToInvest - a.suggestionToInvest);
-  }, [assistantAmount, totalCurrent, targetAllocations]);
-
-  // Editing state for allocation entries
-  const [editingEntry, setEditingEntry] = useState<{ id: string; name: string; percentage: string } | null>(null);
-  const [newEntryName, setNewEntryName] = useState('');
-  const [newEntryPct, setNewEntryPct] = useState('');
 
   // Form state for new asset
   const [newAsset, setNewAsset] = useState({
@@ -217,25 +180,6 @@ export const InvestmentModule = () => {
     setActiveModal('none');
   };
 
-  const currentTotalAllocation = useMemo(() =>
-    targetAllocations.reduce((acc, a) => acc + a.percentage, 0)
-  , [targetAllocations]);
-
-  const handleSaveEdit = () => {
-    if (!editingEntry) return;
-    const pct = Math.min(100, Math.max(0, Number(editingEntry.percentage) || 0));
-    updateAllocationEntry(editingEntry.id, editingEntry.name.trim() || 'Sin nombre', pct);
-    setEditingEntry(null);
-  };
-
-  const handleAddEntry = () => {
-    const name = newEntryName.trim();
-    const pct = Math.min(100, Math.max(0, Number(newEntryPct) || 0));
-    if (!name) return;
-    addAllocationEntry(name, pct);
-    setNewEntryName('');
-    setNewEntryPct('');
-  };
 
   return (
     <div className="p-6 md:p-10 max-w-[1400px] mx-auto animate-in fade-in zoom-in-95 duration-500">
@@ -773,201 +717,28 @@ export const InvestmentModule = () => {
                   Crear Activo
                 </button>
               </div>
+              </div>
             </div>
-          </div>
         </div>
       )}
 
-      {/* Assistant Modal */}
+      {/* Rebalancer Modal */}
       {activeModal === 'assistant' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 p-4">
-            <div className="bg-bg-card border border-indigo-500/50 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                <div className="p-4 border-b border-indigo-500/20 bg-indigo-500/5 flex justify-between items-center shrink-0">
-                    <div>
-                        <h3 className="text-lg font-bold flex items-center gap-2 text-text-primary">
-                            <Calculator size={20} className="text-indigo-400"/>
-                            Asistente Inteligente de Aportes
-                        </h3>
-                        <p className="text-xs text-text-secondary mt-1">Rebalanceo automático basado en tu Target Allocation.</p>
-                    </div>
-                    <button onClick={handleCloseModal} className="p-1 hover:bg-white/10 rounded-lg text-text-secondary transition-colors"><X size={20} /></button>
+            <div className="bg-bg-card border border-indigo-500/30 w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                <div className="p-6 border-b border-white/5 bg-white/3 flex justify-between items-center shrink-0">
+                    <h3 className="text-xl font-black text-text-primary">Portfolio Rebalancer</h3>
+                    <button onClick={handleCloseModal} className="p-2 hover:bg-white/10 rounded-full text-text-secondary transition-colors"><X size={24} /></button>
                 </div>
                 
-                <div className="p-6 overflow-y-auto custom-scrollbar flex-1 relative">
-                    {!isEditingAllocation ? (
-                        <>
-                            <div className="flex justify-between items-end mb-6">
-                                <Card className="flex-1 bg-white/5 border-white/10 mr-4">
-                                    <label className="block text-sm font-bold text-text-secondary uppercase tracking-wider mb-2">¿Cuánto dinero querés invertir este mes?</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <span className="text-text-secondary font-bold text-xl">$</span>
-                                        </div>
-                                        <input 
-                                            type="number" 
-                                            className="form-control pl-9 text-2xl font-bold h-14 bg-white/5 border-indigo-500/30 focus:border-indigo-500" 
-                                            placeholder="1000"
-                                            value={assistantAmount}
-                                            onChange={e => setAssistantAmount(e.target.value)}
-                                        />
-                                    </div>
-                                </Card>
-                                <button className="btn border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 h-14" onClick={() => setIsEditingAllocation(true)}>
-                                    <Settings size={18} className="mr-2 inline" /> Configurar Target
-                                </button>
-                            </div>
-
-                            <h4 className="text-sm font-bold text-text-secondary uppercase tracking-wider mb-4 flex items-center gap-2"><Activity size={16}/> Sugerencia de Distribución</h4>
-                            
-                            {allocationAdvice.length === 0 ? (
-                                <div className="text-center p-8 bg-white/5 rounded-xl border border-white/10 border-dashed">
-                                    <p className="text-text-secondary font-medium">Ingresá un monto superior a 0 para ver las sugerencias de inversión.</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {allocationAdvice.map((advice) => (
-                                        <div key={advice.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5 gap-4 hover:border-indigo-500/30 transition-colors">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className="w-3 h-3 rounded-full flex-shrink-0 shadow-[0_0_10px_rgba(99,102,241,0.5)] bg-indigo-400"></span>
-                                                    <span className="font-bold text-text-primary">{advice.name}</span>
-                                                </div>
-                                                <div className="flex items-center gap-3 text-xs text-text-secondary ml-5">
-                                                    <span>Target: <strong className="text-indigo-400">{advice.targetPct}%</strong></span>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-4 bg-black/20 p-3 rounded-lg border border-white/5 md:w-48 justify-between shrink-0">
-                                                <div className="text-xs font-bold text-text-secondary uppercase">Aportar</div>
-                                                <div className="font-mono text-xl font-bold text-emerald-400">
-                                                    {formatMoney(advice.suggestionToInvest, 'USD')}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        <div className="animate-in slide-in-from-right-4 duration-300">
-                             <div className="flex items-center justify-between mb-4">
-                                <div>
-                                    <h4 className="text-base font-bold text-text-primary">Mis Fondos / Estrategias</h4>
-                                    <p className="text-xs text-text-secondary">Ponéle el nombre que quieras a cada bucket de inversión.</p>
-                                </div>
-                                <div className={`text-lg font-bold px-3 py-1 rounded-lg ${currentTotalAllocation === 100 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
-                                    {currentTotalAllocation}% / 100%
-                                </div>
-                             </div>
-
-                             <div className="space-y-2 mb-4">
-                                {targetAllocations.map(entry => (
-                                    <div key={entry.id}>
-                                        {editingEntry?.id === entry.id ? (
-                                            <div className="flex items-center gap-2 p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/30">
-                                                <input
-                                                    autoFocus
-                                                    type="text"
-                                                    className="form-control flex-1 h-9 text-sm"
-                                                    value={editingEntry.name}
-                                                    onChange={e => setEditingEntry({ ...editingEntry, name: e.target.value })}
-                                                    onKeyDown={e => e.key === 'Enter' && handleSaveEdit()}
-                                                    placeholder="Nombre del fondo"
-                                                />
-                                                <div className="relative w-20 shrink-0">
-                                                    <input
-                                                        type="number"
-                                                        className="form-control pr-6 h-9 text-right font-mono text-sm"
-                                                        value={editingEntry.percentage}
-                                                        onChange={e => setEditingEntry({ ...editingEntry, percentage: e.target.value })}
-                                                        onKeyDown={e => e.key === 'Enter' && handleSaveEdit()}
-                                                    />
-                                                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                                                        <Percent className="text-text-secondary" size={11} />
-                                                    </div>
-                                                </div>
-                                                <button onClick={handleSaveEdit} className="btn h-9 bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3">OK</button>
-                                                <button onClick={() => setEditingEntry(null)} className="p-2 hover:bg-white/10 rounded-lg text-text-secondary"><X size={14} /></button>
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5 group">
-                                                <span className="font-medium text-text-primary text-sm flex-1">{entry.name}</span>
-                                                <div className="flex items-center gap-3">
-                                                    <span className="font-mono font-bold text-indigo-400 text-sm w-12 text-right">{entry.percentage}%</span>
-                                                    <button
-                                                        onClick={() => setEditingEntry({ id: entry.id, name: entry.name, percentage: String(entry.percentage) })}
-                                                        className="p-1.5 border border-white/10 rounded-lg hover:bg-white/10 text-text-secondary opacity-0 group-hover:opacity-100 transition-opacity"
-                                                    ><Settings size={13} /></button>
-                                                    <button
-                                                        onClick={() => removeAllocationEntry(entry.id)}
-                                                        className="p-1.5 border border-rose-500/20 rounded-lg hover:bg-rose-500/10 text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                    ><Trash2 size={13} /></button>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                             </div>
-
-                             {/* Agregar nueva entrada */}
-                             <div className="flex items-center gap-2 p-3 bg-white/5 rounded-lg border border-dashed border-white/10">
-                                <input
-                                    type="text"
-                                    className="form-control flex-1 h-9 text-sm"
-                                    placeholder="Nombre del fondo (ej: CEDEAR S&P 500)"
-                                    value={newEntryName}
-                                    onChange={e => setNewEntryName(e.target.value)}
-                                    onKeyDown={e => e.key === 'Enter' && handleAddEntry()}
-                                />
-                                <div className="relative w-20 shrink-0">
-                                    <input
-                                        type="number"
-                                        className="form-control pr-6 h-9 text-right font-mono text-sm"
-                                        placeholder="0"
-                                        value={newEntryPct}
-                                        onChange={e => setNewEntryPct(e.target.value)}
-                                        onKeyDown={e => e.key === 'Enter' && handleAddEntry()}
-                                    />
-                                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                                        <Percent className="text-text-secondary" size={11} />
-                                    </div>
-                                </div>
-                                <button onClick={handleAddEntry} disabled={!newEntryName.trim()} className="h-9 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 text-sm font-bold">
-                                    <Plus size={14} /> Agregar
-                                </button>
-                             </div>
-
-                             {currentTotalAllocation !== 100 && (
-                                 <p className="text-xs text-rose-400 font-bold mt-3 text-center border border-rose-500/30 p-2 rounded-lg bg-rose-500/10">
-                                     La suma debe ser 100%. Diferencia: {Math.abs(100 - currentTotalAllocation)}%
-                                 </p>
-                             )}
-                        </div>
-                    )}
+                <div className="p-8 overflow-y-auto custom-scrollbar flex-1">
+                    <PortfolioRebalancer />
                 </div>
 
-                <div className="p-4 border-t border-white/10 shrink-0 bg-bg-card flex justify-between items-center">
-                    {!isEditingAllocation ? (
-                        <>
-                            <p className="text-xs text-text-secondary max-w-[60%]">
-                                *Nota: Esta herramienta solo te indica a qué estrategias apuntar. La decisión del activo final es tuya. 
-                            </p>
-                            <button onClick={handleCloseModal} className="btn bg-indigo-600 hover:bg-indigo-500 text-white">
-                                Entendido
-                            </button>
-                        </>
-                    ) : (
-                         <>
-                            <p className="text-xs text-text-secondary">
-                                Los cambios se guardarán automáticamente en tu plan.
-                            </p>
-                            <button 
-                                onClick={() => setIsEditingAllocation(false)} 
-                                disabled={currentTotalAllocation !== 100}
-                                className={`btn text-white ${currentTotalAllocation === 100 ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-slate-600 opacity-50 cursor-not-allowed'}`}>
-                                Guardar Targets
-                            </button>
-                         </>
-                    )}
+                <div className="p-6 border-t border-white/5 bg-white/3 flex justify-end">
+                    <button onClick={handleCloseModal} className="btn bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8">
+                        Cerrar Assistant
+                    </button>
                 </div>
             </div>
         </div>

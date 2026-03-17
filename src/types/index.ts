@@ -88,6 +88,7 @@ export interface FinanceState {
   targetAllocations: AllocationEntry[];
   baseCurrency: Currency;
   exchangeRates: ExchangeRates;
+  allocationTargets: Record<string, number>;
 
   // Acciones Transacciones
   addTransaction: (tx: Omit<Transaction, 'id'>) => void;
@@ -123,4 +124,5 @@ export interface FinanceState {
   removeAllocationEntry: (id: string) => void;
   
   clearDatabase: () => void;
+  updateAllocationTargets: (targets: Record<string, number>) => void;
 }

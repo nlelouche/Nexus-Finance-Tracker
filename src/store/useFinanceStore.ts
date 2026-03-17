@@ -37,6 +37,15 @@ const INITIAL_TARGET_ALLOCATIONS = [
   { id: crypto.randomUUID(), name: 'Renta Fija Pesos', percentage: 10 },
 ];
 
+const INITIAL_ALLOCATION_TARGETS: Record<string, number> = {
+  'CEDEARs': 40,
+  'FCI': 10,
+  'Acciones Arg': 10,
+  'ONs Dólar': 20,
+  'Cripto': 15,
+  'Otro': 5,
+};
+
 export const useFinanceStore = create<FinanceState>()(
   persist(
     (set) => ({
@@ -55,6 +64,7 @@ export const useFinanceStore = create<FinanceState>()(
         eurToUsd: 1.08,
         lastUpdated: null,
       },
+      allocationTargets: INITIAL_ALLOCATION_TARGETS,
       
       addTransaction: (tx: Omit<Transaction, 'id'>) => set((state) => ({ 
         transactions: [{ ...tx, id: crypto.randomUUID() }, ...state.transactions] 
@@ -231,7 +241,12 @@ export const useFinanceStore = create<FinanceState>()(
         investments: [],
         goals: [],
         recurringExpenses: [],
-        targetAllocations: []
+        targetAllocations: [],
+        allocationTargets: INITIAL_ALLOCATION_TARGETS
+      })),
+
+      updateAllocationTargets: (targets) => set(() => ({
+        allocationTargets: targets
       }))
     }),
     {
