@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { FinanceState, Transaction } from '../types';
+import { convertCurrency } from '../utils/finance';
 
 // Mock data inicial basada en el mockup.html
 const INITIAL_TRANSACTIONS: Transaction[] = [
@@ -150,19 +151,7 @@ export const useFinanceStore = create<FinanceState>()(
             note
           };
 
-          // Conversor interno para el store
-          const toTarget = (val: number, from: string, to: string): number => {
-            if (from === to) return val;
-            const rates = state.exchangeRates;
-            let usd = val;
-            if (from === 'ARS') usd = val / rates.usdToCripto;
-            if (from === 'EUR') usd = val * rates.eurToUsd;
-            if (to === 'ARS') return usd * rates.usdToCripto;
-            if (to === 'EUR') return usd / rates.eurToUsd;
-            return usd;
-          };
-
-          const convertedAmount = toTarget(amount, currency, g.currency);
+          const convertedAmount = convertCurrency(amount, currency, g.currency, state.exchangeRates);
           return { 
             ...g, 
             currentAmount: g.currentAmount + convertedAmount,
@@ -247,6 +236,14 @@ export const useFinanceStore = create<FinanceState>()(
     }),
     {
       name: 'nexus-finance-storage',
+      version: 1,
+      migrate: (persistedState: any, version: number) => {
+        if (version === 0) {
+          // Migration from version 0 to 1 if needed
+          return persistedState;
+        }
+        return persistedState;
+      },
     }
   )
 );
