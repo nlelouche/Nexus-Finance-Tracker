@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { RefreshCw, Edit3, Wifi } from 'lucide-react';
 
@@ -119,40 +120,63 @@ export const ExchangeRateWidget = () => {
         </button>
       </div>
 
-      {/* Manual Input Modal (Minimal) */}
-      {editMode && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-bg-card border border-white/20 p-6 rounded-3xl w-full max-w-md shadow-2xl">
-            <h3 className="text-xl font-black mb-6">Ajustar Cotizaciones</h3>
-            <div className="grid grid-cols-2 gap-4 mb-6">
+      {/* Manual Input Modal (Minimal) - Portaled to avoid clipping by parent transitions */}
+      {editMode && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+          <div className="bg-[#0a0a0b] border border-white/10 p-6 md:p-10 rounded-[40px] w-full max-w-lg shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 duration-300">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-2xl font-black tracking-tighter text-text-primary">Ajustar Cotizaciones</h3>
+              <div className="px-3 py-1 bg-white/5 rounded-full border border-white/5 text-[10px] font-black text-text-secondary uppercase tracking-widest">Manual Override</div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {Object.entries(RATE_LABELS).map(([key, meta]) => (
-                <div key={key}>
-                  <label className={`text-[10px] font-bold uppercase mb-1 block ${meta.color}`}>{meta.label}</label>
-                  <input
-                    type="number"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm font-bold font-mono focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
-                    value={draft[key as keyof typeof draft] as number}
-                    onChange={e => setDraft(d => ({ ...d, [key]: Number(e.target.value) }))}
-                  />
+                <div key={key} className="space-y-2">
+                  <label className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 ${meta.color}`}>{meta.label}</label>
+                  <div className="relative group">
+                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-text-secondary font-black text-xs opacity-40 group-focus-within:opacity-100 transition-opacity">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 pl-10 pr-6 text-base font-black text-text-primary focus:bg-white/5 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                      value={draft[key as keyof typeof draft] as number}
+                      onChange={e => setDraft(d => ({ ...d, [key]: Number(e.target.value) }))}
+                    />
+                  </div>
                 </div>
               ))}
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] ml-1 text-indigo-400">EUR / USD</label>
+                <div className="relative group">
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-text-secondary font-black text-xs opacity-40 group-focus-within:opacity-100 transition-opacity">€</span>
+                  <input
+                    type="number"
+                    step="0.001"
+                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 pl-10 pr-6 text-base font-black text-text-primary focus:bg-white/5 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                    value={draft.eurToUsd}
+                    onChange={e => setDraft(d => ({ ...d, eurToUsd: Number(e.target.value) }))}
+                  />
+                </div>
+              </div>
             </div>
-            <div className="flex gap-3">
+
+            <div className="flex gap-4">
               <button 
                 onClick={() => setEditMode(false)}
-                className="flex-1 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 font-bold transition-all"
+                className="flex-1 px-8 py-5 rounded-2xl bg-white/5 hover:bg-white/10 font-black text-sm transition-all border border-white/5 text-text-primary"
               >
                 Cancelar
               </button>
               <button 
                 onClick={handleSaveDraft}
-                className="flex-1 px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold transition-all shadow-lg shadow-indigo-600/20"
+                className="flex-1 px-8 py-5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-black text-sm transition-all shadow-2xl shadow-indigo-600/40 text-white"
               >
-                Guardar
+                Confirmar Cambios
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

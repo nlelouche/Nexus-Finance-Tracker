@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useFinanceStore } from '../../../store/useFinanceStore';
-import { Card, TooltipUI as Tooltip } from '../../ui';
+import { TooltipUI as Tooltip } from '../../ui';
 import { Brain, Sparkles, AlertTriangle, RefreshCw, MessageSquare, Info } from 'lucide-react';
 import { callOllama, buildFinancialContext } from '../../../utils/ai';
 
@@ -9,7 +9,7 @@ interface NexusAdvisorProps {
 }
 
 export const NexusAdvisor = ({ onOpenChat }: NexusAdvisorProps) => {
-  const { transactions, investments, exchangeRates } = useFinanceStore();
+  const { transactions, investments, exchangeRates, aiConfig } = useFinanceStore();
   const [loading, setLoading] = useState(false);
   const [audit, setAudit] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +21,7 @@ export const NexusAdvisor = ({ onOpenChat }: NexusAdvisorProps) => {
     const context = buildFinancialContext(transactions, investments, exchangeRates);
     const prompt = `${context}\n\nTAREA: Como mi Mentor Financiero, realizá una auditoría implacable de mi último mes. Identificá los 3 puntos donde estoy siendo más ineficiente o donde mi "yo del futuro" me putearía. No me des consejos de manual; hablame a mí basándote en MIS categorías [X]. Si algo no te cierra, decímelo de frente.`;
 
-    const result = await callOllama(prompt);
+    const result = await callOllama(prompt, aiConfig);
     
     if (result.error) {
       setError(result.error);
@@ -32,7 +32,7 @@ export const NexusAdvisor = ({ onOpenChat }: NexusAdvisorProps) => {
   };
 
   return (
-    <Card className="border-indigo-500/30 bg-indigo-500/5 overflow-hidden">
+    <div className="h-full relative overflow-hidden bg-indigo-500/5 group/advisor border border-indigo-500/20 rounded-2xl">
       <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
         <Brain size={120} className="text-indigo-400" />
       </div>
@@ -105,7 +105,7 @@ export const NexusAdvisor = ({ onOpenChat }: NexusAdvisorProps) => {
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 };
 

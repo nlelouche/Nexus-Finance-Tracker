@@ -45,6 +45,13 @@ const INITIAL_ALLOCATION_TARGETS: Record<string, number> = {
   'Cripto': 15,
   'Otro': 5,
 };
+ 
+const INITIAL_INVESTMENT_WIDGETS = [
+  { id: 'portfolio-kpis',    x: 0, y: 0, w: 12, h: 2,  visible: true },
+  { id: 'wealth-projection', x: 0, y: 2, w: 12, h: 4,  visible: true },
+  { id: 'asset-composition', x: 0, y: 6, w: 12, h: 4,  visible: true },
+  { id: 'asset-table',       x: 0, y: 10, w: 12, h: 5,  visible: true }
+];
 
 export const useFinanceStore = create<FinanceState>()(
   persist(
@@ -65,6 +72,24 @@ export const useFinanceStore = create<FinanceState>()(
         lastUpdated: null,
       },
       allocationTargets: INITIAL_ALLOCATION_TARGETS,
+      aiConfig: {
+        host: 'http://localhost:11434',
+        model: 'llama3.1',
+      },
+      dashboardWidgets: [
+        { id: 'net-worth',        x: 0, y: 0, w: 12, h: 3,  visible: true },
+        { id: 'kpi-income',       x: 0, y: 3, w: 3,  h: 1,  visible: true },
+        { id: 'kpi-expense',      x: 3, y: 3, w: 3,  h: 1,  visible: true },
+        { id: 'kpi-savings',      x: 6, y: 3, w: 3,  h: 1,  visible: true },
+        { id: 'kpi-top-expense',  x: 9, y: 3, w: 3,  h: 1,  visible: true },
+        { id: 'kpi-investments',  x: 0, y: 4, w: 3,  h: 1,  visible: true },
+        { id: 'chart-expenses',   x: 3, y: 4, w: 6,  h: 3,  visible: true },
+        { id: 'nexus-audit',      x: 9, y: 4, w: 3,  h: 3,  visible: true },
+        { id: 'intel-briefing',   x: 0, y: 7, w: 12, h: 4,  visible: true },
+        { id: 'list-activity',    x: 0, y: 11, w: 8,  h: 4,  visible: true },
+        { id: 'list-goals',       x: 8, y: 11, w: 4,  h: 4,  visible: true }
+      ],
+      investmentWidgets: INITIAL_INVESTMENT_WIDGETS,
       
       addTransaction: (tx: Omit<Transaction, 'id'>) => set((state) => ({ 
         transactions: [{ ...tx, id: crypto.randomUUID() }, ...state.transactions] 
@@ -247,15 +272,84 @@ export const useFinanceStore = create<FinanceState>()(
 
       updateAllocationTargets: (targets) => set(() => ({
         allocationTargets: targets
+      })),
+
+      updateAiConfig: (config) => set((state) => ({
+        aiConfig: { ...state.aiConfig, ...config }
+      })),
+
+      updateWidgetLayout: (layouts) => set(() => ({
+        dashboardWidgets: layouts
+      })),
+
+      toggleWidgetVisibility: (id) => set((state) => ({
+        dashboardWidgets: state.dashboardWidgets.map(w => 
+          w.id === id ? { ...w, visible: !w.visible } : w
+        )
+      })),
+ 
+      updateInvestmentLayout: (layouts) => set(() => ({
+        investmentWidgets: layouts
+      })),
+ 
+      toggleInvestmentWidgetVisibility: (id) => set((state) => ({
+        investmentWidgets: state.investmentWidgets.map(w => 
+          w.id === id ? { ...w, visible: !w.visible } : w
+        )
       }))
     }),
     {
       name: 'nexus-finance-storage',
-      version: 1,
+      version: 4,
       migrate: (persistedState: any, version: number) => {
-        if (version === 0) {
-          // Migration from version 0 to 1 if needed
-          return persistedState;
+        if (version < 4) {
+          return {
+            ...persistedState,
+            investmentWidgets: INITIAL_INVESTMENT_WIDGETS
+          };
+        }
+        if (version < 3) {
+          // Reset dashboard for granular v3 system
+          return {
+            ...persistedState,
+            dashboardWidgets: [
+              { id: 'net-worth',        x: 0, y: 0, w: 12, h: 3,  visible: true },
+              { id: 'kpi-income',       x: 0, y: 3, w: 3,  h: 1,  visible: true },
+              { id: 'kpi-expense',      x: 3, y: 3, w: 3,  h: 1,  visible: true },
+              { id: 'kpi-savings',      x: 6, y: 3, w: 3,  h: 1,  visible: true },
+              { id: 'kpi-top-expense',  x: 9, y: 3, w: 3,  h: 1,  visible: true },
+              { id: 'kpi-investments',  x: 0, y: 4, w: 3,  h: 1,  visible: true },
+              { id: 'chart-expenses',   x: 3, y: 4, w: 6,  h: 3,  visible: true },
+              { id: 'nexus-audit',      x: 9, y: 4, w: 3,  h: 3,  visible: true },
+              { id: 'intel-briefing',   x: 0, y: 7, w: 12, h: 4,  visible: true },
+              { id: 'list-activity',    x: 0, y: 11, w: 8,  h: 4,  visible: true },
+              { id: 'list-goals',       x: 8, y: 11, w: 4,  h: 4,  visible: true }
+            ]
+          };
+        }
+        if (version < 2) {
+          // Detect if we have the old aggregate widgets
+          const oldIds = ['kpi-grid', 'intelligence', 'expenses', 'activity', 'goals'];
+          const hasOldWidgets = persistedState.dashboardWidgets?.some((w: any) => oldIds.includes(w.id));
+          
+          if (hasOldWidgets) {
+            return {
+              ...persistedState,
+              dashboardWidgets: [
+                { id: 'net-worth',        x: 0, y: 0, w: 12, h: 2,  visible: true },
+                { id: 'kpi-income',       x: 0, y: 2, w: 3,  h: 1,  visible: true },
+                { id: 'kpi-expense',      x: 3, y: 2, w: 3,  h: 1,  visible: true },
+                { id: 'kpi-savings',      x: 6, y: 2, w: 3,  h: 1,  visible: true },
+                { id: 'kpi-top-expense',  x: 9, y: 2, w: 3,  h: 1,  visible: true },
+                { id: 'kpi-investments',  x: 0, y: 3, w: 3,  h: 1,  visible: true },
+                { id: 'chart-expenses',   x: 3, y: 3, w: 6,  h: 3,  visible: true },
+                { id: 'nexus-audit',      x: 9, y: 3, w: 3,  h: 3,  visible: true },
+                { id: 'intel-briefing',   x: 0, y: 6, w: 12, h: 4,  visible: true },
+                { id: 'list-activity',    x: 0, y: 10, w: 8,  h: 4,  visible: true },
+                { id: 'list-goals',       x: 8, y: 10, w: 4,  h: 4,  visible: true }
+              ]
+            };
+          }
         }
         return persistedState;
       },

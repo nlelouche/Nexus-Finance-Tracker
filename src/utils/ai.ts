@@ -1,9 +1,6 @@
 import { Transaction, Investment, ExchangeRates } from '../types';
 import { toUSD } from './finance';
 
-const OLLAMA_HOST = 'http://localhost:11434';
-const DEFAULT_MODEL = 'llama3.1';
-
 export interface AIResponse {
   content: string;
   error?: string;
@@ -11,16 +8,20 @@ export interface AIResponse {
 
 /**
  * Basic bridge to local Ollama API
+ * Use the dynamic config from the store
  */
-export async function callOllama(prompt: string, model: string = DEFAULT_MODEL): Promise<AIResponse> {
+export async function callOllama(
+  prompt: string, 
+  config: { host: string; model: string }
+): Promise<AIResponse> {
   try {
-    const response = await fetch(`${OLLAMA_HOST}/api/generate`, {
+    const response = await fetch(`${config.host}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model,
+        model: config.model,
         prompt,
-        stream: false, // Simple non-streaming for the first version
+        stream: false,
       }),
     });
 
@@ -34,7 +35,7 @@ export async function callOllama(prompt: string, model: string = DEFAULT_MODEL):
     console.error('AI Bridge Error:', err);
     return { 
       content: '', 
-      error: `No se pudo conectar con Ollama. Asegurate de que esté corriendo en ${OLLAMA_HOST}.` 
+      error: `No se pudo conectar con Ollama. Asegurate de que esté corriendo en ${config.host}.` 
     };
   }
 }

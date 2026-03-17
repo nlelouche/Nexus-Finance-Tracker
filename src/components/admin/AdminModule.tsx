@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import { Download, Upload, Trash2, AlertTriangle, CheckCircle, ShieldAlert, Database, RefreshCw } from 'lucide-react';
+import { Download, Upload, Trash2, AlertTriangle, CheckCircle, ShieldAlert, Database, RefreshCw, Bot } from 'lucide-react';
 
 type Toast = { type: 'success' | 'error'; msg: string } | null;
 
@@ -219,6 +219,47 @@ export const AdminModule = () => {
               </div>
             </div>
           )}
+        </div>
+
+        {/* AI CONFIGURATION */}
+        <div className="bg-bg-card border border-white/10 rounded-2xl p-6">
+          <div className="flex items-start gap-4 mb-6">
+            <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 flex-shrink-0">
+              <Bot size={22} className="text-purple-400" />
+            </div>
+            <div>
+              <h3 className="font-bold text-text-primary text-base">Configuración de IA Local</h3>
+              <p className="text-text-secondary text-sm mt-1">
+                Ajustá los parámetros de conexión para tu instancia de <code className="text-purple-400">Ollama</code>.
+              </p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="form-group">
+              <label className="form-label text-xs uppercase tracking-wider text-text-secondary">Host / URL</label>
+              <input 
+                type="text" 
+                className="form-control" 
+                value={store.aiConfig.host} 
+                onChange={e => store.updateAiConfig({ host: e.target.value })} 
+                placeholder="http://localhost:11434"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label text-xs uppercase tracking-wider text-text-secondary">Modelo (Ollama Name)</label>
+              <input 
+                type="text" 
+                className="form-control" 
+                value={store.aiConfig.model} 
+                onChange={e => store.updateAiConfig({ model: e.target.value })} 
+                placeholder="llama3.1"
+              />
+            </div>
+          </div>
+          <p className="text-[10px] text-text-secondary mt-4 bg-white/5 p-2 rounded-lg border border-white/5">
+            💡 <strong>Tip:</strong> Asegurate de que Ollama tenga configurado <code className="text-purple-300">OLLAMA_ORIGINS="*"</code> para evitar problemas de CORS.
+          </p>
         </div>
       </div>
 

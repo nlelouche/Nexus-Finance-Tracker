@@ -23,13 +23,9 @@ export const NetWorthSection: React.FC<NetWorthSectionProps> = ({
   const netWorthEUR = useMemo(() => netWorthUSD / rateEur, [netWorthUSD, rateEur]);
 
   return (
-    <div className="mb-6">
-      <h2 className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">
-        Valor Total de Cartera
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
         {/* USD — principal */}
-        <div className="relative bg-gradient-to-br from-indigo-500/20 to-purple-500/10 border border-indigo-500/30 rounded-2xl p-5 shadow-[0_0_30px_rgba(99,102,241,0.15)] overflow-hidden">
+        <div className="relative bg-gradient-to-br from-indigo-500/20 to-purple-500/10 border border-indigo-500/30 rounded-2xl p-6 shadow-[0_0_30px_rgba(99,102,241,0.15)] overflow-hidden">
           <div className="absolute top-3 right-3 opacity-10 text-indigo-300"><DollarSign size={60} /></div>
           <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1 flex items-center gap-1">
             <DollarSign size={12} /> USD · tipo cripto
@@ -70,6 +66,5 @@ export const NetWorthSection: React.FC<NetWorthSectionProps> = ({
           </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };

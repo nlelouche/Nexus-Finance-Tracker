@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { Card } from '../ui';
 import { X, Send, User, Sparkles, Brain } from 'lucide-react';
@@ -16,7 +16,7 @@ interface NexusChatProps {
 }
 
 export const NexusChat = ({ isOpen, onClose, initialMessage }: NexusChatProps) => {
-  const { transactions, investments, exchangeRates } = useFinanceStore();
+  const { transactions, investments, exchangeRates, aiConfig } = useFinanceStore();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -66,7 +66,7 @@ RESPUESTA:
 (Responde de forma concisa, profesional y con personalidad rioplatense. Usa los datos del contexto si es relevante para la pregunta.)
 `;
 
-      const result = await callOllama(prompt);
+      const result = await callOllama(prompt, aiConfig);
       
       if (result.error) {
         setMessages(prev => [...prev, { role: 'assistant', content: `Perdón, tuve un problema: ${result.error}` }]);

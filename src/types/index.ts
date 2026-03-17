@@ -13,6 +13,20 @@ export interface Transaction {
   isNecessary?: boolean;
 }
 
+export interface AiConfig {
+  host: string;
+  model: string;
+}
+
+export interface WidgetConfig {
+  id: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  visible: boolean;
+}
+
 export type InvestmentCategory = 'CEDEARs' | 'FCI' | 'Acciones Arg' | 'ONs Dólar' | 'Cripto' | 'Otro';
 export type InvestmentStrategy = 'Renta Variable Global' | 'Renta Variable AR' | 'Renta Fija USD' | 'Renta Fija Pesos' | 'Renta Mixta' | 'Cripto' | 'Otro / No Asignada';
 
@@ -90,6 +104,9 @@ export interface FinanceState {
   baseCurrency: Currency;
   exchangeRates: ExchangeRates;
   allocationTargets: Record<string, number>;
+  aiConfig: AiConfig;
+  dashboardWidgets: WidgetConfig[];
+  investmentWidgets: WidgetConfig[];
 
   // Acciones Transacciones
   addTransaction: (tx: Omit<Transaction, 'id'>) => void;
@@ -126,4 +143,9 @@ export interface FinanceState {
   
   clearDatabase: () => void;
   updateAllocationTargets: (targets: Record<string, number>) => void;
+  updateAiConfig: (config: Partial<AiConfig>) => void;
+  updateWidgetLayout: (layouts: WidgetConfig[]) => void;
+  toggleWidgetVisibility: (id: string) => void;
+  updateInvestmentLayout: (layouts: WidgetConfig[]) => void;
+  toggleInvestmentWidgetVisibility: (id: string) => void;
 }
