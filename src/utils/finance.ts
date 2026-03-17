@@ -77,3 +77,49 @@ export const calculateRunway = (netWorthUSD: number, monthlyBurnUSD: number): nu
 };
 
 export const SAFE_WITHDRAWAL_RATE = 0.04; // Regla del 4%
+
+/**
+ * Calcula la tasa de ahorro (% de ingresos no gastados).
+ */
+export const calculateSavingsRate = (transactions: Transaction[], rates: ExchangeRates, months = 3): number => {
+  const now = new Date();
+  const cutoff = new Date(now.getFullYear(), now.getMonth() - months, 1);
+  
+  const relevant = transactions.filter(t => new Date(t.date) >= cutoff);
+  
+  const incomeUSD = relevant.filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + toUSD(t.amount, t.currency, rates), 0);
+  
+  const expenseUSD = relevant.filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + toUSD(t.amount, t.currency, rates), 0);
+
+  if (incomeUSD <= 0) return 0;
+  return Math.max(0, (incomeUSD - expenseUSD) / incomeUSD);
+};
+
+/**
+ * Calcula cuántos años faltan para alcanzar el FIRE Number basado en el ahorro actual y retorno esperado.
+ * n = log((FIRE_Target * r / (S * (1+r)) + 1)) / log(1 + r) -- Simplificado para ahorro constante
+ */
+export const calculateYearsToFIRE = (
+  currentNetWorthUSD: number,
+  monthlySavingsUSD: number,
+  annualBurnUSD: number,
+  annualReturnRate = 0.07 // 7% real return (standard)
+): number => {
+  const fireTarget = annualBurnUSD / SAFE_WITHDRAWAL_RATE;
+  if (currentNetWorthUSD >= fireTarget) return 0;
+  if (monthlySavingsUSD <= 0) return Infinity;
+
+  const monthlyReturn = Math.pow(1 + annualReturnRate, 1/12) - 1;
+  let months = 0;
+  let capital = currentNetWorthUSD;
+
+  // Simulación simple mes a mes para mayor precisión con interés compuesto
+  while (capital < fireTarget && months < 1200) { // Cap at 100 years
+    capital = (capital + monthlySavingsUSD) * (1 + monthlyReturn);
+    months++;
+  }
+
+  return months / 12;
+};

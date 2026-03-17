@@ -1,13 +1,15 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 // --- Card ---
 interface CardProps {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  onClick?: () => void;
 }
-export const Card = ({ children, className = '', style }: CardProps) => (
-  <div className={`card ${className} group`} style={style}>
+export const Card = ({ children, className = '', style, onClick }: CardProps) => (
+  <div className={`card ${className} group`} style={style} onClick={onClick}>
     {children}
   </div>
 );
@@ -80,6 +82,71 @@ export const Sparkline = ({ data, colorProfile = 'green', svgProps }: SparklineP
           className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
         />
       </svg>
+    </div>
+  );
+};
+
+// --- Tooltip ---
+interface TooltipProps {
+  content: string;
+  children: React.ReactNode;
+}
+
+export const TooltipUI = ({ content, children }: TooltipProps) => {
+  const [coords, setCoords] = React.useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const [show, setShow] = React.useState(false);
+  const triggerRef = React.useRef<HTMLDivElement>(null);
+
+  const updateCoords = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setCoords({
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    if (show) {
+      window.addEventListener('scroll', updateCoords, true);
+      window.addEventListener('resize', updateCoords);
+      return () => {
+        window.removeEventListener('scroll', updateCoords, true);
+        window.removeEventListener('resize', updateCoords);
+      };
+    }
+  }, [show]);
+
+  return (
+    <div 
+      ref={triggerRef}
+      className="inline-block"
+      onMouseEnter={() => {
+        updateCoords();
+        setShow(true);
+      }}
+      onMouseLeave={() => setShow(false)}
+    >
+      {children}
+      {show && coords && createPortal(
+        <div 
+          className="fixed z-[9999] pointer-events-none animate-in fade-in zoom-in-95 duration-200"
+          style={{
+            top: coords.top + coords.height + 8, // Just below the trigger
+            left: coords.left + (coords.width / 2),
+            transform: 'translateX(-50%)'
+          }}
+        >
+          <div className="w-56 p-3 bg-gray-950/95 text-white text-[11px] font-medium leading-tight rounded-xl shadow-2xl border border-white/10 backdrop-blur-xl">
+            {content}
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-8 border-transparent border-b-gray-950/95" />
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };

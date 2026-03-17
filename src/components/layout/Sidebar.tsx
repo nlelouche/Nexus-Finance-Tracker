@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ArrowDownLeft, ArrowUpRight, TrendingUp, Target, Moon, ShieldCheck } from 'lucide-react';
+import { Home, ArrowDownLeft, ArrowUpRight, TrendingUp, Target, Moon, ShieldCheck, Rocket } from 'lucide-react';
 
 export function Sidebar() {
   const location = useLocation();
@@ -51,6 +51,13 @@ export function Sidebar() {
         >
           <Target size={18} />
           Objetivos
+        </Link>
+        <Link 
+          to="/simulador" 
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${isActive('/simulador') ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-white/10 text-white shadow-inner' : 'text-text-secondary hover:text-white hover:bg-white/5 border border-transparent'}`}
+        >
+          <Rocket size={18} />
+          Simulador
         </Link>
       </nav>
 

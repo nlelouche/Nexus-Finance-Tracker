@@ -8,6 +8,7 @@ import { ExpenseModule } from './components/expenses/ExpenseModule';
 import { InvestmentModule } from './components/investments/InvestmentModule';
 import { GoalModule } from './components/goals/GoalModule';
 import { AdminModule } from './components/admin/AdminModule';
+import { ScenarioModule } from './components/simulation/ScenarioModule';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/egresos" element={<ExpenseModule />} />
             <Route path="/inversiones" element={<InvestmentModule />} />
             <Route path="/objetivos" element={<GoalModule />} />
+            <Route path="/simulador" element={<ScenarioModule />} />
             <Route path="/admin" element={<AdminModule />} />
           </Routes>
         </main>
