@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus - Finanzas Personales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================================================
+           1. CSS CUSTOM PROPERTIES & RESET
+           ========================================================================== */
+        :root {
+            /* Colores Principales */
+            --bg-body: #080808;
+            --bg-surface: #121212;
+            --bg-surface-hover: #1a1a1a;
+            --bg-glass: rgba(24, 24, 27, 0.6);
+            
+            /* Bordes */
+            --border-light: rgba(255, 255, 255, 0.08);
+            --border-focus: rgba(255, 255, 255, 0.2);
+            --radius-card: 12px;
+            --radius-btn: 8px;
+            
+            /* Tipografía */
+            --text-primary: #ededed;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            
+            /* Acentos */
+            --accent-green: #34d399; /* Ganancias */
+            --accent-green-bg: rgba(52, 211, 153, 0.1);
+            --accent-red: #f87171;   /* Pérdidas */
+            --accent-red-bg: rgba(248, 113, 113, 0.1);
+            --brand-primary: #ffffff;
+            
+            /* Layout */
+            --sidebar-width: 240px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ==========================================================================
+           2. UTILITIES & COMPONENTES BASE
+           ========================================================================== */
+        .text-green { color: var(--accent-green); }
+        .text-red { color: var(--accent-red); }
+        .text-secondary { color: var(--text-secondary); font-size: 0.9rem;}
+        .text-sm { font-size: 0.85rem; }
+        .text-lg { font-size: 1.125rem; font-weight: 600; }
+        .text-xl { font-size: 1.5rem; font-weight: 700; }
+        .text-2xl { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; }
+        
+        .flex { display: flex; }
+        .flex-col { display: flex; flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        
+        .grid { display: grid; }
+        .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+        
+        /* Glass Card */
+        .card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-card);
+            padding: 1.5rem;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-focus);
+        }
+
+        /* Botones */
+        .btn {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--radius-btn);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn:hover { background: var(--bg-surface-hover); border-color: var(--border-focus); }
+        .btn-primary { background: var(--brand-primary); color: var(--bg-body); border: none; }
+        .btn-primary:hover { background: #e5e5e5; }
+
+        /* Formularios */
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; color: var(--text-secondary); }
+        .form-control {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            padding: 0.75rem;
+            border-radius: var(--radius-btn);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-control:focus { border-color: var(--brand-primary); }
+        select.form-control { appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a1a1aa%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 1rem top 50%; background-size: 0.65rem auto; }
+
+        /* ==========================================================================
+           3. LAYOUT: SIDEBAR & MAIN
+           ========================================================================== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border-light);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            margin-bottom: 3rem;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+        .nav-link {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-btn);
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s;
+        }
+        .nav-link:hover { color: var(--text-primary); background: var(--bg-surface-hover); }
+        .nav-link.active { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+        
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2.5rem;
+            max-width: 1200px;
+        }
+
+        .tab-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ==========================================================================
+           4. MODULOS ESPECIFICOS
+           ========================================================================== */
+        
+        /* Gráfico de Área (Mockup CSS/SVG) */
+        .chart-container { height: 100px; width: 100%; margin-top: 1rem; position: relative; }
+        .chart-container svg { width: 100%; height: 100%; overflow: visible; }
+        
+        /* Lista de Transacciones */
+        .transaction-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: var(--radius-btn);
+            border: 1px solid transparent;
+        }
+        .transaction-item:hover { border-color: var(--border-light); }
+        .tx-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--bg-surface); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+
+        /* Progreso de Objetivos */
+        .progress-bar-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 0.8rem 0; overflow: hidden; }
+        .progress-bar-fill { height: 100%; border-radius: 3px; background: var(--brand-primary); }
+        .progress-bar-fill.good { background: var(--accent-green); }
+        .progress-bar-fill.bad { background: var(--accent-red); }
+
+        /* Sparkline para Inversiones */
+        .sparkline { height: 40px; width: 80px; }
+
+        /* Tabla simple */
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .data-table th, .data-table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-light); font-size: 0.9rem; }
+        .data-table th { color: var(--text-secondary); font-weight: 500; }
+
+        /* Mobile Menu */
+        .mobile-header { display: none; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-light); background: var(--bg-surface); align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 20;}
+
+        /* ==========================================================================
+           5. RESPONSIVE DESIGN
+           ========================================================================== */
+        @media (max-width: 1024px) {
+            .grid-cols-4 { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; width: 280px; box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 1.5rem; }
+            .mobile-header { display: flex; }
+            .grid-cols-2 { grid-template-columns: 1fr; }
+            .grid-cols-4 { grid-template-columns: 1fr; }
+            .hide-mobile { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Nexus
+        </div>
+        <ul class="nav-links">
+            <li class="nav-link active" onclick="switchTab('dashboard', this)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                Dashboard
+            </li>
+            <li class="nav-link" onclick="switchTab('ingresos', this)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Ingresos
+            </li>
+            <li class="nav-link" onclick="switchTab('egresos', this)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                Egresos
+            </li>
+            <li class="nav-link" onclick="switchTab('inversiones', this)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Inversiones
+            </li>
+            <li class="nav-link" onclick="switchTab('objetivos', this)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                Objetivos
+            </li>
+        </ul>
+        
+        <div style="margin-top: auto;">
+            <div class="nav-link" style="color: var(--text-muted); font-size: 0.85rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                Dark Mode
+            </div>
+        </div>
+    </aside>
+
+    <!-- MOBILE HEADER -->
+    <header class="mobile-header">
+        <div class="logo" style="margin: 0; padding: 0;">Nexus</div>
+        <button class="btn" style="padding: 0.5rem;" onclick="toggleMenu()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- ==============================================
+             VISTA 1: DASHBOARD
+             ============================================== -->
+        <section id="dashboard" class="tab-section active">
+            <header class="flex justify-between items-center" style="margin-bottom: 2rem;">
+                <div>
+                    <h1 class="text-2xl">Dashboard</h1>
+                    <p class="text-secondary" style="margin-top: 0.3rem;">Resumen financiero a hoy.</p>
+                </div>
+                <button class="btn btn-primary hide-mobile">+ Nuevo Movimiento</button>
+            </header>
+
+            <!-- Tarjetas de Resumen -->
+            <div class="grid grid-cols-4 gap-4" style="margin-bottom: 2rem;">
+                <div class="card">
+                    <p class="text-secondary text-sm">Net Worth Total</p>
+                    <h2 class="text-xl" style="margin: 0.5rem 0;">$45,230 <span class="text-sm text-secondary">USD</span></h2>
+                    <p class="text-sm text-green flex items-center gap-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                        +2.4% vs mes pasado
+                    </p>
+                </div>
+                <div class="card">
+                    <p class="text-secondary text-sm">Ingresos (Mes)</p>
+                    <h2 class="text-xl" style="margin: 0.5rem 0;">$4,500 <span class="text-sm text-secondary">USD eq.</span></h2>
+                    <div class="chart-container" style="height: 30px; margin-top: 0;">
+                        <!-- Sparkline simple verde -->
+                        <svg viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <path d="M0,30 L0,15 L20,20 L40,5 L60,18 L80,2 L100,10 L100,30 Z" fill="var(--accent-green-bg)"></path>
+                            <path d="M0,15 L20,20 L40,5 L60,18 L80,2 L100,10" fill="none" stroke="var(--accent-green)" stroke-width="2"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="card">
+                    <p class="text-secondary text-sm">Egresos (Mes)</p>
+                    <h2 class="text-xl" style="margin: 0.5rem 0;">$2,100 <span class="text-sm text-secondary">USD eq.</span></h2>
+                    <p class="text-sm text-secondary flex items-center gap-2">En presupuesto</p>
+                </div>
+                <div class="card">
+                    <p class="text-secondary text-sm">Savings Rate</p>
+                    <h2 class="text-xl" style="margin: 0.5rem 0;">53%</h2>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill good" style="width: 53%;"></div></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+                <!-- Gráfico de Evolución -->
+                <div class="card" style="grid-column: span 2;">
+                    <h3 class="text-lg">Evolución Net Worth (6 meses)</h3>
+                    <div class="chart-container" style="height: 180px;">
+                        <svg viewBox="0 0 1000 180" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="grad-brand" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="rgba(255,255,255,0.2)" />
+                                    <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+                                </linearGradient>
+                            </defs>
+                            <!-- Área -->
+                            <path d="M0,180 L0,120 L166,130 L332,100 L498,110 L664,70 L830,50 L1000,20 L1000,180 Z" fill="url(#grad-brand)"></path>
+                            <!-- Línea -->
+                            <path d="M0,120 L166,130 L332,100 L498,110 L664,70 L830,50 L1000,20" fill="none" stroke="var(--brand-primary)" stroke-width="3"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Últimos Movimientos -->
+                <div class="card">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg">Últimos Movimientos</h3>
+                        <a href="#" class="text-sm text-secondary">Ver todos</a>
+                    </div>
+                    <div class="transaction-list">
+                        <div class="transaction-item">
+                            <div class="flex items-center gap-4">
+                                <div class="tx-icon">🛒</div>
+                                <div>
+                                    <p style="font-weight: 500;">Supermercado Coto</p>
+                                    <p class="text-sm text-secondary">Comida • Hoy</p>
+                                </div>
+                            </div>
+                            <div class="text-red">-$65,000 ARS</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="flex items-center gap-4">
+                                <div class="tx-icon" style="background: rgba(52, 211, 153, 0.1);">💻</div>
+                                <div>
+                                    <p style="font-weight: 500;">Freelance USD</p>
+                                    <p class="text-sm text-secondary">Ingreso • Ayer</p>
+                                </div>
+                            </div>
+                            <div class="text-green">+$1,200 USD</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="flex items-center gap-4">
+                                <div class="tx-icon">⚡</div>
+                                <div>
+                                    <p style="font-weight: 500;">Edesur</p>
+                                    <p class="text-sm text-secondary">Servicios • 12 Oct</p>
+                                </div>
+                            </div>
+                            <div class="text-red">-$12,400 ARS</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="flex items-center gap-4">
+                                <div class="tx-icon" style="background: rgba(52, 211, 153, 0.1);">💶</div>
+                                <div>
+                                    <p style="font-weight: 500;">EuroTech</p>
+                                    <p class="text-sm text-secondary">Trabajo 1 • 05 Oct</p>
+                                </div>
+                            </div>
+                            <div class="text-green">+$2,500 EUR</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Objetivos Activos -->
+                <div class="card">
+                    <h3 class="text-lg" style="margin-bottom: 1.5rem;">Objetivos Principales</h3>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <div class="flex justify-between items-center">
+                            <span style="font-weight: 500;">🚙 Camioneta Toyota Hilux</span>
+                            <span class="text-sm text-secondary">34%</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill good" style="width: 34%;"></div></div>
+                        <div class="flex justify-between text-sm text-secondary">
+                            <span>$8.5M ARS</span>
+                            <span>Meta: $25M ARS</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center">
+                            <span style="font-weight: 500;">✈️ Viaje Europa 2027</span>
+                            <span class="text-sm text-secondary">15%</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 15%;"></div></div>
+                        <div class="flex justify-between text-sm text-secondary">
+                            <span>$750 USD</span>
+                            <span>Meta: $5,000 USD</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             VISTA 2: INGRESOS
+             ============================================== -->
+        <section id="ingresos" class="tab-section">
+            <header class="flex justify-between items-center" style="margin-bottom: 2rem;">
+                <div>
+                    <h1 class="text-2xl">Ingresos</h1>
+                    <p class="text-secondary" style="margin-top: 0.3rem;">Gestiona tus fuentes de entrada.</p>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-2 gap-6">
+                <!-- Formulario Agregar Ingreso -->
+                <div class="card">
+                    <h3 class="text-lg" style="margin-bottom: 1.5rem;">Registrar Nuevo Ingreso</h3>
+                    <form>
+                        <div class="form-group">
+                            <label>Descripción</label>
+                            <input type="text" class="form-control" placeholder="Ej: Pago cliente X">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="form-group">
+                                <label>Monto</label>
+                                <input type="number" class="form-control" placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label>Moneda</label>
+                                <select class="form-control">
+                                    <option>ARS - Pesos</option>
+                                    <option>USD - Dólares</option>
+                                    <option>EUR - Euros</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="form-group">
+                                <label>Fuente</label>
+                                <select class="form-control">
+                                    <option>Trabajo 1</option>
+                                    <option>Trabajo 2</option>
+                                    <option>Freelance</option>
+                                    <option>Otro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Fecha</label>
+                                <input type="date" class="form-control" value="2026-03-15">
+                            </div>
+                        </div>
+                        <div class="form-group flex items-center gap-2" style="margin-top: 0.5rem;">
+                            <input type="checkbox" id="recurrente">
+                            <label for="recurrente" style="margin: 0;">Es un ingreso recurrente</label>
+                        </div>
+                        <button type="button" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Guardar Ingreso</button>
+                    </form>
+                </div>
+
+                <!-- Resumen y Lista -->
+                <div class="flex-col gap-6">
+                    <div class="card">
+                        <h3 class="text-lg" style="margin-bottom: 1rem;">Total Octubre 2026</h3>
+                        <div class="flex justify-between items-center" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                            <span class="text-secondary">USD Totales</span>
+                            <span class="text-lg text-green">+$1,200</span>
+                        </div>
+                        <div class="flex justify-between items-center" style="border-bottom: 1px solid var(--border-light); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                            <span class="text-secondary">EUR Totales</span>
+                            <span class="text-lg text-green">+$2,500</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-secondary">ARS Totales</span>
+                            <span class="text-lg text-green">+$850,000</span>
+                        </div>
+                    </div>
+
+                    <div class="card" style="flex: 1;">
+                        <h3 class="text-lg" style="margin-bottom: 1rem;">Historial Reciente</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Fuente</th>
+                                    <th>Fecha</th>
+                                    <th>Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Freelance USD</td>
+                                    <td>14 Oct</td>
+                                    <td class="text-green">+$1,200 USD</td>
+                                </tr>
+                                <tr>
+                                    <td>EuroTech</td>
+                                    <td>05 Oct</td>
+                                    <td class="text-green">+$2,500 EUR</td>
+                                </tr>
+                                <tr>
+                                    <td>Local</td>
+                                    <td>01 Oct</td>
+                                    <td class="text-green">+$600,000 ARS</td>
+                                </tr>
+                                <tr>
+                                    <td>Temporal 1</td>
+                                    <td>28 Sep</td>
+                                    <td class="text-green">+$250,000 ARS</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             VISTA 3: EGRESOS
+             ============================================== -->
+        <section id="egresos" class="tab-section">
+            <header class="flex justify-between items-center" style="margin-bottom: 2rem;">
+                <div>
+                    <h1 class="text-2xl">Egresos</h1>
+                    <p class="text-secondary" style="margin-top: 0.3rem;">Control de gastos y distribución.</p>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-2 gap-6">
+                <!-- Formulario -->
+                <div class="card">
+                    <h3 class="text-lg" style="margin-bottom: 1.5rem;">Registrar Gasto</h3>
+                    <form>
+                        <div class="form-group">
+                            <label>Descripción</label>
+                            <input type="text" class="form-control" placeholder="Ej: Compra supermercado">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="form-group">
+                                <label>Monto</label>
+                                <input type="number" class="form-control" placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label>Moneda</label>
+                                <select class="form-control">
+                                    <option>ARS</option>
+                                    <option>USD</option>
+                                    <option>EUR</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="form-group">
+                                <label>Categoría</label>
+                                <select class="form-control">
+                                    <option>Alquiler</option>
+                                    <option>Comida</option>
+                                    <option>Servicios</option>
+                                    <option>Transporte</option>
+                                    <option>Entretenimiento</option>
+                                    <option>Otros</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Fecha</label>
+                                <input type="date" class="form-control" value="2026-03-15">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Registrar Gasto</button>
+                    </form>
+                </div>
+
+                <!-- Gráfico y Breakdown -->
+                <div class="card flex flex-col items-center">
+                    <h3 class="text-lg" style="width: 100%; margin-bottom: 1.5rem;">Distribución (Octubre)</h3>
+                    
+                    <!-- SVG Donut Chart Mockup -->
+                    <div style="position: relative; width: 200px; height: 200px;">
+                        <svg viewBox="0 0 32 32" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                            <!-- Círculo base -->
+                            <circle r="16" cx="16" cy="16" fill="transparent" stroke="rgba(255,255,255,0.05)" stroke-width="6" />
+                            
+                            <!-- Segmento 1: Comida (Rojo) - 40% (aprox 40 de 100 dasharray) -->
+                            <circle r="16" cx="16" cy="16" fill="transparent" stroke="#f87171" stroke-width="6" stroke-dasharray="40 100" />
+                            
+                            <!-- Segmento 2: Alquiler (Azul) - 30% -->
+                            <circle r="16" cx="16" cy="16" fill="transparent" stroke="#3b82f6" stroke-width="6" stroke-dasharray="30 100" stroke-dashoffset="-40" />
+                            
+                            <!-- Segmento 3: Servicios (Amarillo) - 20% -->
+                            <circle r="16" cx="16" cy="16" fill="transparent" stroke="#fbbf24" stroke-width="6" stroke-dasharray="20 100" stroke-dashoffset="-70" />
+                            
+                            <!-- Segmento 4: Otros (Gris) - 10% -->
+                            <circle r="16" cx="16" cy="16" fill="transparent" stroke="#9ca3af" stroke-width="6" stroke-dasharray="10 100" stroke-dashoffset="-90" />
+                        </svg>
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                            <span class="text-sm text-secondary">Total ARS</span>
+                            <span class="text-lg" style="font-weight: 700;">$450K</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4" style="width: 100%; margin-top: 2rem;">
+                        <div class="flex items-center gap-2"><div style="width:12px;height:12px;border-radius:2px;background:#f87171;"></div><span class="text-sm text-secondary">Comida (40%)</span></div>
+                        <div class="flex items-center gap-2"><div style="width:12px;height:12px;border-radius:2px;background:#3b82f6;"></div><span class="text-sm text-secondary">Alquiler (30%)</span></div>
+                        <div class="flex items-center gap-2"><div style="width:12px;height:12px;border-radius:2px;background:#fbbf24;"></div><span class="text-sm text-secondary">Servicios (20%)</span></div>
+                        <div class="flex items-center gap-2"><div style="width:12px;height:12px;border-radius:2px;background:#9ca3af;"></div><span class="text-sm text-secondary">Otros (10%)</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             VISTA 4: INVERSIONES
+             ============================================== -->
+        <section id="inversiones" class="tab-section">
+            <header class="flex justify-between items-center" style="margin-bottom: 2rem;">
+                <div>
+                    <h1 class="text-2xl">Inversiones & Fondos</h1>
+                    <p class="text-secondary" style="margin-top: 0.3rem;">Rendimiento de tu capital.</p>
+                </div>
+                <button class="btn">+ Nuevo Fondo</button>
+            </header>
+
+            <div class="grid grid-cols-3 gap-4">
+                <!-- Fondo 1 -->
+                <div class="card">
+                    <div class="flex justify-between items-center" style="margin-bottom: 1rem;">
+                        <h3 class="text-lg">📈 Fondo Común Mercado</h3>
+                    </div>
+                    <div class="text-sm text-secondary mb-2">Inversión inicial: $1,000,000 ARS</div>
+                    <div style="margin: 1rem 0;">
+                        <label class="text-sm text-secondary">Valor Actual (Editable)</label>
+                        <input type="text" class="form-control" value="$ 1,150,000" style="font-size: 1.2rem; font-weight: 600; padding: 0.5rem; margin-top: 0.3rem;">
+                    </div>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <p class="text-sm text-secondary">Rendimiento</p>
+                            <p class="text-green font-bold">+$150,000 (+15%)</p>
+                        </div>
+                        <!-- Sparkline -->
+                        <div class="sparkline">
+                            <svg viewBox="0 0 100 30" style="width: 100%; height: 100%;">
+                                <path d="M0,25 L20,22 L40,24 L60,15 L80,10 L100,5" fill="none" stroke="var(--accent-green)" stroke-width="3" stroke-linecap="round"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fondo 2 -->
+                <div class="card">
+                    <div class="flex justify-between items-center" style="margin-bottom: 1rem;">
+                        <h3 class="text-lg">₿ Bitcoin (BTC)</h3>
+                    </div>
+                    <div class="text-sm text-secondary mb-2">Inversión inicial: $2,000 USD</div>
+                    <div style="margin: 1rem 0;">
+                        <label class="text-sm text-secondary">Valor Actual (Editable)</label>
+                        <input type="text" class="form-control" value="$ 4,500.00" style="font-size: 1.2rem; font-weight: 600; padding: 0.5rem; margin-top: 0.3rem;">
+                    </div>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <p class="text-sm text-secondary">Rendimiento</p>
+                            <p class="text-green font-bold">+$2,500 (+125%)</p>
+                        </div>
+                        <div class="sparkline">
+                            <svg viewBox="0 0 100 30" style="width: 100%; height: 100%;">
+                                <path d="M0,28 L20,20 L40,25 L60,10 L80,15 L100,2" fill="none" stroke="var(--accent-green)" stroke-width="3" stroke-linecap="round"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fondo 3 -->
+                <div class="card">
+                    <div class="flex justify-between items-center" style="margin-bottom: 1rem;">
+                        <h3 class="text-lg">🏦 Plazo Fijo</h3>
+                    </div>
+                    <div class="text-sm text-secondary mb-2">Inversión inicial: $500,000 ARS</div>
+                    <div style="margin: 1rem 0;">
+                        <label class="text-sm text-secondary">Valor Actual (Editable)</label>
+                        <input type="text" class="form-control" value="$ 520,000" style="font-size: 1.2rem; font-weight: 600; padding: 0.5rem; margin-top: 0.3rem;">
+                    </div>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <p class="text-sm text-secondary">Rendimiento</p>
+                            <p class="text-green font-bold">+$20,000 (+4%)</p>
+                        </div>
+                        <div class="sparkline">
+                            <svg viewBox="0 0 100 30" style="width: 100%; height: 100%;">
+                                <path d="M0,25 L20,20 L40,15 L60,10 L80,5 L100,0" fill="none" stroke="var(--accent-green)" stroke-width="3" stroke-linecap="round"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==============================================
+             VISTA 5: OBJETIVOS
+             ============================================== -->
+        <section id="objetivos" class="tab-section">
+            <header class="flex justify-between items-center" style="margin-bottom: 2rem;">
+                <div>
+                    <h1 class="text-2xl">Objetivos de Ahorro</h1>
+                    <p class="text-secondary" style="margin-top: 0.3rem;">Planifica tus grandes compras.</p>
+                </div>
+                <button class="btn btn-primary">+ Nuevo Objetivo</button>
+            </header>
+
+            <div class="grid grid-cols-2 gap-6">
+                <!-- Tarjeta Objetivo 1 -->
+                <div class="card">
+                    <div class="flex justify-between items-start" style="margin-bottom: 1rem;">
+                        <div>
+                            <h3 class="text-xl">🚙 Camioneta Toyota Hilux</h3>
+                            <p class="text-sm text-secondary">Inicio: Enero 2025 • Objetivo: Dic 2026</p>
+                        </div>
+                        <div class="tx-icon" style="background: rgba(255,255,255,0.05);">🎯</div>
+                    </div>
+                    
+                    <div class="flex justify-between items-end" style="margin-top: 2rem;">
+                        <h2 class="text-2xl">$8.5M <span class="text-sm text-secondary">ARS ahorrados</span></h2>
+                        <span class="text-secondary text-sm">Meta: $25.0M ARS</span>
+                    </div>
+                    
+                    <div class="progress-bar-bg" style="height: 10px; margin: 1rem 0;"><div class="progress-bar-fill good" style="width: 34%;"></div></div>
+                    
+                    <div class="flex justify-between text-sm" style="margin-bottom: 1.5rem;">
+                        <span class="text-green">Progreso: 34% (En fecha)</span>
+                        <span class="text-secondary">Faltan $16.5M</span>
+                    </div>
+
+                    <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: var(--radius-btn); border: 1px dashed var(--border-light);">
+                        <p class="text-sm" style="margin-bottom: 0.5rem;">💡 <strong>Estimador:</strong> Poniendo <span class="text-green">$1.8M/mes</span>, llegás en Dic 2026.</p>
+                        <p class="text-sm">📉 <strong>Extrapolación:</strong> A tu ritmo actual ($1.2M/mes), llegarías en <span class="text-red">Marzo 2027</span>.</p>
+                    </div>
+                </div>
+
+                <!-- Formulario Objetivo (Mock) -->
+                <div class="card">
+                    <h3 class="text-lg" style="margin-bottom: 1.5rem;">Configurar Meta</h3>
+                    <form>
+                        <div class="form-group">
+                            <label>Nombre del Objetivo</label>
+                            <input type="text" class="form-control" placeholder="Ej: Viaje a Japón">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="form-group">
+                                <label>Monto Meta</label>
+                                <input type="number" class="form-control" placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label>Moneda</label>
+                                <select class="form-control">
+                                    <option>USD</option>
+                                    <option>ARS</option>
+                                    <option>EUR</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="form-group">
+                                <label>Fecha Objetivo</label>
+                                <input type="month" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Ahorro Actual</label>
+                                <input type="number" class="form-control" placeholder="0.00">
+                            </div>
+                        </div>
+                        <button type="button" class="btn" style="width: 100%; margin-top: 1rem;">Guardar Objetivo</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- LOGICA JS -->
+    <script>
+        function switchTab(tabId, element) {
+            // Ocultar todas las secciones
+            const sections = document.querySelectorAll('.tab-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+            
+            // Mostrar la seleccionada
+            document.getElementById(tabId).classList.add('active');
+            
+            // Actualizar botones del sidebar si se hizo clic en uno
+            if(element) {
+                const links = document.querySelectorAll('.nav-link');
+                links.forEach(link => link.classList.remove('active'));
+                element.classList.add('active');
+            }
+
+            // Cerrar menú móvil si está abierto
+            if(window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        }
+
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

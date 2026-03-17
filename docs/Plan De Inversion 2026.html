@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Manager 2026 - v4.2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script>
+        // Prevents flash of light theme
+        if (localStorage.pm26_theme_v1 === 'dark' || (!('pm26_theme_v1' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f8fafc; color: #334155; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; }
+        input, select { outline: none; border-color: #cbd5e1; transition: 0.2s; }
+        input:focus, select:focus { border-color: #3b82f6; ring: 2px; }
+        .btn-icon { transition: all 0.2s; }
+        .btn-icon:hover { transform: scale(1.1); }
+        /* Scrollbar fina para la lista */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .overflow-hidden-body { overflow: hidden; }
+
+        /* --- DARK MODE --- */
+        .dark { color-scheme: dark; }
+        .dark body { background-color: #0f172a; color: #cbd5e1; }
+        .dark .card { background-color: #1e293b; border-color: #334155; }
+        .dark header { background-color: #1e293b; border-color: #334155; }
+        .dark h1, .dark h2, .dark h3, .dark #dash-total, .dark #dash-invested { color: #f1f5f9; }
+        .dark .nav-item { color: #94a3b8; }
+        .dark .nav-item:hover { background-color: #374151; }
+        .dark .nav-item.active { background-color: #1e293b; color: #60a5fa; border-color: #3b82f6; }
+        .dark #asset-list { divide-color: #334155; }
+        .dark tr.bg-white { background-color: #1e293b; }
+        .dark tr.bg-white:hover { background-color: #334155; }
+        .dark thead tr, .dark .bg-slate-50 { background-color: #1a2332; }
+        .dark input, .dark select { background-color: #334155; border-color: #475569; color: #f1f5f9; }
+        .dark input:focus, .dark select:focus { border-color: #3b82f6; }
+        .dark #custom-legend .group:hover, .dark #custom-legend .group:hover .text-gray-700 { background-color: #334155; color: #f1f5f9; }
+        .dark .text-gray-800, .dark .text-gray-900, .dark .text-gray-700 { color: #f1f5f9; }
+        .dark .text-gray-500 { color: #94a3b8; }
+        .dark .text-gray-600 { color: #cbd5e1; }
+        .dark .text-gray-400 { color: #64748b; }
+        .dark .bg-gray-50 { background-color: #334155; }
+        .dark .bg-gray-100 { background-color: #374151; }
+        .dark .hover\:bg-gray-100:hover { background-color: #334155; }
+        .dark .hover\:bg-gray-200:hover { background-color: #475569; }
+        .dark .border-gray-300 { border-color: #475569; }
+        .dark #theme-toggle.hover\:bg-gray-100:hover { background-color: #334155; }
+        .dark .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        .dark #action-modal .bg-white, .dark #new-asset-modal .bg-white, .dark #edit-asset-modal .bg-white { background-color: #1e293b; }
+        .dark #history-chart-modal .bg-white { background-color: #1e293b; }
+        .dark #snapshot-list details { background-color: #1e293b; border-color: #334155; }
+        .dark #snapshot-list summary:hover { background-color: #334155; }
+        .dark #snapshot-list .bg-gray-50\/50 { background-color: #1e293b; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-900 text-white p-2 rounded-lg font-bold text-xl">PM</div>
+                <div>
+                    <h1 class="font-bold text-gray-900 leading-tight">Mi Portfolio 2026</h1>
+                    <p class="text-xs text-gray-500">Gestión Integral • v4.2 (Leyenda Pro)</p>
+                </div>
+            </div>
+            <div class="flex gap-2 items-center">
+                <button onclick="toggleDarkMode()" id="theme-toggle" class="text-gray-500 hover:bg-gray-100 rounded-lg p-2 transition">
+                    <span id="theme-icon"></span>
+                </button>
+                 <button onclick="fullReset()" class="text-xs bg-red-600 text-white hover:bg-red-700 px-3 py-1 rounded font-semibold transition">
+                    🗑️ Reset Total
+                </button>
+                <button onclick="hardResetToBase()" class="text-xs bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 px-3 py-1 rounded font-semibold transition">
+                    🔄 Rebasar Costos
+                </button>
+                <button onclick="downloadBackup()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded border border-gray-300 transition">
+                    💾 Backup
+                </button>
+                <label class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded border border-gray-300 cursor-pointer transition">
+                    📂 Restaurar
+                    <input type="file" id="restoreFile" class="hidden" onchange="restoreBackup(this)">
+                </label>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto w-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <nav class="lg:col-span-2 flex flex-col gap-1">
+            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="nav-item active text-left px-4 py-3 rounded-lg font-medium text-sm transition bg-blue-50 text-blue-700 border-l-4 border-blue-600">
+                📊 Panel General
+            </button>
+            <button onclick="switchTab('portfolio')" id="btn-portfolio" class="nav-item text-left px-4 py-3 rounded-lg font-medium text-sm text-gray-600 hover:bg-gray-50 transition border-l-4 border-transparent">
+                💼 Mis Fondos
+            </button>
+            <button onclick="switchTab('simulator')" id="btn-simulator" class="nav-item text-left px-4 py-3 rounded-lg font-medium text-sm text-gray-600 hover:bg-gray-50 transition border-l-4 border-transparent">
+                🔮 Proyección
+            </button>
+            <button onclick="switchTab('snapshots')" id="btn-snapshots" class="nav-item text-left px-4 py-3 rounded-lg font-medium text-sm text-gray-600 hover:bg-gray-50 transition border-l-4 border-transparent">
+                📸 Snapshots
+            </button>
+        </nav>
+
+        <main class="lg:col-span-10">
+
+            <div id="dashboard" class="tab-content active space-y-6 fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="card p-5 border-l-4 border-slate-700">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Patrimonio Total</p>
+                        <h2 class="text-3xl font-bold text-gray-900 mt-2" id="dash-total">...</h2>
+                    </div>
+                    <div class="card p-5 border-l-4 border-emerald-500">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ganancia Neta (Simple)</p>
+                        <div class="flex items-end gap-2 mt-2">
+                            <h2 class="text-3xl font-bold text-emerald-600" id="dash-gain">...</h2>
+                            <span class="text-sm font-bold text-emerald-700 bg-emerald-100 px-2 py-1 rounded mb-1" id="dash-gain-pct">0%</span>
+                        </div>
+                    </div>
+                     <div class="card p-5 border-l-4 border-purple-500">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Rendimiento Real (TWRR Anual.)</p>
+                        <h2 class="text-3xl font-bold text-purple-600 mt-2" id="dash-twrr">...</h2>
+                    </div>
+                    <div class="card p-5 border-l-4 border-blue-400">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Capital Invertido</p>
+                        <h2 class="text-3xl font-bold text-gray-900 mt-2" id="dash-invested">...</h2>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"> <div class="card p-6 h-96 flex flex-col">
+                        <h3 class="font-bold text-gray-800 mb-2 text-sm">Distribución Visual</h3>
+                        <div class="flex-1 relative">
+                            <canvas id="mainChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card p-6 h-96 flex flex-col">
+                        <h3 class="font-bold text-gray-800 mb-2 text-sm">Detalle de Composición (%)</h3>
+                        <div class="flex-1 overflow-y-auto custom-scroll pr-2" id="custom-legend">
+                            </div>
+                    </div>
+
+                </div>
+
+                <div class="card p-6 flex flex-col mt-6">
+                    <h3 class="font-bold text-gray-800 mb-4 text-sm">Evolución del Patrimonio</h3>
+                    <div class="flex-1 relative h-64">
+                        <canvas id="evolutionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                    <div class="card p-6">
+                        <h3 class="font-bold text-gray-800 mb-4 text-sm">Ganadores y Perdedores (Histórico Total)</h3>
+                        <div>
+                            <h4 class="font-semibold text-emerald-600 mb-2">🏆 Mejores Rendimientos</h4>
+                            <div id="winners-list-historical" class="space-y-1 text-sm"></div>
+                        </div>
+                        <div class="mt-4">
+                            <h4 class="font-semibold text-red-600 mb-2">📉 Peores Rendimientos</h4>
+                            <div id="losers-list-historical" class="space-y-1 text-sm"></div>
+                        </div>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="font-bold text-gray-800 mb-4 text-sm">Movimientos (vs. último snapshot)</h3>
+                        <div>
+                            <h4 class="font-semibold text-emerald-600 mb-2">📈 Mayores Subas</h4>
+                            <div id="winners-list-snapshot" class="space-y-1 text-sm"></div>
+                        </div>
+                        <div class="mt-4">
+                            <h4 class="font-semibold text-red-600 mb-2">📉 Mayores Bajas</h4>
+                            <div id="losers-list-snapshot" class="space-y-1 text-sm"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-6 flex flex-col mt-6">
+                    <h3 class="font-bold text-gray-800 mb-4 text-sm">Historial de Operaciones Recientes</h3>
+                    <div class="flex-1 overflow-y-auto max-h-40 pr-2 custom-scroll">
+                        <table class="w-full text-sm text-left">
+                            <tbody id="log-table" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="portfolio" class="tab-content fade-in">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">Detalle de Activos</h2>
+                    <div class="flex items-center gap-2">
+                        <button onclick="restoreManualSort()" id="btn-restore-manual-sort" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-2 rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-2" title="Restaurar Orden Manual">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            Orden Manual
+                        </button>
+                        <button onclick="toggleReorderMode()" id="btn-reorder" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                            Reordenar
+                        </button>
+                        <button onclick="toggleQuickQuoteMode(true)" id="btn-quick-quote-on" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            Modo Cotización
+                        </button>
+                        <div id="quick-quote-actions" class="hidden flex items-center gap-2">
+                             <button onclick="saveQuickQuoteChanges()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
+                                <span>💾</span> Guardar
+                            </button>
+                             <button onclick="toggleQuickQuoteMode(false)" class="text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-bold transition">
+                                Cancelar
+                            </button>
+                        </div>
+                        <button onclick="openAddAssetModal()" id="btn-add-asset" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
+                            <span>+</span> Nuevo Activo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <input type="text" id="asset-search" placeholder="🔎 Buscar activo por nombre..." oninput="renderAssetTable()" class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 dark:border-slate-600">
+                </div>
+
+                <div class="card overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-xs text-gray-500 uppercase border-b border-gray-200">
+                                    <th id="drag-handle-header" class="px-2" style="display: none;"></th>
+                                    <th class="px-6 py-3 font-semibold cursor-pointer hover:bg-gray-100 transition" onclick="sortTableBy('name')">Activo <span id="sort-name"></span></th>
+                                    <th class="px-6 py-3 text-right font-semibold cursor-pointer hover:bg-gray-100 transition" onclick="sortTableBy('invested')">Invertido <span id="sort-invested"></span></th>
+                                    <th class="px-6 py-3 text-right font-semibold cursor-pointer hover:bg-gray-100 transition" onclick="sortTableBy('current')">Actual <span id="sort-current"></span></th>
+                                    <th class="px-6 py-3 text-right font-semibold cursor-pointer hover:bg-gray-100 transition" onclick="sortTableBy('gain')">Rendimiento <span id="sort-gain"></span></th>
+                                    <th class="px-6 py-3 text-center font-semibold">Operar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="asset-list" class="text-sm divide-y divide-gray-100">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="simulator" class="tab-content fade-in space-y-6">
+                <div class="card max-w-3xl mx-auto p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Calculadora de Proyección</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 mt-6">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">Capital Inicial</label>
+                            <input type="text" id="sim-start" class="w-full p-3 bg-gray-100 border border-gray-200 rounded font-bold text-gray-600 cursor-not-allowed" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">Aporte Mensual ($)</label>
+                            <input type="number" id="sim-contrib" class="w-full p-3 border border-gray-300 rounded font-bold text-gray-800" value="1000000">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">Tasa Anual (%)</label>
+                            <input type="number" id="sim-rate" class="w-full p-3 border border-gray-300 rounded font-bold text-gray-800" value="15">
+                        </div>
+                    </div>
+                    <div class="mb-8 text-center">
+                        <button onclick="onClick_useHistoricalRate()" class="text-sm text-blue-600 font-semibold hover:underline">
+                            📊 Calcular y usar mi Tasa de Rendimiento Histórica
+                        </button>
+                    </div>
+                    <button onclick="runSimulation()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-lg hover:bg-slate-700 transition shadow-lg">Calcular Futuro</button>
+                    <div id="sim-output" class="hidden mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-gray-50 p-4 rounded border text-center"><div class="text-xs text-gray-400 font-bold uppercase">1 Mes</div><div class="text-lg font-bold text-blue-600" id="res-1m">...</div></div>
+                        <div class="bg-gray-50 p-4 rounded border text-center"><div class="text-xs text-gray-400 font-bold uppercase">1 Año</div><div class="text-lg font-bold text-green-600" id="res-1y">...</div></div>
+                        <div class="bg-gray-50 p-4 rounded border text-center"><div class="text-xs text-gray-400 font-bold uppercase">2 Años</div><div class="text-lg font-bold text-purple-600" id="res-2y">...</div></div>
+                        <div class="bg-gray-50 p-4 rounded border text-center"><div class="text-xs text-gray-400 font-bold uppercase">5 Años</div><div class="text-lg font-bold text-orange-600" id="res-5y">...</div></div>
+                    </div>
+                </div>
+                <div class="card max-w-3xl mx-auto p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Asistente de Aportes Mensuales</h2>
+                    <p class="text-sm text-gray-500 mb-6">Calcula cómo distribuir tu aporte mensual para seguir tu estrategia (35% Renta Fija USD, 35% Renta Variable Global y 30% Renta Variable AR).</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">Monto a Aportar ($)</label>
+                            <input type="number" id="contrib-amount" class="w-full p-3 border border-gray-300 rounded font-bold text-gray-800" value="1000000">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">&nbsp;</label>
+                            <button onclick="distributeContribution()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition shadow-lg">Distribuir Aporte</button>
+                        </div>
+                    </div>
+                    <div id="contrib-output" class="hidden mt-4 space-y-3">
+                        <h3 class="font-bold text-gray-700">Distribución Sugerida:</h3>
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                            <div class="text-sm font-bold text-blue-800">Renta Fija USD (35%)</div>
+                            <div class="text-2xl font-bold text-blue-900" id="contrib-rfu">...</div>
+                        </div>
+                        <div class="bg-sky-50 p-4 rounded-lg border border-sky-200">
+                            <div class="text-sm font-bold text-sky-800">Renta Variable Global (35%)</div>
+                            <div class="text-2xl font-bold text-sky-900" id="contrib-rvg">...</div>
+                        </div>
+                        <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                            <div class="text-sm font-bold text-indigo-800">Renta Variable AR (30%)</div>
+                            <div class="text-2xl font-bold text-indigo-900" id="contrib-rva">...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="snapshots" class="tab-content fade-in">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">Historial de Snapshots</h2>
+                    <button onclick="takeSnapshot()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
+                        <span>📸</span> Tomar Nuevo Snapshot
+                    </button>
+                </div>
+                <div id="snapshot-list" class="space-y-4">
+                    <!-- Snapshots will be rendered here by JavaScript -->
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="action-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-96 transform transition-all scale-100 border-t-4" id="modal-border-color">
+            <h3 class="text-lg font-bold text-gray-900 mb-1" id="modal-title">Título</h3>
+            <p class="text-sm text-gray-500 mb-4" id="modal-desc">Descripción</p>
+            <div id="modal-input-wrapper" class="mb-4">
+                <input type="number" id="modal-input" class="w-full p-3 border border-gray-300 rounded-lg text-xl font-bold focus:ring-2 focus:ring-blue-200 focus:border-blue-500" placeholder="$ 0">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeModal('action-modal')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium">Cancelar</button>
+                <button id="modal-reinvest-btn" class="hidden px-4 py-2 bg-blue-600 text-white rounded-lg font-bold shadow">Retirar y Reinvertir</button>
+                <button id="modal-confirm-btn" class="px-4 py-2 text-white rounded-lg font-bold shadow">Confirmar</button>
+            </div>
+        </div>
+    </div>
+    <div id="new-asset-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-96">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">✨ Agregar Nuevo Activo</h3>
+            <div class="space-y-4">
+                <div><label class="block text-xs font-bold text-gray-500 mb-1">Nombre</label><input type="text" id="new-name" class="w-full p-2 border rounded font-semibold"></div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Categoría de Mercado</label>
+                                <select id="new-cat" class="w-full p-2 border rounded bg-white" onchange="toggleCryptoFields('new')">
+                                    <option value="CEDEARs">CEDEARs</option><option value="FCI">FCI (Fondos)</option><option value="Acciones Arg">Acciones Arg</option><option value="ONs Dólar">ONs (Dólar)</option><option value="Cripto">Cripto</option><option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Categoría Estratégica</label>
+                                                <select id="new-strat" class="w-full p-2 border rounded bg-white">
+                                                    <option value="Renta Variable Global">Renta Variable Global (CEDEARs, etc)</option>
+                                                    <option value="Renta Variable AR">Renta Variable AR (Acciones)</option>
+                                                    <option value="Renta Fija USD">Renta Fija USD (ONs, etc)</option>
+                                                    <option value="Renta Fija Pesos">Renta Fija Pesos (Bonos CER, etc)</option>
+                                                    <option value="Renta Mixta">Renta Mixta (Balanceados)</option>
+                                                    <option value="Cripto">Cripto</option>
+                                                    <option value="Otro / No Asignada">Otro / No Asignada</option>
+                                                </select>
+                            </div>
+                            <div id="new-crypto-fields" class="hidden space-y-4">
+                                <div class="bg-blue-50 dark:bg-slate-700 p-3 rounded-lg mt-4">
+                                    <h4 class="font-bold text-sm text-blue-800 dark:text-blue-300 mb-2">Detalles Cripto</h4>
+                                    <div class="space-y-4">
+                                        <div><label class="block text-xs font-bold text-gray-500 mb-1">Símbolo (ej. BTC)</label><input type="text" id="new-crypto-symbol" placeholder="BTC" class="w-full p-2 border rounded font-semibold"></div>
+                                        <div><label class="block text-xs font-bold text-gray-500 mb-1">Monto en Criptomoneda</label><input type="number" id="new-crypto-amount" placeholder="0.5" class="w-full p-2 border rounded font-bold"></div>
+                                    </div>
+                                </div>
+                            </div>                <div><label class="block text-xs font-bold text-gray-500 mb-1">Monto Inicial ($)</label><input type="number" id="new-val" class="w-full p-2 border rounded font-bold"></div>
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button onclick="closeModal('new-asset-modal')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium">Cancelar</button>
+                <button onclick="confirmAddAsset()" class="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg font-bold shadow">Guardar</button>
+            </div>
+        </div>
+    </div>
+    <div id="edit-asset-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-96 border-t-4 border-yellow-500">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">✏️ Editar Detalles</h3>
+            <div class="space-y-4">
+                <div><label class="block text-xs font-bold text-gray-500 mb-1">Nombre</label><input type="text" id="edit-name" class="w-full p-2 border rounded font-semibold"></div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Categoría de Mercado</label>
+                                <select id="edit-cat" class="w-full p-2 border rounded bg-white" onchange="toggleCryptoFields('edit')">
+                                    <option value="CEDEARs">CEDEARs</option><option value="FCI">FCI (Fondos)</option><option value="Acciones Arg">Acciones Arg</option><option value="ONs Dólar">ONs (Dólar)</option><option value="Cripto">Cripto</option><option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Categoría Estratégica</label>
+                                                <select id="edit-strat" class="w-full p-2 border rounded bg-white">
+                                                    <option value="Renta Variable Global">Renta Variable Global (CEDEARs, etc)</option>
+                                                    <option value="Renta Variable AR">Renta Variable AR (Acciones)</option>
+                                                    <option value="Renta Fija USD">Renta Fija USD (ONs, etc)</option>
+                                                    <option value="Renta Fija Pesos">Renta Fija Pesos (Bonos CER, etc)</option>
+                                                    <option value="Renta Mixta">Renta Mixta (Balanceados)</option>
+                                                    <option value="Cripto">Cripto</option>
+                                                    <option value="Otro / No Asignada">Otro / No Asignada</option>
+                                                </select>
+                            </div>
+                            <div id="edit-crypto-fields" class="hidden space-y-4">
+                                <div class="bg-yellow-50 dark:bg-slate-700 p-3 rounded-lg mt-4">
+                                    <h4 class="font-bold text-sm text-yellow-800 dark:text-yellow-300 mb-2">Detalles Cripto</h4>
+                                    <div class="space-y-4">
+                                        <div><label class="block text-xs font-bold text-gray-500 mb-1">Símbolo (ej. BTC)</label><input type="text" id="edit-crypto-symbol" class="w-full p-2 border rounded font-semibold"></div>
+                                        <div><label class="block text-xs font-bold text-gray-500 mb-1">Monto en Criptomoneda</label><input type="number" id="edit-crypto-amount" class="w-full p-2 border rounded font-bold"></div>
+                                    </div>
+                                </div>
+                            </div>                <div class="bg-yellow-50 p-2 rounded text-xs text-yellow-800">⚠️ Nota: Para ajustar los montos, usa los botones de Inyectar/Retirar en la tabla.</div>
+            </div>
+            <div class="flex justify-between items-center mt-6">
+                <button onclick="deleteAsset()" class="text-red-500 text-xs font-bold hover:underline">🗑️ Eliminar Activo</button>
+                <div class="flex gap-2">
+                    <button onclick="closeModal('edit-asset-modal')" class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium text-sm">Cancelar</button>
+                    <button onclick="confirmEditAsset()" class="px-3 py-2 bg-yellow-500 text-white hover:bg-yellow-600 rounded-lg font-bold shadow text-sm">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="history-chart-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-6 w-full max-w-3xl border-t-4 border-gray-500 dark:border-gray-400">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold" id="history-chart-title">Historial del Activo</h3>
+                <button onclick="closeModal('history-chart-modal')" class="text-gray-500 hover:text-gray-800 dark:hover:text-white text-2xl font-bold">&times;</button>
+            </div>
+            <div class="relative h-96">
+                <canvas id="historyChart"></canvas>
+            </div>
+        </div>
+    <div id="reinvest-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-6 w-96 border-t-4 border-blue-500">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">💸 Reinvertir Fondos</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">Monto a Reinvertir</label>
+                    <input type="number" id="reinvest-amount" class="w-full p-2 border rounded font-bold bg-gray-100 dark:bg-slate-700" readonly>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">Seleccionar Activo de Destino</label>
+                    <select id="reinvest-asset-select" class="w-full p-2 border rounded bg-white dark:bg-slate-700">
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button onclick="closeModal('reinvest-modal')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700 rounded-lg font-medium">Cancelar</button>
+                <button onclick="confirmReinvestment()" class="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg font-bold shadow">Reinvertir</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA INICIAL ---
+        const startData = [];
+
+        let assets = [];
+        let logs = [];
+        let activeId = null;
+        let chartRef = null, evolutionChartRef = null, sortColumn = 'manual', sortDir = 'desc', snapshots = [];
+        let sortableInstance = null;
+        let isReorderMode = false;
+
+        const moonIcon = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>`;
+        const sunIcon = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM5.636 5.636a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zM2 10a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 012 10zm1.06-4.364a.75.75 0 011.06 0l1.06 1.06a.75.75 0 11-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zM10 18a.75.75 0 01.75-.75v-1.5a.75.75 0 01-1.5 0v1.5A.75.75 0 0110 18zm3.364-1.06a.75.75 0 010-1.06l-1.06-1.06a.75.75 0 11-1.06 1.06l1.06 1.06a.75.75 0 011.06 0zm1.06-10.607a.75.75 0 010 1.06l-1.06 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zM18 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zm-4.364 4.364a.75.75 0 010 1.06l-1.06 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0z" clip-rule="evenodd"></path></svg>`;
+
+        function updateThemeIcon() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const iconContainer = document.getElementById('theme-icon');
+            if(iconContainer) iconContainer.innerHTML = isDark ? sunIcon : moonIcon;
+        }
+
+        function toggleCryptoFields(prefix) {
+            const catSelect = document.getElementById(`${prefix}-cat`);
+            const cryptoFields = document.getElementById(`${prefix}-crypto-fields`);
+            if (!catSelect || !cryptoFields) return;
+            const isVisible = catSelect.value === 'Cripto';
+            cryptoFields.classList.toggle('hidden', !isVisible);
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('pm26_theme_v1', isDark ? 'dark' : 'light');
+            updateThemeIcon();
+        }
+
+        let isQuickQuoteMode = false;
+
+        function toggleQuickQuoteMode(enterMode) {
+            if (isReorderMode) return;
+            isQuickQuoteMode = enterMode;
+
+            document.getElementById('btn-quick-quote-on').classList.toggle('hidden', enterMode);
+            document.getElementById('btn-reorder').classList.toggle('hidden', enterMode);
+            document.getElementById('btn-add-asset').classList.toggle('hidden', enterMode);
+            document.getElementById('quick-quote-actions').classList.toggle('hidden', !enterMode);
+
+            renderAssetTable();
+        }
+
+        function toggleReorderMode() {
+            isReorderMode = !isReorderMode;
+            sortableInstance.option('disabled', !isReorderMode);
+
+            const btn = document.getElementById('btn-reorder');
+            btn.classList.toggle('bg-blue-600', isReorderMode);
+            btn.classList.toggle('text-white', isReorderMode);
+            btn.classList.toggle('bg-gray-200', !isReorderMode);
+            btn.classList.toggle('text-gray-800', !isReorderMode);
+            btn.innerHTML = isReorderMode 
+                ? `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Finalizar`
+                : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg> Reordenar`;
+
+            document.getElementById('btn-quick-quote-on').classList.toggle('hidden', isReorderMode);
+            document.getElementById('btn-add-asset').classList.toggle('hidden', isReorderMode);
+
+            if (isReorderMode) {
+                sortColumn = 'manual';
+            }
+            renderAssetTable();
+        }
+
+
+        function saveQuickQuoteChanges() {
+            const inputs = document.querySelectorAll('.quick-quote-input');
+            let changesMade = 0;
+            
+            inputs.forEach(input => {
+                const assetId = parseInt(input.dataset.id, 10);
+                const newValue = parseFloat(input.value);
+                const asset = assets.find(a => a.id === assetId);
+
+                if (asset && !isNaN(newValue) && asset.current !== newValue) {
+                    const diff = newValue - asset.current;
+                    addLog(`📈 Cotización Rápida: ${asset.name} ${diff >= 0 ? 'subió' : 'bajó'} ${fmt(Math.abs(diff))}. Nuevo valor: ${fmt(newValue)}`);
+                    asset.current = newValue;
+                    changesMade++;
+                }
+            });
+
+            if (changesMade > 0) {
+                saveData();
+            }
+            
+            toggleQuickQuoteMode(false);
+        }
+
+        function init() {
+            const savedData = localStorage.getItem('pm26_assets_v4');
+            const savedSort = localStorage.getItem('pm26_sort_v1');
+
+            if (savedData) {
+                assets = JSON.parse(savedData);
+                assets.forEach(a => {
+                    if (!a.strat) a.strat = 'No Asignada';
+                });
+                logs = JSON.parse(localStorage.getItem('pm26_logs_v4') || '[]');
+            } else {
+                assets = JSON.parse(JSON.stringify(startData));
+                addLog("✨ Sistema v4.2 inicializado.");
+            }
+
+            if (savedSort) {
+                const { col, dir } = JSON.parse(savedSort);
+                sortColumn = col;
+                sortDir = dir;
+            } else {
+                sortColumn = 'manual'; // Default to manual order
+                sortDir = 'desc';
+            }
+
+            snapshots = JSON.parse(localStorage.getItem('pm26_snapshots_v1') || '[]');
+            
+            updateThemeIcon();
+            initSortable();
+            refreshUI();
+        }
+        
+        function initSortable() {
+            const tbody = document.getElementById('asset-list');
+            sortableInstance = new Sortable(tbody, {
+                animation: 150,
+                disabled: true, // Start disabled
+                handle: '.drag-handle',
+                onEnd: function (evt) {
+                    const newOrderIds = this.toArray();
+                    const assetMap = new Map(assets.map(a => [a.id.toString(), a]));
+                    const reorderedAssets = newOrderIds.map(id => assetMap.get(id)).filter(Boolean);
+
+                    if (reorderedAssets.length === assets.length) {
+                        assets = reorderedAssets;
+                        sortColumn = 'manual'; // Set to manual to reflect the new state
+                        saveData(); // This calls refreshUI
+                    } else {
+                        console.error("Reordering failed: asset mismatch.");
+                        refreshUI(); // Re-render to correct any visual glitches
+                    }
+                }
+            });
+        }
+
+
+        function renderSnapshotWinnersLosers() {
+            const winnersContainer = document.getElementById('winners-list-snapshot');
+            const losersContainer = document.getElementById('losers-list-snapshot');
+            if (!winnersContainer || !losersContainer) return;
+
+            const performance = calculateHistoricalPerformance();
+            let winnersHtml = '';
+            let losersHtml = '';
+
+            if (performance && performance.lastPeriod && (performance.lastPeriod.winners.length > 0 || performance.lastPeriod.losers.length > 0)) {
+                if (performance.lastPeriod.winners.length > 0) {
+                    performance.lastPeriod.winners.forEach(w => {
+                        winnersHtml += `<div class="flex justify-between items-center p-1 rounded hover:bg-gray-50 dark:hover:bg-slate-700"><span class="font-semibold truncate pr-2" title="${w.name}">${w.name}</span> <span class="font-mono text-emerald-500 text-xs">+${fmt(w.change)}</span></div>`;
+                    });
+                } else {
+                    winnersHtml = '<div class="text-xs text-gray-400">Sin subas.</div>';
+                }
+
+                if (performance.lastPeriod.losers.length > 0) {
+                    performance.lastPeriod.losers.forEach(l => {
+                        losersHtml += `<div class="flex justify-between items-center p-1 rounded hover:bg-gray-50 dark:hover:bg-slate-700"><span class="font-semibold truncate pr-2" title="${l.name}">${l.name}</span> <span class="font-mono text-red-500 text-xs">${fmt(l.change)}</span></div>`;
+                    });
+                } else {
+                    losersHtml = '<div class="text-xs text-gray-400">Sin bajas.</div>';
+                }
+
+            } else {
+                const noDataMsg = '<div class="text-xs text-gray-400">Se necesitan al menos 2 snapshots.</div>';
+                winnersHtml = noDataMsg;
+                losersHtml = noDataMsg;
+            }
+            winnersContainer.innerHTML = winnersHtml;
+            losersContainer.innerHTML = losersHtml;
+        }
+
+        function renderHistoricalWinnersLosers() {
+            const winnersContainer = document.getElementById('winners-list-historical');
+            const losersContainer = document.getElementById('losers-list-historical');
+            if (!winnersContainer || !losersContainer) return;
+
+            const changes = assets.map(asset => ({
+                name: asset.name,
+                change: asset.current - asset.invested
+            })).filter(c => c.change !== 0);
+
+            changes.sort((a, b) => b.change - a.change);
+
+            const winners = changes.filter(c => c.change > 0).slice(0, 5);
+            const losers = changes.filter(c => c.change < 0).reverse().slice(0, 5);
+
+            let winnersHtml = '';
+            if (winners.length > 0) {
+                winners.forEach(w => {
+                    winnersHtml += `<div class="flex justify-between items-center p-1 rounded hover:bg-gray-50 dark:hover:bg-slate-700"><span class="font-semibold truncate pr-2" title="${w.name}">${w.name}</span> <span class="font-mono text-emerald-500 text-xs">+${fmt(w.change)}</span></div>`;
+                });
+            } else {
+                winnersHtml = '<div class="text-xs text-gray-400">Sin rendimientos positivos.</div>';
+            }
+
+            let losersHtml = '';
+            if (losers.length > 0) {
+                losers.forEach(l => {
+                    losersHtml += `<div class="flex justify-between items-center p-1 rounded hover:bg-gray-50 dark:hover:bg-slate-700"><span class="font-semibold truncate pr-2" title="${l.name}">${l.name}</span> <span class="font-mono text-red-500 text-xs">${fmt(l.change)}</span></div>`;
+                });
+            } else {
+                losersHtml = '<div class="text-xs text-gray-400">Sin rendimientos negativos.</div>';
+            }
+            
+            winnersContainer.innerHTML = winnersHtml;
+            losersContainer.innerHTML = losersHtml;
+        }
+
+        function refreshUI() { renderAssetTable(); updateDashboard(); updateTWRR(); renderChart(); renderLogs(); renderEvolutionChart(); renderSnapshotWinnersLosers(); renderHistoricalWinnersLosers(); }
+        function saveData() { 
+            localStorage.setItem('pm26_assets_v4', JSON.stringify(assets)); 
+            localStorage.setItem('pm26_logs_v4', JSON.stringify(logs)); 
+            if (sortColumn !== 'manual') {
+                localStorage.setItem('pm26_sort_v1', JSON.stringify({ col: sortColumn, dir: sortDir }));
+            } else {
+                localStorage.removeItem('pm26_sort_v1');
+            }
+            refreshUI(); 
+        }
+
+        // --- RENDER TABLE ---
+        function renderAssetTable() {
+            // --- Sort data before rendering ---
+            let assetsToRender = [...assets];
+            const searchTerm = document.getElementById('asset-search').value.toLowerCase();
+            if (searchTerm) {
+                assetsToRender = assetsToRender.filter(a => a.name.toLowerCase().includes(searchTerm));
+            }
+
+            if (sortColumn !== 'manual') {
+                assetsToRender.sort((a, b) => {
+                    let valA, valB;
+                    if (sortColumn === 'gain') {
+                        valA = a.current - a.invested;
+                        valB = b.current - b.invested;
+                    } else if (sortColumn === 'name') {
+                        valA = a.name;
+                        valB = b.name;
+                    } else {
+                        valA = a[column];
+                        valB = b[column];
+                    }
+                    if (typeof valA === 'string') {
+                        return sortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    } else {
+                        return sortDir === 'asc' ? valA - valB : valB - valA;
+                    }
+                });
+            }
+
+            // --- Sort indicators ---
+            document.querySelectorAll('th[onclick]').forEach(th => {
+                th.classList.remove('bg-gray-100');
+                const span = th.querySelector('span');
+                if(span) span.innerHTML = '';
+            });
+            
+            if (sortColumn !== 'manual') {
+                const activeTh = document.querySelector(`th[onclick*="'${sortColumn}'"]`);
+                if (activeTh) {
+                    activeTh.classList.add('bg-gray-100');
+                    const activeSpan = activeTh.querySelector('span');
+                    if (activeSpan) {
+                        const arrow = sortDir === 'asc' ? '▲' : '▼';
+                        activeSpan.innerHTML = ` <span class="text-blue-600 dark:text-blue-400">${arrow}</span>`;
+                    }
+                }
+            }
+
+            // --- Quick Quote Mode header visibility ---
+            document.querySelector("th[onclick*='gain']").style.display = isQuickQuoteMode ? 'none' : '';
+            document.querySelector("th:last-child").style.display = isQuickQuoteMode ? 'none' : '';
+            
+            const tbody = document.getElementById('asset-list');
+            tbody.classList.toggle('reorder-mode', isReorderMode);
+            let tableHTML = '';
+
+            assetsToRender.forEach(a => {
+                const gain = a.current - a.invested;
+                const pct = a.invested > 0 ? (gain / a.invested * 100) : 0;
+                const color = gain >= 0 ? 'text-emerald-600' : 'text-red-600';
+                const sign = gain >= 0 ? '+' : '';
+
+                const stratColors = {
+                    "Renta Variable Global": "bg-sky-100 text-sky-800",
+                    "Renta Variable AR": "bg-indigo-100 text-indigo-800",
+                    "Renta Fija USD": "bg-blue-100 text-blue-800",
+                    "Renta Fija Pesos": "bg-orange-100 text-orange-800",
+                    "Renta Mixta": "bg-purple-100 text-purple-800",
+                    "Cripto": "bg-yellow-100 text-yellow-800",
+                    "Otro / No Asignada": "bg-gray-100 text-gray-800"
+                };
+                const stratColorClass = stratColors[a.strat] || stratColors["Otro / No Asignada"];
+                
+                const performanceData = calculateHistoricalPerformance();
+                let cagrHTML = '';
+                if (performanceData && performanceData.assetCAGRs && performanceData.assetCAGRs[a.id] !== undefined && isFinite(performanceData.assetCAGRs[a.id])) {
+                    const cagr = performanceData.assetCAGRs[a.id];
+                    const cagrPct = cagr * 100;
+                    const cagrColor = cagrPct >= 0 ? 'text-blue-500' : 'text-red-500';
+                    cagrHTML = `<div class="text-xs font-mono ${cagrColor} mt-1" title="Rendimiento Anualizado Histórico (CAGR)">TCA: ${cagrPct.toFixed(1)}%</div>`;
+                }
+
+                const rowClick = isQuickQuoteMode || isReorderMode ? '' : `onclick="openHistoryChartModal(${a.id})"`;
+                let rowClass = isQuickQuoteMode ? 'bg-yellow-50 ' : 'bg-white hover:bg-gray-50 border-b ';
+                rowClass += isReorderMode ? '' : 'cursor-pointer';
+
+                const dragHandleHTML = isReorderMode ? '<td class="drag-handle px-2 text-center cursor-grab text-gray-400">⠿</td>' : '';
+                
+                let firstColSpan = isReorderMode ? 'colspan="1"' : '';
+                
+                const isCrypto = a.cat === 'Cripto' && a.cryptoSymbol && a.cryptoAmount != null;
+
+                tableHTML += `
+                    <tr class="${rowClass}" ${rowClick} data-id="${a.id}">
+                        ${dragHandleHTML}
+                        <td class="px-6 py-4" ${firstColSpan}>
+                            <div class="font-bold text-gray-800">${a.name} ${isCrypto ? `<span class="text-gray-400 font-normal">(${a.cryptoSymbol})</span>` : ''}</div>
+                             <div class="flex items-center gap-2 mt-1">
+                                <span class="text-xs font-medium text-gray-500">${a.cat}</span>
+                                <span class="text-xs font-bold px-2 py-0.5 rounded-full ${stratColorClass}">${a.strat}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-right font-mono text-gray-500">${fmt(a.invested)}</td>
+                        ${isQuickQuoteMode 
+                            ? `<td class="px-6 py-4 text-right"><input type="number" step="any" value="${a.current}" data-id="${a.id}" class="quick-quote-input w-32 p-2 border rounded bg-white text-right font-mono font-bold"></td>`
+                            : isCrypto
+                            ? `<td class="px-6 py-4 text-right">
+                                <div class="font-mono font-bold text-gray-800 text-lg">${a.cryptoAmount.toLocaleString('es-AR', {maximumFractionDigits: 6})} ${a.cryptoSymbol}</div>
+                                <div class="font-mono text-gray-500 text-sm">${fmt(a.current)}</div>
+                               </td>`
+                            : `<td class="px-6 py-4 text-right font-mono font-bold text-gray-800 text-lg">${fmt(a.current)}</td>`
+                        }
+                        ${isQuickQuoteMode || isReorderMode ? '<td class="hidden"></td>' : `
+                        <td class="px-6 py-4 text-right">
+                            <div class="font-bold ${color}">${sign}${fmt(gain)}</div>
+                            <div class="text-xs ${color} font-semibold">${sign}${pct.toFixed(2)}%</div>
+                            ${cagrHTML}
+                        </td>`}
+                        ${isQuickQuoteMode || isReorderMode ? '<td class="hidden"></td>' : `
+                        <td class="px-6 py-4 flex justify-center gap-2" onclick="event.stopPropagation()">
+                            <button onclick="openActionModal('quote', ${a.id})" class="btn-icon p-2 bg-white border border-gray-300 rounded-full hover:bg-gray-100 text-gray-600 shadow-sm" title="Cotización">📈</button>
+                            <button onclick="openActionModal('inject', ${a.id})" class="btn-icon p-2 bg-emerald-50 border-emerald-200 rounded-full hover:bg-emerald-100 text-emerald-600 shadow-sm" title="Inyectar">➕</button>
+                            <button onclick="openActionModal('withdraw', ${a.id})" class="btn-icon p-2 bg-orange-50 border-orange-200 rounded-full hover:bg-orange-100 text-orange-600 shadow-sm" title="Retirar">➖</button>
+                            <button onclick="openActionModal('edit_invested', ${a.id})" class="btn-icon p-2 bg-yellow-50 border-yellow-200 rounded-full hover:bg-yellow-100 text-yellow-600 shadow-sm" title="Corregir Inversión Inicial">📝</button>
+                            <button onclick="openEditModal(${a.id})" class="btn-icon p-2 bg-gray-50 border-gray-200 rounded-full hover:bg-gray-200 text-gray-500 shadow-sm" title="Editar">⚙️</button>
+                        </td>`}
+                    </tr>
+                `;
+            });
+            const filteredTotalInvested = assetsToRender.reduce((sum, a) => sum + a.invested, 0);
+            const filteredTotalCurrent = assetsToRender.reduce((sum, a) => sum + a.current, 0);
+
+            // --- TOTAL ROW ---
+            const totalInvested = filteredTotalInvested;
+            const totalCurrent = filteredTotalCurrent;
+            const totalGain = totalCurrent - totalInvested;
+            const totalPct = totalInvested > 0 ? (totalGain / totalInvested * 100) : 0;
+            const totalColor = totalGain >= 0 ? 'text-emerald-600' : 'text-red-600';
+            const totalSign = totalGain >= 0 ? '+' : '';
+
+             const totalColspan = isReorderMode ? 'colspan="2"' : '';
+
+            tableHTML += `
+                <tr class="bg-slate-50 font-bold border-t-2 border-slate-300">
+                    <td class="px-6 py-4 text-gray-800" ${totalColspan}>TOTALES (VISIBLES)</td>
+                    <td class="px-6 py-4 text-right font-mono text-gray-800">${fmt(totalInvested)}</td>
+                    <td class="px-6 py-4 text-right font-mono text-gray-900 text-lg">${fmt(totalCurrent)}</td>
+                    ${isQuickQuoteMode || isReorderMode ? '<td class="hidden"></td><td class="hidden"></td>' : `
+                    <td class="px-6 py-4 text-right">
+                        <div class="font-bold ${totalColor}">${totalSign}${fmt(totalGain)}</div>
+                        <div class="text-xs ${totalColor} font-semibold">${totalSign}${totalPct.toFixed(2)}%</div>
+                    </td>
+                    <td class="px-6 py-4"></td>
+                    `}
+                </tr>
+            `;
+
+            tbody.innerHTML = tableHTML;
+            
+            const headers = document.querySelectorAll("#portfolio thead th[onclick]");
+            headers.forEach(th => {
+                th.style.cursor = isReorderMode ? 'not-allowed' : 'pointer';
+            });
+            
+            // Manage visibility of the drag handle column header
+            const dragHeader = document.getElementById('drag-handle-header');
+             if (dragHeader) {
+                dragHeader.style.display = isReorderMode ? '' : 'none';
+            }
+        }
+
+
+        // --- DASHBOARD ---
+        function updateDashboard() {
+            const totalInv = assets.reduce((s, a) => s + a.invested, 0);
+            const totalCur = assets.reduce((s, a) => s + a.current, 0);
+            const gain = totalCur - totalInv;
+            const pct = totalInv > 0 ? (gain / totalInv * 100) : 0;
+
+            document.getElementById('dash-total').innerText = fmt(totalCur);
+            document.getElementById('dash-invested').innerText = fmt(totalInv);
+            document.getElementById('dash-gain').innerText = (gain>=0?'+':'') + fmt(gain);
+            document.getElementById('dash-gain-pct').innerText = pct.toFixed(2) + '%';
+            document.getElementById('sim-start').value = fmt(totalCur);
+        }
+
+        // --- CHART & CUSTOM LEGEND (LA MEJORA CLAVE) ---
+        function renderChart() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            const legendContainer = document.getElementById('custom-legend');
+
+            // 1. Preparar datos y ORDENAR de Mayor a Menor (para que la leyenda tenga sentido)
+            const sortedAssets = [...assets].sort((a, b) => b.current - a.current);
+            
+            // Total para %
+            const total = sortedAssets.reduce((sum, a) => sum + a.current, 0);
+
+            // Colores automáticos
+            const colors = sortedAssets.map((_, i) => `hsl(${(i * 137.508) % 360}, 65%, 50%)`);
+
+            // 2. Gráfico (SIN Leyenda)
+            if(chartRef) chartRef.destroy();
+            chartRef = new Chart(ctx, { 
+                type: 'doughnut', 
+                data: { 
+                    labels: sortedAssets.map(a => a.name), 
+                    datasets: [{ 
+                        data: sortedAssets.map(a => a.current), 
+                        backgroundColor: colors, 
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }] 
+                }, 
+                options: { 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false }, // Ocultamos la nativa
+                        tooltip: { callbacks: { label: function(c) { return ' ' + c.label + ': ' + fmt(c.parsed); } } }
+                    },
+                    layout: { padding: 10 }
+                } 
+            });
+
+            // 3. Generar Leyenda HTML (Lista Scrolleable)
+            if (legendContainer) {
+                legendContainer.innerHTML = sortedAssets.map((a, i) => {
+                    const pct = total > 0 ? (a.current / total * 100).toFixed(1) : 0;
+                    return `
+                        <div class="flex justify-between items-center mb-2 p-2 hover:bg-gray-50 rounded text-sm border-b border-gray-100 last:border-0 group">
+                            <div class="flex items-center gap-2 overflow-hidden">
+                                <span class="w-3 h-3 rounded-full flex-shrink-0 shadow-sm" style="background-color: ${colors[i]}"></span>
+                                <div class="truncate">
+                                    <div class="font-bold text-gray-700 truncate" title="${a.name}">${a.name}</div>
+                                    <div class="text-xs text-gray-400 truncate">${a.cat}</div>
+                                </div>
+                            </div>
+                            <div class="text-right flex-shrink-0 ml-2">
+                                <div class="font-mono font-bold text-gray-700">${fmt(a.current)}</div>
+                                <div class="text-xs text-blue-600 font-bold bg-blue-50 px-1 rounded inline-block">${pct}%</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderEvolutionChart() {
+            const ctx = document.getElementById('evolutionChart').getContext('2d');
+            if(evolutionChartRef) evolutionChartRef.destroy();
+
+            if (snapshots.length < 2) {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = '14px "Segoe UI"';
+                ctx.fillStyle = 'rgb(107, 114, 128)'; // text-gray-500
+                ctx.fillText("Toma al menos 2 snapshots para ver la evolución.", ctx.canvas.width / 2, ctx.canvas.height / 2);
+                ctx.restore();
+                return;
+            }
+
+            const sortedSnaps = [...snapshots].sort((a, b) => a.id - b.id);
+
+            const labels = sortedSnaps.map(snap => new Date(snap.id).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' }));
+            const data = sortedSnaps.map(snap => snap.totalCurrent);
+
+            evolutionChartRef = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Patrimonio Total',
+                        data: data,
+                        fill: true,
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        tension: 0.1,
+                        pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return fmt(value);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(c) {
+                                    return ' Patrimonio: ' + fmt(c.parsed.y);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function openActionModal(type, id) {
+            document.body.classList.add('overflow-hidden-body');
+            activeId = id;
+            const item = assets.find(a => a.id === id);
+            const modal = document.getElementById('action-modal');
+            const inputWrapper = document.getElementById('modal-input-wrapper');
+            const btn = document.getElementById('modal-confirm-btn');
+            const reinvestBtn = document.getElementById('modal-reinvest-btn');
+            const border = document.getElementById('modal-border-color');
+            const title = document.getElementById('modal-title');
+            const desc = document.getElementById('modal-desc');
+
+            modal.classList.remove('hidden');
+            inputWrapper.innerHTML = ''; // Clear previous inputs
+            reinvestBtn.classList.add('hidden');
+
+            const isCrypto = item.cat === 'Cripto';
+
+            if ((type === 'inject' || type === 'withdraw') && isCrypto) {
+                const actionText = type === 'inject' ? 'Inyectar' : 'Retirar';
+                const actionIcon = type === 'inject' ? '➕' : '➖';
+                title.innerText = `${actionIcon} ${actionText} Cripto`;
+                desc.innerHTML = `Operar con ${item.name} (${item.cryptoSymbol})`;
+
+                inputWrapper.innerHTML = `
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">Monto en ${item.cryptoSymbol}</label>
+                            <input type="number" id="modal-crypto-amount" class="w-full p-3 border rounded-lg text-xl font-bold" placeholder="0.0">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">Costo / Valor en Pesos ($)</label>
+                            <input type="number" id="modal-pesos-amount" class="w-full p-3 border rounded-lg text-xl font-bold" placeholder="$ 0">
+                        </div>
+                    </div>
+                `;
+
+                btn.onclick = (type === 'inject') ? applyInjection : applyWithdraw;
+                btn.className = `px-4 py-2 text-white rounded-lg font-bold shadow ${type === 'inject' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-orange-500 hover:bg-orange-600'}`;
+                border.className = `bg-white rounded-xl shadow-2xl p-6 w-96 transform transition-all scale-100 border-t-4 ${type === 'inject' ? 'border-emerald-500' : 'border-orange-500'}`;
+                
+                if (type === 'withdraw') {
+                    reinvestBtn.classList.remove('hidden');
+                    reinvestBtn.onclick = () => applyWithdrawAndReinvest(item.id);
+                }
+                
+                document.getElementById('modal-crypto-amount').focus();
+
+            } else {
+                // Standard actions for non-crypto, or 'quote' for any asset
+                inputWrapper.innerHTML = '<input type="number" id="modal-input" class="w-full p-3 border border-gray-300 rounded-lg text-xl font-bold" placeholder="$ 0">';
+                const input = document.getElementById('modal-input');
+                input.value = '';
+                
+                if (type === 'quote') {
+                    title.innerText = "📈 Actualizar Cotización";
+                    desc.innerHTML = `Actual: ${fmt(item.current)}. Ingresa nuevo total.`;
+                    input.value = item.current;
+                    btn.onclick = applyQuote;
+                    btn.className = "px-4 py-2 bg-blue-600 text-white rounded-lg font-bold shadow";
+                    border.className = "bg-white rounded-xl shadow-2xl p-6 w-96 transform transition-all scale-100 border-t-4 border-blue-500";
+                } else if (type === 'inject') {
+                    title.innerText = "➕ Inyectar Capital";
+                    desc.innerHTML = `Agregar dinero a ${item.name}.`;
+                    btn.onclick = applyInjection;
+                    btn.className = "px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold shadow";
+                    border.className = "bg-white rounded-xl shadow-2xl p-6 w-96 transform transition-all scale-100 border-t-4 border-emerald-500";
+                } else if (type === 'withdraw') {
+                    title.innerText = "➖ Retirar Dinero";
+                    desc.innerHTML = `Sacar dinero de ${item.name}.`;
+                    btn.onclick = applyWithdraw;
+                    btn.className = "px-4 py-2 bg-orange-500 text-white rounded-lg font-bold shadow";
+                    reinvestBtn.classList.remove('hidden');
+                    reinvestBtn.onclick = () => applyWithdrawAndReinvest(item.id);
+                    border.className = "bg-white rounded-xl shadow-2xl p-6 w-96 transform transition-all scale-100 border-t-4 border-orange-500";
+                } else if (type === 'edit_invested') {
+                    title.innerText = "📝 Corregir Inversión Inicial";
+                    desc.innerHTML = `Inversión inicial actual: ${fmt(item.invested)}. Ingrese el valor correcto.`;
+                    input.value = item.invested;
+                    btn.onclick = applyEditInvested;
+                    btn.className = "px-4 py-2 bg-yellow-500 text-white hover:bg-yellow-600 rounded-lg font-bold shadow";
+                    border.className = "bg-white rounded-xl shadow-2xl p-6 w-96 transform transition-all scale-100 border-t-4 border-yellow-500";
+                }
+                input.focus();
+            }
+        }
+
+                function applyQuote() { 
+            const v = parseFloat(document.getElementById('modal-input').value); 
+            if (isNaN(v)) return; 
+            const a = assets.find(x => x.id === activeId); 
+            const diff = v - a.current;
+            addLog(`📈 Cotización: ${a.name} ${diff >= 0 ? 'subió' : 'bajó'} ${fmt(Math.abs(diff))}. Nuevo valor: ${fmt(v)}`, 'quote');
+            a.current = v; 
+            saveData(); 
+            closeModal('action-modal'); 
+        }
+        function applyEditInvested() {
+            const v = parseFloat(document.getElementById('modal-input').value);
+            if (isNaN(v) || v < 0) {
+                alert("Por favor ingrese un valor numérico válido y positivo.");
+                return;
+            }
+            const a = assets.find(x => x.id === activeId);
+            const oldValue = a.invested;
+            a.invested = v;
+            addLog(`📝 Inversión inicial de '${a.name}' corregida de ${fmt(oldValue)} a ${fmt(v)}.`, 'edit');
+            saveData();
+            closeModal('action-modal');
+        }
+        function applyInjection() {
+            const a = assets.find(x => x.id === activeId);
+            if (!a) return;
+
+            if (a.cat === 'Cripto') {
+                const cryptoAmount = parseFloat(document.getElementById('modal-crypto-amount').value);
+                const pesosAmount = parseFloat(document.getElementById('modal-pesos-amount').value);
+                if (isNaN(cryptoAmount) || isNaN(pesosAmount) || cryptoAmount <= 0 || pesosAmount <= 0) {
+                    alert("Por favor, ingrese un monto de cripto y un costo en pesos válidos.");
+                    return;
+                }
+                a.cryptoAmount += cryptoAmount;
+                a.invested += pesosAmount;
+                a.current += pesosAmount;
+                addLog(`➕ Inyección de ${cryptoAmount.toLocaleString('es-AR', {maximumFractionDigits: 6})} ${a.cryptoSymbol} (${fmt(pesosAmount)}) en ${a.name}.`, 'injection', pesosAmount);
+            } else {
+                const v = parseFloat(document.getElementById('modal-input').value);
+                if (isNaN(v) || v <= 0) return;
+                a.invested += v;
+                a.current += v;
+                addLog(`➕ Inyección de ${fmt(v)} en ${a.name}.`, 'injection', v);
+            }
+            saveData();
+            closeModal('action-modal');
+        }
+        function applyWithdraw() {
+            const a = assets.find(x => x.id === activeId);
+            if (!a) return;
+
+            let pesosAmount;
+            if (a.cat === 'Cripto') {
+                const cryptoAmount = parseFloat(document.getElementById('modal-crypto-amount').value);
+                pesosAmount = parseFloat(document.getElementById('modal-pesos-amount').value);
+                if (isNaN(cryptoAmount) || isNaN(pesosAmount) || cryptoAmount <= 0 || pesosAmount <= 0) {
+                    alert("Por favor, ingrese un monto de cripto y un valor en pesos válidos.");
+                    return;
+                }
+                if (cryptoAmount > a.cryptoAmount) {
+                    alert("No se puede retirar más criptomonedas de las que posee.");
+                    return;
+                }
+                if (pesosAmount > a.current) {
+                    alert("El valor en pesos del retiro no puede ser mayor al valor actual del activo.");
+                    return;
+                }
+                a.cryptoAmount -= cryptoAmount;
+                a.invested -= pesosAmount;
+                a.current -= pesosAmount;
+                addLog(`➖ Retiro de ${cryptoAmount.toLocaleString('es-AR', {maximumFractionDigits: 6})} ${a.cryptoSymbol} (${fmt(pesosAmount)}) de ${a.name}.`, 'withdraw', -pesosAmount);
+            } else {
+                pesosAmount = parseFloat(document.getElementById('modal-input').value);
+                if (isNaN(pesosAmount) || pesosAmount <= 0) return;
+                if (pesosAmount > a.current) {
+                    alert("No se puede retirar más del valor actual del activo.");
+                    return;
+                }
+                a.invested -= pesosAmount;
+                a.current -= pesosAmount;
+                addLog(`➖ Retiro de ${fmt(pesosAmount)} de ${a.name}.`, 'withdraw', -pesosAmount);
+            }
+            saveData();
+            closeModal('action-modal');
+        }
+
+        function applyWithdrawAndReinvest(sourceAssetId) {
+            const a = assets.find(x => x.id === sourceAssetId);
+            if (!a) return;
+            
+            let pesosToReinvest;
+
+            if (a.cat === 'Cripto') {
+                const cryptoAmount = parseFloat(document.getElementById('modal-crypto-amount').value);
+                pesosToReinvest = parseFloat(document.getElementById('modal-pesos-amount').value);
+                 if (isNaN(cryptoAmount) || isNaN(pesosToReinvest) || cryptoAmount <= 0 || pesosToReinvest <= 0) {
+                    alert("Por favor, ingrese montos válidos.");
+                    return;
+                }
+                if (cryptoAmount > a.cryptoAmount || pesosToReinvest > a.current) {
+                    alert("No se puede retirar más del valor actual del activo.");
+                    return;
+                }
+                a.cryptoAmount -= cryptoAmount;
+                a.invested -= pesosToReinvest;
+                a.current -= pesosToReinvest;
+                addLog(`➖💸 Retiro para reinversión de ${cryptoAmount.toLocaleString('es-AR', {maximumFractionDigits: 6})} ${a.cryptoSymbol} (${fmt(pesosToReinvest)}) de ${a.name}.`, 'withdraw', -pesosToReinvest);
+            } else {
+                pesosToReinvest = parseFloat(document.getElementById('modal-input').value);
+                if (isNaN(pesosToReinvest) || pesosToReinvest <= 0) {
+                     alert("Por favor, ingrese un monto válido.");
+                    return;
+                }
+                if (pesosToReinvest > a.current) {
+                    alert("No se puede retirar más del valor actual del activo.");
+                    return;
+                }
+                a.invested -= pesosToReinvest;
+                a.current -= pesosToReinvest;
+                addLog(`➖💸 Retiro para reinversión de ${fmt(pesosToReinvest)} de ${a.name}.`, 'withdraw', -pesosToReinvest);
+            }
+            
+            saveData();
+            closeModal('action-modal');
+            openReinvestModal(pesosToReinvest, sourceAssetId);
+        }
+
+        function openReinvestModal(amount, sourceAssetId) {
+            document.body.classList.add('overflow-hidden-body');
+            const modal = document.getElementById('reinvest-modal');
+            modal.classList.remove('hidden');
+
+            document.getElementById('reinvest-amount').value = amount;
+            
+            const select = document.getElementById('reinvest-asset-select');
+            select.innerHTML = '';
+            assets.forEach(asset => {
+                if (asset.id !== sourceAssetId) {
+                    const option = document.createElement('option');
+                    option.value = asset.id;
+                    option.innerText = asset.name;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function confirmReinvestment() {
+            const amount = parseFloat(document.getElementById('reinvest-amount').value);
+            const targetAssetId = parseInt(document.getElementById('reinvest-asset-select').value, 10);
+
+            if (isNaN(amount) || isNaN(targetAssetId)) return;
+
+            const targetAsset = assets.find(a => a.id === targetAssetId);
+            if (targetAsset) {
+                targetAsset.invested += amount;
+                targetAsset.current += amount;
+                addLog(`💸 Reinversión de ${fmt(amount)} en ${targetAsset.name}.`, 'injection', amount);
+                saveData();
+            }
+            closeModal('reinvest-modal');
+        }
+
+        // --- OTHER MODALS ---
+        function openAddAssetModal() {
+            document.body.classList.add('overflow-hidden-body');
+            
+            // Explicitly reset all fields to their default state
+            document.getElementById('new-name').value = '';
+            document.getElementById('new-cat').value = 'CEDEARs'; // Default category
+            document.getElementById('new-strat').value = 'Renta Variable Global'; // Default strat
+            document.getElementById('new-val').value = '';
+            document.getElementById('new-crypto-symbol').value = '';
+            document.getElementById('new-crypto-amount').value = '';
+
+            // Ensure crypto fields are hidden initially
+            toggleCryptoFields('new');
+
+            document.getElementById('new-asset-modal').classList.remove('hidden');
+            document.getElementById('new-name').focus();
+        }
+                function confirmAddAsset() {
+            const n = document.getElementById('new-name').value;
+            const c = document.getElementById('new-cat').value;
+            const s = document.getElementById('new-strat').value;
+            const v = parseFloat(document.getElementById('new-val').value);
+            if (!n || isNaN(v) || v < 0) {
+                alert("Por favor, complete todos los campos con valores válidos.");
+                return;
+            }
+            const newAsset = { id: Date.now(), name: n, cat: c, strat: s, invested: v, current: v };
+
+            if (c === 'Cripto') {
+                newAsset.cryptoSymbol = document.getElementById('new-crypto-symbol').value.toUpperCase();
+                newAsset.cryptoAmount = parseFloat(document.getElementById('new-crypto-amount').value);
+                if (!newAsset.cryptoSymbol || isNaN(newAsset.cryptoAmount) || newAsset.cryptoAmount < 0) {
+                    alert("Para activos Cripto, debe especificar un símbolo y un monto válidos.");
+                    return;
+                }
+            }
+
+            assets.push(newAsset);
+            addLog(`✨ Nuevo activo agregado: ${n} con ${fmt(v)}.`, 'create', v);
+            saveData(); 
+            closeModal('new-asset-modal'); 
+        }
+        
+        function openEditModal(id) {
+            document.body.classList.add('overflow-hidden-body');
+            activeId = id;
+            const a = assets.find(x => x.id === id);
+            document.getElementById('edit-name').value = a.name;
+            document.getElementById('edit-cat').value = a.cat;
+            document.getElementById('edit-strat').value = a.strat || 'No Asignada';
+            
+            toggleCryptoFields('edit'); // Make sure fields are visible/hidden based on category
+            if (a.cat === 'Cripto') {
+                document.getElementById('edit-crypto-symbol').value = a.cryptoSymbol || '';
+                document.getElementById('edit-crypto-amount').value = a.cryptoAmount || 0;
+            }
+
+            document.getElementById('edit-asset-modal').classList.remove('hidden');
+        }
+                function confirmEditAsset() {
+            const a = assets.find(x => x.id === activeId);
+            const oldName = a.name;
+            const newName = document.getElementById('edit-name').value;
+            const newCat = document.getElementById('edit-cat').value;
+            const newStrat = document.getElementById('edit-strat').value;
+            a.name = newName;
+            a.cat = newCat;
+            a.strat = newStrat;
+
+            if (newCat === 'Cripto') {
+                a.cryptoSymbol = document.getElementById('edit-crypto-symbol').value.toUpperCase();
+                a.cryptoAmount = parseFloat(document.getElementById('edit-crypto-amount').value);
+                if (!a.cryptoSymbol || isNaN(a.cryptoAmount) || a.cryptoAmount < 0) {
+                    alert("Para activos Cripto, debe especificar un símbolo y un monto válidos.");
+                    return;
+                }
+            } else {
+                // If asset is no longer crypto, remove the crypto properties
+                delete a.cryptoSymbol;
+                delete a.cryptoAmount;
+            }
+
+            addLog(`✏️ Activo editado: '${oldName}' ahora es '${newName}' en categoría '${newCat}'.`, 'edit');
+            saveData();
+            closeModal('edit-asset-modal');
+        }
+                function deleteAsset() { 
+            if (confirm("¿Está seguro que desea eliminar este activo?")) {
+                const a = assets.find(x => x.id === activeId);
+                addLog(`🗑️ Activo eliminado: ${a.name}.`, 'delete');
+                assets = assets.filter(x => x.id !== activeId); 
+                saveData(); 
+                closeModal('edit-asset-modal'); 
+            }
+        }
+
+        let historyChartRef = null;
+
+        // --- UTILS ---
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.add('hidden');
+            
+            document.body.classList.remove('overflow-hidden-body');
+            
+            if (id === 'history-chart-modal' && historyChartRef) {
+                historyChartRef.destroy();
+                historyChartRef = null;
+            }
+            if (id === 'action-modal') {
+                document.getElementById('modal-reinvest-btn').classList.add('hidden');
+            }
+            activeId = null;
+        }
+
+        function openHistoryChartModal(assetId) {
+            event.stopPropagation(); // Stop row click from interfering with buttons inside
+            const asset = assets.find(a => a.id === assetId);
+            if (!asset) return;
+
+            const dataPoints = [];
+            snapshots.forEach(snap => {
+                const snapAsset = snap.assets.find(a => a.id === assetId);
+                if (snapAsset) {
+                    dataPoints.push({
+                        date: snap.id,
+                        invested: snapAsset.invested,
+                        current: snapAsset.current
+                    });
+                }
+            });
+
+            if (dataPoints.length < 1) {
+                alert("No hay suficientes datos de snapshots para mostrar un historial para este activo.");
+                return;
+            }
+
+            dataPoints.sort((a,b) => a.date - b.date);
+
+            document.getElementById('history-chart-title').innerText = `Historial de: ${asset.name}`;
+            
+            const ctx = document.getElementById('historyChart').getContext('2d');
+            if (historyChartRef) historyChartRef.destroy();
+
+            historyChartRef = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dataPoints.map(p => new Date(p.date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' })),
+                    datasets: [
+                        {
+                            label: 'Valor Actual',
+                            data: dataPoints.map(p => p.current),
+                            borderColor: document.documentElement.classList.contains('dark') ? 'rgba(59, 130, 246, 1)' : 'rgba(59, 130, 246, 1)',
+                            backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.1,
+                            fill: true
+                        },
+                        {
+                            label: 'Capital Invertido',
+                            data: dataPoints.map(p => p.invested),
+                            borderColor: document.documentElement.classList.contains('dark') ? 'rgba(249, 115, 22, 1)' : 'rgba(249, 115, 22, 1)',
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: { y: { ticks: { callback: value => fmt(value) } } },
+                    plugins: {
+                        tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${fmt(c.parsed.y)}` } }
+                    }
+                }
+            });
+
+            document.body.classList.add('overflow-hidden-body');
+            document.getElementById('history-chart-modal').classList.remove('hidden');
+        }
+                
+        function fullReset() {
+            if (confirm("¿ESTÁ SEGURO?\n\nEsta acción borrará TODOS los datos de la aplicación (activos, logs y snapshots) y es completamente irreversible. ¿Desea continuar?")) {
+                localStorage.removeItem('pm26_assets_v4');
+                localStorage.removeItem('pm26_logs_v4');
+                localStorage.removeItem('pm26_snapshots_v1');
+                location.reload();
+            }
+        }
+
+        function hardResetToBase() { 
+            if (confirm("¿Rebasar costos? \n\nESTA ACCIÓN ES IRREVERSIBLE.\n\nIgualará su 'Capital Invertido' al 'Valor Actual' de cada activo. Esto pone en cero su ganancia/pérdida histórica y es útil para empezar a medir un nuevo período de rendimiento.")) {
+                assets.forEach(a => {
+                    a.invested = a.current;
+                });
+                addLog("🔄 Costos rebasados. El capital invertido ahora iguala al valor actual.");
+                saveData();
+            }
+        }
+        function addLog(msg, type = 'generic', amount = null) { 
+            logs.unshift({ timestamp: Date.now(), msg: msg, type: type, amount: amount }); 
+            if (logs.length > 50) { // Increased log limit
+                logs.pop(); 
+            }
+        }
+        function renderLogs() { 
+            document.getElementById('log-table').innerHTML = logs.map(l => {
+                const dateStr = new Date(l.timestamp).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+                return `<tr><td class="text-xs text-gray-400 p-1">${dateStr}</td><td class="text-xs text-gray-700 p-1">${l.msg}</td></tr>`
+            }).join(''); 
+        }
+        
+        // --- SNAPSHOTS ---
+        function renderSnapshots() {
+            const container = document.getElementById('snapshot-list');
+            if (!container) return;
+
+            snapshots.sort((a, b) => b.id - a.id);
+
+            if (snapshots.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-500 py-8">No hay snapshots todavía. ¡Toma el primero para empezar a seguir tu progreso!</div>`;
+                return;
+            }
+
+            let snapshotHTML = '';
+            snapshots.forEach((snap, index) => {
+                const prevSnap = snapshots[index + 1];
+                
+                // --- 1. Cambio Parcial (vs. last snapshot, based on invested capital change) ---
+                let partialChangeHTML = '';
+                if (prevSnap) {
+                    const endValue = snap.totalCurrent;
+                    const startValue = prevSnap.totalCurrent;
+                    
+                    const endInvested = snap.assets.reduce((s, a) => s + a.invested, 0);
+                    const startInvested = prevSnap.assets.reduce((s, a) => s + a.invested, 0);
+                    const cashFlowsBetween = endInvested - startInvested;
+
+                    const change = endValue - startValue - cashFlowsBetween;
+                    const color = change >= 0 ? 'text-emerald-500' : 'text-red-500';
+                    const sign = change >= 0 ? '+' : '-';
+                    partialChangeHTML = `<div class="font-semibold ${color}">${sign}${fmt(Math.abs(change))}</div>`;
+                } else {
+                    partialChangeHTML = `<div class="font-semibold text-gray-400">-</div>`;
+                }
+                
+                // --- 2. Ganancia Total (based on snapshot's own data) & Pct ---
+                const totalInvestedInSnap = snap.assets.reduce((s, a) => s + a.invested, 0);
+                const totalGain = snap.totalCurrent - totalInvestedInSnap;
+                
+                const gainIsPositive = totalGain >= 0;
+                const totalGainColor = gainIsPositive ? 'text-blue-500' : 'text-orange-500';
+                const totalGainSign = gainIsPositive ? '+' : '-';
+                const totalGainHTML = `<div class="font-bold ${totalGainColor}">${totalGainSign}${fmt(Math.abs(totalGain))}</div>`;
+                
+                let totalGainPctHTML = '';
+                if (totalInvestedInSnap > 0) {
+                    const pct = (totalGain / totalInvestedInSnap) * 100;
+                    totalGainPctHTML = `<div class="text-xs font-semibold ${totalGainColor}" title="Porcentaje sobre el capital invertido en este snapshot.">${totalGainSign}${Math.abs(pct).toFixed(2)}%</div>`;
+                } else {
+                    totalGainPctHTML = `<div class="text-xs font-semibold text-gray-400" title="No se puede calcular el % con una base de inversión de cero o negativa.">- %</div>`;
+                }
+
+                // --- Build asset detail table (unchanged logic, but needs to be included) ---
+                let detailTable = `
+                    <div class="p-4 border-t bg-gray-50/50">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-left text-xs text-gray-500">
+                                    <th class="pb-1 font-semibold">Activo</th>
+                                    <th class="pb-1 text-right font-semibold">Valor</th>
+                                    <th class="pb-1 text-right font-semibold">Cambio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                snap.assets.forEach(asset => {
+                    let assetChangeHTML = '<span class="text-gray-400">-</span>';
+                    if (prevSnap) {
+                        const prevAsset = prevSnap.assets.find(pA => pA.id === asset.id);
+                        if (prevAsset) {
+                             const assetChange = asset.current - prevAsset.current;
+                             const color = assetChange >= 0 ? 'text-emerald-500' : 'text-red-500';
+                             const sign = assetChange >= 0 ? '+' : '';
+                             if (assetChange !== 0) {
+                                assetChangeHTML = `<span class="${color}">${sign}${fmt(assetChange)}</span>`;
+                            }
+                        } else {
+                             assetChangeHTML = `<span class="text-green-500">Nuevo</span>`;
+                        }
+                    }
+
+                    detailTable += `
+                        <tr class="border-t">
+                            <td class="py-2">
+                                <div class="font-semibold text-gray-800">${asset.name}</div>
+                                <div class="text-xs text-gray-500">${asset.cat}</div>
+                            </td>
+                            <td class="py-2 text-right font-mono">${fmt(asset.current)}</td>
+                            <td class="py-2 text-right font-mono">${assetChangeHTML}</td>
+                        </tr>
+                    `;
+                });
+                
+                detailTable += `</tbody></table></div>`;
+                
+                // --- Build full snapshot element with new structure ---
+                snapshotHTML += `
+                    <details class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                        <summary class="p-4 grid grid-cols-4 gap-4 items-center cursor-pointer hover:bg-gray-50 transition">
+                            <div class="col-span-1">
+                                <div class="font-bold text-gray-800">${new Date(snap.id).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                                <div class="text-sm text-gray-500 font-mono">${fmt(snap.totalCurrent)}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-gray-400 font-bold uppercase">Ganancia Total</div>
+                                ${totalGainHTML}
+                                ${totalGainPctHTML}
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-gray-400 font-bold uppercase">Cambio Parcial</div>
+                                ${partialChangeHTML}
+                            </div>
+                            <div class="text-right">
+                                <button onclick="event.preventDefault(); deleteSnapshot(${snap.id})" class="text-gray-300 hover:text-red-500 transition ml-4" title="Eliminar Snapshot">🗑️</button>
+                            </div>
+                        </summary>
+                        ${detailTable}
+                    </details>
+                `;
+            });
+
+            container.innerHTML = snapshotHTML;
+        }
+
+        function takeSnapshot() {
+            if (!confirm("¿Tomar un Snapshot del portfolio actual? Esta acción guardará los valores actuales de todos sus activos.")) return;
+
+            const totalCurrent = assets.reduce((sum, a) => sum + a.current, 0);
+
+            const newSnapshot = {
+                id: Date.now(),
+                totalCurrent: totalCurrent,
+                assets: JSON.parse(JSON.stringify(assets))
+            };
+
+            snapshots.push(newSnapshot);
+            localStorage.setItem('pm26_snapshots_v1', JSON.stringify(snapshots));
+            addLog(`📸 Snapshot tomado con un patrimonio de ${fmt(totalCurrent)}.`);
+            renderSnapshots();
+        }
+
+        function deleteSnapshot(id) {
+            if (!confirm("¿Está seguro que desea eliminar este Snapshot? Esta acción es irreversible.")) return;
+            
+            snapshots = snapshots.filter(s => s.id !== id);
+            localStorage.setItem('pm26_snapshots_v1', JSON.stringify(snapshots));
+            addLog(`🗑️ Snapshot eliminado.`);
+            renderSnapshots();
+        }
+        
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(e => {
+                e.classList.remove('bg-blue-50', 'text-blue-700', 'border-l-4', 'border-blue-600');
+                e.classList.add('text-gray-600', 'border-transparent');
+            });
+            const b = document.getElementById('btn-' + id);
+            b.classList.add('bg-blue-50', 'text-blue-700', 'border-l-4', 'border-blue-600');
+            b.classList.remove('text-gray-600', 'border-transparent');
+
+            if (id === 'snapshots') {
+                renderSnapshots();
+            }
+        }
+        function fmt(n) { return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n); }
+        function downloadBackup() {
+            const backupData = {
+                assets: assets,
+                logs: logs,
+                snapshots: snapshots
+            };
+            const blob = new Blob([JSON.stringify(backupData, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const date = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+            a.href = url;
+            a.download = `Backup_PM26_${date}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        function restoreBackup(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+
+            reader.onload = e => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!data.assets || !data.logs) {
+                        alert("Error: El archivo de backup no tiene el formato correcto.");
+                        return;
+                    }
+
+                    if (!confirm("¿Restaurar desde este backup? Esta acción sobrescribirá todos sus datos actuales.")) {
+                        input.value = ''; // Reset file input if user cancels
+                        return;
+                    }
+
+                    assets = data.assets || [];
+                    logs = data.logs || [];
+                    snapshots = data.snapshots || []; // Restore snapshots, with a fallback
+
+                    // Save all restored data to localStorage
+                    localStorage.setItem('pm26_assets_v4', JSON.stringify(assets));
+                    localStorage.setItem('pm26_logs_v4', JSON.stringify(logs));
+                    localStorage.setItem('pm26_snapshots_v1', JSON.stringify(snapshots));
+
+                    addLog("Restaurado desde archivo de backup.");
+                    refreshUI(); // This will re-render everything including the newly restored logs
+                    alert("Restauración completada.");
+
+                } catch (error) {
+                    alert("Error al leer o procesar el archivo de backup.");
+                    console.error("Restore error:", error);
+                } finally {
+                    input.value = ''; // Reset file input in all cases
+                }
+            };
+
+            reader.readAsText(file);
+        }
+        function runSimulation() { const t=assets.reduce((s,a)=>s+a.current,0); const m=parseFloat(document.getElementById('sim-contrib').value); const r=parseFloat(document.getElementById('sim-rate').value)/100/12; const c=mo=>{let v=t;for(let i=0;i<mo;i++)v=v*(1+r)+m;return v;}; document.getElementById('res-1m').innerText=fmt(c(1)); document.getElementById('res-1y').innerText=fmt(c(12)); document.getElementById('res-2y').innerText=fmt(c(24)); document.getElementById('res-5y').innerText=fmt(c(60)); document.getElementById('sim-output').classList.remove('hidden'); }
+
+        function calculateHistoricalPerformance() {
+            if (snapshots.length < 2) return null;
+
+            const sortedSnaps = [...snapshots].sort((a, b) => a.id - b.id);
+            const firstSnap = sortedSnaps[0];
+            const lastSnap = sortedSnaps[sortedSnaps.length - 1];
+
+            const days = (lastSnap.id - firstSnap.id) / (1000 * 60 * 60 * 24);
+            if (days < 1) return null;
+
+            const years = days / 365.25;
+
+            // 1. Portfolio-wide CAGR
+            let portfolioCAGR = null;
+            if (firstSnap.totalCurrent > 0) {
+                portfolioCAGR = Math.pow(lastSnap.totalCurrent / firstSnap.totalCurrent, 1 / years) - 1;
+            }
+
+            // 2. Per-asset CAGR
+            const assetCAGRs = {};
+            lastSnap.assets.forEach(asset => {
+                const firstAsset = firstSnap.assets.find(a => a.id === asset.id);
+                if (firstAsset && firstAsset.current > 0) {
+                    const assetCAGR = Math.pow(asset.current / firstAsset.current, 1 / years) - 1;
+                    if(isFinite(assetCAGR)) assetCAGRs[asset.id] = assetCAGR;
+                }
+            });
+
+            // 3. Winners & Losers for last period (Flow-Adjusted)
+            let lastPeriod = { winners: [], losers: [] };
+            const prevSnap = sortedSnaps[sortedSnaps.length - 2];
+            const changes = [];
+
+            lastSnap.assets.forEach(asset => {
+                const prevAsset = prevSnap.assets.find(a => a.id === asset.id);
+                if (prevAsset) {
+                    const cashFlow = asset.invested - prevAsset.invested;
+                    const performanceChange = (asset.current - prevAsset.current) - cashFlow;
+                    changes.push({
+                        name: asset.name,
+                        change: performanceChange
+                    });
+                }
+            });
+            changes.sort((a, b) => b.change - a.change);
+            lastPeriod.winners = changes.filter(c => c.change > 0).slice(0, 5);
+            lastPeriod.losers = changes.filter(c => c.change < 0).reverse().slice(0, 5);
+            
+            return {
+                portfolioCAGR: portfolioCAGR,
+                assetCAGRs: assetCAGRs,
+                lastPeriod: lastPeriod
+            };
+        }
+
+        function calculateTWRR() {
+            if (snapshots.length < 2) return null;
+
+            const sortedSnaps = [...snapshots].sort((a, b) => a.id - b.id);
+            
+            const totalPeriodDays = (sortedSnaps[sortedSnaps.length - 1].id - sortedSnaps[0].id) / (1000 * 60 * 60 * 24);
+            if (totalPeriodDays < 1) return null; // Avoid division by zero or negative periods
+
+            let cumulativeReturn = 1;
+            
+            for (let i = 0; i < sortedSnaps.length - 1; i++) {
+                const startSnap = sortedSnaps[i];
+                const endSnap = sortedSnaps[i+1];
+
+                const smv = startSnap.totalCurrent; // Start Market Value
+                const emv = endSnap.totalCurrent;   // End Market Value
+
+                const periodStart = startSnap.id;
+                const periodEnd = endSnap.id;
+                const totalDaysInSubPeriod = (periodEnd - periodStart) / (1000 * 60 * 60 * 24);
+
+                if (totalDaysInSubPeriod <= 0) continue;
+
+                let netCashFlow = 0;
+                let weightedCashFlow = 0;
+
+                const cashFlowLogs = logs.filter(log => {
+                    return log.timestamp > periodStart && log.timestamp <= periodEnd && (log.type === 'injection' || log.type === 'withdraw');
+                });
+
+                cashFlowLogs.forEach(log => {
+                    const amount = log.amount;
+                    if(amount === null) return;
+                    netCashFlow += amount;
+
+                    const daysFromStart = (log.timestamp - periodStart) / (1000 * 60 * 60 * 24);
+                    const weight = (totalDaysInSubPeriod - daysFromStart) / totalDaysInSubPeriod;
+                    weightedCashFlow += (amount * weight);
+                });
+                
+                const denominator = smv + weightedCashFlow;
+                let periodReturn;
+
+                if (netCashFlow === 0) {
+                    // Si no hay flujo de caja, el retorno es simplemente el cambio en el valor.
+                    periodReturn = smv !== 0 ? (emv / smv) - 1 : 0;
+                } else if (Math.abs(denominator) < 0.01) {
+                    // Evitar división por cero si hay flujo de caja pero el denominador es cercano a cero.
+                    continue; 
+                } else {
+                    periodReturn = (emv - smv - netCashFlow) / denominator;
+                }
+                
+                cumulativeReturn *= (1 + periodReturn);
+            }
+
+            const twrr = cumulativeReturn - 1;
+            
+            // FIX: Only annualize if the total investment period is reasonably long.
+            if (totalPeriodDays < 30) {
+                return { twrr: twrr, annual: null, reason: 'short_period' };
+            }
+
+            const annualTWRR = Math.pow(1 + twrr, 365.25 / totalPeriodDays) - 1;
+            
+            return { twrr: twrr, annual: annualTWRR };
+        }
+
+        function updateTWRR() {
+            const twrrData = calculateTWRR();
+            const twrrEl = document.getElementById('dash-twrr');
+            if (twrrData && twrrData.annual !== null && isFinite(twrrData.annual)) {
+                const sign = twrrData.annual >= 0 ? '+' : '';
+                twrrEl.innerText = `${sign}${(twrrData.annual * 100).toFixed(2)}%`;
+                twrrEl.title = `Rendimiento real (TWRR) anualizado.`;
+            } else {
+                twrrEl.innerText = 'N/A';
+                if (twrrData && twrrData.reason === 'short_period') {
+                    twrrEl.title = 'El período de inversión es menor a 30 días. El TWRR anualizado no se muestra para evitar proyecciones extremas. Se activará con un historial más largo.';
+                } else {
+                    twrrEl.title = 'Se necesitan al menos 2 snapshots y una operación (inyección/retiro) entre ellos para calcular el TWRR.';
+                }
+            }
+        }
+
+        function onClick_useHistoricalRate() {
+            const performance = calculateHistoricalPerformance();
+            
+            if (performance && performance.portfolioCAGR && isFinite(performance.portfolioCAGR)) {
+                const rateInput = document.getElementById('sim-rate');
+                const annualRatePct = (performance.portfolioCAGR * 100);
+                rateInput.value = annualRatePct.toFixed(2);
+                addLog(`📈 Tasa histórica calculada: ${annualRatePct.toFixed(2)}%.`);
+            } else {
+                alert("No hay suficientes datos de snapshots (se necesitan al menos 2 en días diferentes) para calcular un rendimiento histórico.");
+            }
+        }
+
+        function distributeContribution() {
+            const amount = parseFloat(document.getElementById('contrib-amount').value);
+            if (isNaN(amount) || amount <= 0) {
+                alert("Por favor, ingrese un monto válido.");
+                return;
+            }
+
+            const rfuAmount = amount * 0.35;
+            const rvgAmount = amount * 0.35;
+            const rvaAmount = amount * 0.30;
+
+            document.getElementById('contrib-rfu').innerText = fmt(rfuAmount);
+            document.getElementById('contrib-rvg').innerText = fmt(rvgAmount);
+            document.getElementById('contrib-rva').innerText = fmt(rvaAmount);
+
+            document.getElementById('contrib-output').classList.remove('hidden');
+        }
+
+        function sortTableBy(column) {
+            if (isReorderMode) return;
+            if (sortColumn === column) {
+                sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDir = 'desc'; // Default to descending for new columns
+            }
+            saveData();
+        }
+
+        init();
+    </script>
+</body>
+</html>

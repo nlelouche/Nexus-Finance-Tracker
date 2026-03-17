@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+/* 
+ * NEXUS - Premium Glassmorphism Design System 
+ * Advanced blur effects, dynamic mesh gradients, and micro-interactions 
+ */
+
+@theme {
+  --color-brand-primary: #f8fafc;
+  
+  --color-bg-body: #030303;
+  --color-bg-surface: rgba(18, 18, 20, 0.4);
+  --color-bg-surface-hover: rgba(30, 30, 34, 0.6);
+  --color-bg-glass: rgba(22, 22, 26, 0.35);
+
+  --color-border-light: rgba(255, 255, 255, 0.05);
+  --color-border-focus: rgba(255, 255, 255, 0.15);
+
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #475569;
+
+  --color-accent-green: #10b981;
+  --color-accent-green-bg: rgba(16, 185, 129, 0.15);
+  --color-accent-red: #ef4444;
+  --color-accent-red-bg: rgba(239, 68, 68, 0.15);
+  
+  --color-brand-gradient-start: #3b82f6;
+  --color-brand-gradient-end: #8b5cf6;
+
+  --radius-card: 16px;
+  --radius-btn: 10px;
+
+  --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  :root {
+    --bg-body: #030303;
+    --bg-surface: rgba(18, 18, 20, 0.4);
+    --bg-surface-hover: rgba(30, 30, 34, 0.6);
+    --bg-glass: rgba(22, 22, 26, 0.35);
+    
+    --border-light: rgba(255, 255, 255, 0.05);
+    --border-focus: rgba(255, 255, 255, 0.15);
+    --border-glass-glow: rgba(255, 255, 255, 0.1);
+    
+    --radius-card: 16px;
+    --radius-btn: 10px;
+    
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #475569;
+    
+    --accent-green: #10b981;
+    --accent-red: #ef4444;
+    --brand-primary: #f8fafc;
+  }
+
+  * {
+    @apply border-border-light;
+  }
+
+  body {
+    background-color: var(--bg-body);
+    /* Subtle mesh gradient background for extreme depth */
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.05) 0px, transparent 50%);
+    background-attachment: fixed;
+    @apply text-text-primary font-inter antialiased min-h-screen overflow-x-hidden;
+  }
+}
+
+@layer components {
+  /* Premium Glass Card */
+  .card {
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-light);
+    border-top: 1px solid var(--border-glass-glow);
+    border-left: 1px solid var(--border-glass-glow);
+    border-radius: var(--radius-card);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    @apply p-6 transition-all duration-300 hover:border-border-focus hover:shadow-2xl hover:-translate-y-1 relative overflow-hidden;
+  }
+  
+  /* Shimmer effect on hover for cards */
+  .card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.03), transparent);
+    transform: skewX(-20deg);
+    transition: 0.5s;
+    pointer-events: none;
+  }
+  .card:hover::after {
+    left: 150%;
+  }
+
+  /* Premium Buttons */
+  .btn {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-btn);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+    @apply px-5 py-2.5 text-sm font-medium cursor-pointer transition-all duration-200 inline-flex items-center justify-center gap-2 hover:bg-bg-surface-hover hover:border-border-focus hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--color-brand-gradient-start), var(--color-brand-gradient-end));
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    @apply hover:shadow-xl hover:opacity-90;
+  }
+
+  .form-group {
+    @apply mb-4;
+  }
+
+  .form-label {
+    @apply block mb-1.5 text-sm font-medium text-text-secondary drop-shadow-sm;
+  }
+
+  .form-control {
+    background: rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    border-radius: var(--radius-btn);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    @apply w-full p-3 text-sm outline-none transition-all duration-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:bg-black/40 hover:border-border-focus;
+  }
+
+  /* List Items & Transactions */
+  .transaction-item {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid transparent;
+    border-radius: var(--radius-btn);
+    @apply flex justify-between items-center p-4 transition-all duration-200 hover:bg-white/5 hover:border-border-light hover:shadow-md cursor-pointer;
+  }
+
+  .tx-icon {
+    background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(0,0,0,0.2));
+    border: 1px solid var(--border-light);
+    @apply w-10 h-10 rounded-[10px] flex items-center justify-center text-xl shrink-0 shadow-inner;
+  }
+
+  /* Stunning Progress Bars */
+  .progress-bg {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-light);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+    @apply w-full h-2 rounded-full overflow-hidden relative;
+  }
+
+  .progress-fill {
+    background: linear-gradient(90deg, var(--color-brand-gradient-start), var(--color-brand-gradient-end));
+    @apply h-full rounded-full transition-all duration-1000 ease-out relative;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  }
+  
+  /* Animated glow on progress bar */
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+    animation: shimmer 2s infinite;
+  }
+  
+  .progress-fill.good {
+    background: linear-gradient(90deg, #059669, #34d399);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+  }
+  
+  .progress-fill.bad {
+    background: linear-gradient(90deg, #b91c1c, #f87171);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+  }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Glass Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.2);
+}
