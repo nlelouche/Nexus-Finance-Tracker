@@ -148,4 +148,6 @@ export interface FinanceState {
   toggleWidgetVisibility: (id: string) => void;
   updateInvestmentLayout: (layouts: WidgetConfig[]) => void;
   toggleInvestmentWidgetVisibility: (id: string) => void;
+  exportData: () => any;
+  importData: (data: any) => void;
 }

@@ -55,7 +55,7 @@ const INITIAL_INVESTMENT_WIDGETS = [
 
 export const useFinanceStore = create<FinanceState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       transactions: INITIAL_TRANSACTIONS,
       investments: INITIAL_INVESTMENTS,
       goals: INITIAL_GOALS,
@@ -292,11 +292,32 @@ export const useFinanceStore = create<FinanceState>()(
         investmentWidgets: layouts
       })),
  
-      toggleInvestmentWidgetVisibility: (id) => set((state) => ({
-        investmentWidgets: state.investmentWidgets.map(w => 
+      toggleInvestmentWidgetVisibility: (id: string) => set((state: any) => ({
+        investmentWidgets: state.investmentWidgets.map((w: any) => 
           w.id === id ? { ...w, visible: !w.visible } : w
         )
-      }))
+      })),
+
+      exportData: () => {
+        const state = get() as FinanceState;
+        return {
+          transactions: state.transactions,
+          investments: state.investments,
+          goals: state.goals,
+          recurringExpenses: state.recurringExpenses,
+          targetAllocations: state.targetAllocations,
+          baseCurrency: state.baseCurrency,
+          exchangeRates: state.exchangeRates,
+          allocationTargets: state.allocationTargets,
+          aiConfig: state.aiConfig,
+          dashboardWidgets: state.dashboardWidgets,
+          investmentWidgets: state.investmentWidgets,
+        };
+      },
+
+      importData: (data: any) => set(() => ({
+          ...data
+      })),
     }),
     {
       name: 'nexus-finance-storage',

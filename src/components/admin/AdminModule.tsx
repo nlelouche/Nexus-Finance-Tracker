@@ -1,17 +1,21 @@
 import React, { useRef, useState } from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import { Download, Upload, Trash2, AlertTriangle, CheckCircle, ShieldAlert, Database, RefreshCw, Bot } from 'lucide-react';
+import { 
+  Download, Upload, Trash2, AlertTriangle, CheckCircle, 
+  ShieldAlert, Database, RefreshCw, Bot 
+} from 'lucide-react';
+import { downloadJSON, validateBackupSchema, readFileAsJSON } from '../../utils/backup';
 
 type Toast = { type: 'success' | 'error'; msg: string } | null;
 
-const STORAGE_KEY = 'nexus-finance-storage'; // mismo key que persist en useFinanceStore
+const STORAGE_KEY = 'nexus-finance-storage';
 
 export const AdminModule = () => {
   const store = useFinanceStore();
   const fileRef = useRef<HTMLInputElement>(null);
   const [toast, setToast] = useState<Toast>(null);
   const [confirmClear, setConfirmClear] = useState(false);
-  const [confirmRestore, setConfirmRestore] = useState<string | null>(null); // JSON string a restaurar
+  const [confirmRestore, setConfirmRestore] = useState<any | null>(null);
 
   const showToast = (type: 'success' | 'error', msg: string) => {
     setToast({ type, msg });
@@ -21,49 +25,41 @@ export const AdminModule = () => {
   // ── BACKUP ─────────────────────────────────────────────────
   const handleBackup = () => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) { showToast('error', 'No hay datos en localStorage para exportar.'); return; }
-      const blob = new Blob([raw], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const data = store.exportData();
       const date = new Date().toISOString().slice(0, 10);
-      a.href = url;
-      a.download = `nexus-backup-${date}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadJSON(data, `nexus-backup-${date}.json`);
       showToast('success', `Backup generado: nexus-backup-${date}.json`);
-    } catch {
+    } catch (err) {
       showToast('error', 'Error al generar el backup.');
     }
   };
 
   // ── RESTORE ────────────────────────────────────────────────
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const text = ev.target?.result as string;
-      try {
-        JSON.parse(text); // validar que es JSON válido
-        setConfirmRestore(text);
-      } catch {
-        showToast('error', 'El archivo no es un JSON válido.');
+    
+    try {
+      const json = await readFileAsJSON(file);
+      if (validateBackupSchema(json)) {
+        setConfirmRestore(json);
+      } else {
+        showToast('error', 'El archivo no tiene el formato correcto de Nexus.');
       }
-    };
-    reader.readAsText(file);
-    // reset el input para poder seleccionar el mismo archivo dos veces
+    } catch (err) {
+      showToast('error', 'Error al leer el archivo JSON.');
+    }
+    
     e.target.value = '';
   };
 
   const handleRestoreConfirm = () => {
     if (!confirmRestore) return;
     try {
-      localStorage.setItem(STORAGE_KEY, confirmRestore);
-      showToast('success', 'Backup restaurado. Recargando...');
+      store.importData(confirmRestore);
+      showToast('success', 'Backup restaurado con éxito.');
       setConfirmRestore(null);
-      setTimeout(() => window.location.reload(), 1200);
-    } catch {
+    } catch (err) {
       showToast('error', 'Error al restaurar el backup.');
     }
   };
