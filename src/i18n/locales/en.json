@@ -385,7 +385,13 @@
     "config": {
       "title": "Flight Configuration",
       "horizon": "Time Horizon",
-      "years": "{{count}} years"
+      "years": "{{count}} years",
+      "return": "Expected Return",
+      "inflation": "Annual Inflation",
+      "monthlyContrib": "Monthly Contribution",
+      "useAuto": "AUTO",
+      "useCustom": "CUSTOM",
+      "autoSubtext": "Based on your income average"
     },
     "events": {
       "title": "Scenario Events",
@@ -411,7 +417,16 @@
       "tooltip": {
         "baseline": "Current Path",
         "simulated": "Scenario",
-        "label": "Year {{year}}"
+        "label": "Year {{year}}",
+        "bounds": "Confidence Range (Opt - Pess)",
+        "principal": "Total Principal Injected",
+        "nominal": "Nominal Value",
+        "real": "Real Purchasing Power"
+      },
+      "kpi": {
+        "interest": "Compound Interest",
+        "principal": "Total Invested",
+        "realLabel": "Real Purchasing Power"
       },
       "meta": "FIRE TARGET",
       "diff": "Final Difference",

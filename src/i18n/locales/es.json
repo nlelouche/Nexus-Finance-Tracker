@@ -386,7 +386,13 @@
     "config": {
       "title": "Configuración de vuelo",
       "horizon": "Horizonte temporal",
-      "years": "{{count}} años"
+      "years": "{{count}} años",
+      "return": "Retorno Esperado",
+      "inflation": "Inflación Anual",
+      "monthlyContrib": "Aporte Mensual",
+      "useAuto": "AUTO",
+      "useCustom": "MANUAL",
+      "autoSubtext": "Basado en tu promedio de ingresos"
     },
     "events": {
       "title": "Eventos del escenario",
@@ -412,7 +418,16 @@
       "tooltip": {
         "baseline": "Camino actual",
         "simulated": "Escenario",
-        "label": "Año {{year}}"
+        "label": "Año {{year}}",
+        "bounds": "Rango Probable (Optimista - Pesimista)",
+        "principal": "Capital de tu bolsillo",
+        "nominal": "Valor Nominal (Sin descontar inflación)",
+        "real": "Poder Adquisitivo Real"
+      },
+      "kpi": {
+        "interest": "Intereses Compuestos",
+        "principal": "Total Aportado",
+        "realLabel": "Poder Adquisitivo Constante"
       },
       "meta": "META FIRE",
       "diff": "Diferencia final",
