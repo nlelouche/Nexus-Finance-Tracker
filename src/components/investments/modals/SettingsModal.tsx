@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Settings, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Investment, InvestmentCategory } from '../../../types';
 
 interface SettingsModalProps {
@@ -12,6 +13,7 @@ interface SettingsModalProps {
 export const SettingsModal: React.FC<SettingsModalProps> = ({ 
   asset, onClose, onDelete, categoryIcons 
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl animate-in fade-in duration-300">
       <div className="bg-bg-surface border border-white/10 w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden relative">
@@ -20,7 +22,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="p-3 bg-white/5 rounded-2xl text-text-secondary">
               <Settings size={22}/>
             </div>
-            <h3 className="text-xl font-black text-text-primary tracking-tighter">Ajustes de Activo</h3>
+            <h3 className="text-xl font-black text-text-primary tracking-tighter">{t('investments.settings.title')}</h3>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full text-text-secondary transition-all"><X size={24} /></button>
         </div>
@@ -36,25 +38,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           <div className="pt-8 border-t border-white/5">
-            <h5 className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] mb-6">Zona de Peligro</h5>
+            <h5 className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] mb-6">{t('investments.settings.dangerZone')}</h5>
             <button 
               onClick={() => {
-                if (window.confirm(`¿Estás seguro de que querés eliminar ${asset.name}?`)) {
+                if (window.confirm(t('investments.settings.delete.confirm', { name: asset.name }))) {
                   onDelete(asset.id);
                   onClose();
                 }
               }}
               className="w-full py-5 rounded-[24px] bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 transition-all font-black text-sm flex items-center justify-center gap-3"
             >
-              <Trash2 size={20} /> Eliminar Permanentemente
+              <Trash2 size={20} /> {t('investments.settings.delete.button')}
             </button>
             <p className="text-[10px] text-text-secondary mt-4 text-center font-bold opacity-40">
-               Se borrará todo el historial de este activo y sus rendimientos asociados.
+               {t('investments.settings.delete.tip')}
             </p>
           </div>
         </div>
         <div className="p-8 border-t border-white/5 bg-white/[0.01] flex justify-end">
-           <button onClick={onClose} className="px-8 py-3 rounded-2xl font-black text-sm bg-white/5 text-text-primary hover:bg-white/10 border border-white/5 transition-all">Cerrar</button>
+           <button onClick={onClose} className="px-8 py-3 rounded-2xl font-black text-sm bg-white/5 text-text-primary hover:bg-white/10 border border-white/5 transition-all">{t('common.close')}</button>
         </div>
       </div>
     </div>

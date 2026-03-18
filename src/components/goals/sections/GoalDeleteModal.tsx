@@ -1,5 +1,5 @@
-import React from 'react';
 import { Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface GoalDeleteModalProps {
   deleteConfirm: string | null;
@@ -12,6 +12,7 @@ export const GoalDeleteModal: React.FC<GoalDeleteModalProps> = ({
   setDeleteConfirm,
   handleDelete,
 }) => {
+  const { t } = useTranslation();
   if (!deleteConfirm) return null;
 
   return (
@@ -21,22 +22,22 @@ export const GoalDeleteModal: React.FC<GoalDeleteModalProps> = ({
         <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
           <Trash2 size={32} className="text-rose-500" />
         </div>
-        <h3 className="text-2xl font-black text-text-primary text-center mb-3">¿Borrar objetivo?</h3>
+        <h3 className="text-2xl font-black text-text-primary text-center mb-3">{t('goals.delete.title')}</h3>
         <p className="text-text-secondary text-center mb-8">
-          Esta acción es irreversible y se perderá todo el historial de este objetivo.
+          {t('goals.delete.tip')}
         </p>
         <div className="flex gap-3">
           <button
             onClick={() => setDeleteConfirm(null)}
             className="btn border border-white/10 hover:bg-white/5 flex-1"
           >
-            Cancelar
+            {t('common.cancel')}
           </button>
           <button
             onClick={() => handleDelete(deleteConfirm)}
             className="btn bg-rose-600 hover:bg-rose-500 text-white font-bold flex-1"
           >
-            Eliminar
+            {t('goals.delete.button')}
           </button>
         </div>
       </div>

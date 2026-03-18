@@ -20,7 +20,11 @@ export const downloadJSON = (data: any, fileName: string) => {
 
 export const validateBackupSchema = (data: any): boolean => {
   // Basic validation to ensure the JSON has the expected root properties
-  const requiredKeys = ['transactions', 'investments', 'goals', 'exchangeRates'];
+  const requiredKeys = [
+    'transactions', 'investments', 'goals', 'recurringExpenses', 
+    'targetAllocations', 'baseCurrency', 'exchangeRates', 
+    'allocationTargets', 'aiConfig', 'dashboardWidgets', 'investmentWidgets'
+  ];
   return requiredKeys.every(key => Object.prototype.hasOwnProperty.call(data, key));
 };
 

@@ -1,0 +1,422 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "complete": "Completado",
+    "necessary": "Necesario",
+    "delete": "Eliminar",
+    "confirm": "Confirmar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "locale": "es-AR"
+  },
+  "nav": {
+    "dashboard": "Tablero",
+    "income": "Ingresos",
+    "expenses": "Egresos",
+    "investments": "Inversiones",
+    "goals": "Objetivos",
+    "simulation": "Simulador",
+    "admin": "Administración",
+    "darkMode": "Modo oscuro",
+    "lightMode": "Modo claro",
+    "language": "Idioma"
+  },
+  "admin": {
+    "title": "Panel de Administración",
+    "subtitle": "Respaldo, restauración y limpieza de datos.",
+    "export": {
+      "title": "Exportar Respaldo",
+      "desc": "Descarga un archivo .json con todos tus datos actuales. Guárdalo en un lugar seguro.",
+      "button": "Descargar Respaldo"
+    },
+    "import": {
+      "title": "Restaurar Respaldo",
+      "desc": "Importa un archivo .json generado por esta herramienta. Reemplazará todos los datos actuales.",
+      "button": "Seleccionar archivo"
+    },
+    "clear": {
+      "title": "Limpiar Base de Datos",
+      "desc": "Elimina todos los datos: transacciones, inversiones, objetivos, costos fijos y metas.",
+      "warning": "Esta acción no se puede deshacer. Realiza un respaldo primero.",
+      "button": "Limpiar datos",
+      "confirm": "¿Estás seguro?",
+      "confirmButton": "Sí, borrar todo"
+    },
+    "ai": {
+      "title": "Configuración de IA Local",
+      "desc": "Ajusta los parámetros de conexión para tu instancia de Ollama.",
+      "host": "Host / URL",
+      "model": "Modelo (Nombre en Ollama)",
+      "tip": "Asegúrate de que Ollama tenga configurado OLLAMA_ORIGINS=\"*\" para evitar problemas de CORS."
+    }
+  },
+  "dashboard": {
+    "title": "Tablero",
+    "subtitle": "Tu centro de mando financiero.",
+    "editMode": "Modo Edición",
+    "customize": "Personalizar tablero",
+    "saveChanges": "Guardar cambios",
+    "netWorth": {
+      "usdLabel": "USD · tipo cripto",
+      "investments": "Inversiones",
+      "savings": "Ahorros (metas)",
+      "arsLabel": "ARS · equivalente cripto",
+      "eurLabel": "EUR · equivalente"
+    },
+    "forecast": {
+      "title": "Proyección de libertad",
+      "subtitle": "Simulación a 10 años con retorno real del {{rate}}% anual",
+      "metaFire": "Meta FIRE",
+      "xAxis": "Años",
+      "tooltip": "Patrimonio",
+      "label": "Año {{year}}",
+      "meta": "META"
+    },
+    "recentActivity": {
+      "title": "Últimos movimientos"
+    },
+    "mainGoals": {
+      "title": "Objetivos principales",
+      "target": "Meta:"
+    },
+    "widgets": {
+      "income": "Ingresos (mes)",
+      "expense": "Egresos (mes)",
+      "savingsRate": "Tasa de ahorro",
+      "topExpense": "Mayor Gasto",
+      "investments": "Inversiones",
+      "assetsCount": "{{count}} Activos",
+      "expenseDist": "Distribución de Gastos",
+      "intelligence": "Análisis de Inteligencia",
+      "hidden": "Widget Oculto"
+    },
+    "intelligence": {
+      "title": "Cerebro Financiero",
+      "runway": {
+        "title": "Supervivencia (Runway)",
+        "tooltip": "Indica cuántos meses podés mantener tu nivel de vida actual usando solo tus ahorros e inversiones, sin ingresos nuevos.",
+        "years": "años",
+        "months": "meses",
+        "desc": "Tiempo que podés vivir hoy sin generar un solo peso extra."
+      },
+      "burnRate": {
+        "title": "Costo de Vida (Burn Rate)",
+        "tooltip": "Es el promedio de gastos mensuales de los últimos 3 meses convertido a USD. Te dice cuánto 'quemás' por mes para vivir.",
+        "monthly": "mensual",
+        "desc": "Promedio de gastos de los últimos 3 meses. Tu 'burn rate'."
+      },
+      "fire": {
+        "title": "Independencia Financiera",
+        "tooltip": "Tu progreso hacia el 'FIRE Number'. Cuando llegues al 100%, tus inversiones podrían cubrir tus gastos para siempre (regla del 4%).",
+        "eta": "Libertad en:",
+        "now": "¡YA!",
+        "never": "Nunca (ahorro ≤ 0)",
+        "years": "{{years}} años",
+        "tip": "Tip: La regla del 4% asume que retirás el {{rate}}% anual de tu cartera ajustado por inflación.",
+        "tipWork": " Seguí laburando, todavía falta un trecho.",
+        "tipDone": " ¡Felicitaciones! Sos técnicamente libre."
+      },
+      "savings": {
+        "title": "Tasa de Ahorro Mensual",
+        "tooltip": "El % de tus ingresos que no gastás. Cuanto más alto sea, más rápido vas a llegar a tu libertad financiera.",
+        "status": "Status",
+        "elite": "Elite",
+        "healthy": "Saludable",
+        "danger": "Peligro"
+      },
+      "efficiency": {
+        "title": "Eficiencia Patrimonial",
+        "tooltip": "Muestra cuántos años de vida tenés cubiertos en tu 'cajón' de inversiones. Es tu NW dividido tu gasto anual.",
+        "desc": "gastos anuales"
+      }
+    },
+    "advisor": {
+      "title": "Nexus AI Advisor",
+      "subtitle": "Auditoría de Hábitos en Tiempo Real",
+      "tooltip": "Ejecuta una auditoría financiera usando tu IA local (Ollama).",
+      "ready": "Nexus está listo para analizar tu laburo financiero.",
+      "privacy": "Se usará el modelo local para máxima privacidad.",
+      "start": "Iniciar Auditoría",
+      "analyzing": "Analizando...",
+      "recalc": "Recalcular Auditoría",
+      "chat": "Chat con Nexus"
+    },
+    "exchange": {
+      "marketUsd": "Mercado USD",
+      "offline": "Sin conexión",
+      "eurUsd": "EUR/USD",
+      "error": "⚠️ Error",
+      "modal": {
+        "title": "Ajustar Cotizaciones",
+        "override": "Ajuste Manual",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar Cambios"
+      }
+    }
+  },
+  "ai": {
+    "chat": {
+      "greeting": "¡Hola! Soy Nexus. ¿En qué quilombo financiero te puedo ayudar hoy? Tengo acceso a tus datos locales para darte la posta.",
+      "title": "Nexus Advisor",
+      "status": "Local Insight Active",
+      "placeholder": "Preguntale lo que sea a Nexus...",
+      "privacy": "Privacidad garantizada. Nexus corre localmente.",
+      "errorConn": "Se rompió algo conectando con la IA. Fijate si Ollama está prendido.",
+      "errorApi": "Perdón, tuve un problema: {{error}}"
+    }
+  },
+  "investments": {
+    "title": "Portafolio",
+    "subtitle": "Gestión de capital y análisis de rendimiento avanzado.",
+    "bulkUpdate": "Actualización por lote",
+    "assistant": "Asistente",
+    "editLayout": "Editar diseño",
+    "newAsset": "Nuevo activo",
+    "finish": "Finalizar",
+    "projection": {
+      "title": "Proyección de riqueza",
+      "monthly": "Aporte mensual (USD)",
+      "annualRate": "Tasa anual estimada (%)",
+      "initial": "Capital inicial (Actual)"
+    },
+    "list": {
+      "title": "Lista de activos",
+      "filter": "Filtrar activos...",
+      "asset": "Activo",
+      "invested": "Invertido",
+      "current": "Valor actual",
+      "performance": "Rendimiento",
+      "management": "Gestión"
+    },
+    "operation": {
+      "inject": {
+        "title": "Inyectar capital",
+        "desc": "Abonar fondos a"
+      },
+      "withdraw": {
+        "title": "Retirar capital",
+        "desc": "Liquidar fondos de"
+      },
+      "m2m": {
+        "title": "Actualizar valor",
+        "desc": "Actualizar valor de mercado de",
+        "label": "Nuevo valor de mercado",
+        "tip": "* El sistema recalculará el rendimiento basado en este valor."
+      },
+      "amount": "Equivalente en",
+      "confirm": "Confirmar",
+      "update": "Actualizar"
+    },
+    "settings": {
+      "title": "Ajustes del activo",
+      "dangerZone": "Zona de peligro",
+      "delete": {
+        "button": "Eliminar permanentemente",
+        "confirm": "¿Confirmas la eliminación de {{name}}?",
+        "tip": "Se eliminará todo el historial de este activo y sus rendimientos asociados."
+      }
+    },
+    "create": {
+      "title": "Nuevo activo",
+      "name": "Nombre del activo",
+      "category": "Categoría",
+      "strategy": "Estrategia",
+      "invested": "Costo total invertido",
+      "currency": "Moneda",
+      "current": "Valor actual (Opcional)",
+      "currentPlaceholder": "Si está vacío, se usa el costo",
+      "button": "Crear activo"
+    },
+    "rebalancer": {
+      "title": "Rebalanceador de portafolio",
+      "subtitle": "Comparativa de tu cartera actual vs. tu estrategia ideal.",
+      "save": "Guardar estrategia",
+      "adjust": "Ajustar objetivos",
+      "chartTitle": "Actual vs. Objetivo (%)",
+      "strategy": "Estrategia",
+      "totalPortfolio": "Total cartera",
+      "recommendations": "Recomendaciones de ajuste",
+      "deviation": "Desvío",
+      "buySuggestion": "Sugerencia de compra",
+      "sellSuggestion": "Sugerencia de venta",
+      "holdSuggestion": "Estrategia correcta",
+      "close": "Cerrar asistente"
+    }
+  },
+  "goals": {
+    "title": "Objetivos de ahorro",
+    "subtitle": "Define tus metas con fecha y monto.",
+    "newGoal": "Nuevo objetivo",
+    "empty": {
+      "title": "Aún no tienes objetivos",
+      "subtitle": "Asigna una fecha a tus metas. El primer paso es definirlas.",
+      "button": "Crear mi primer objetivo"
+    },
+    "card": {
+      "target": "Meta",
+      "reached": "Alcanzado",
+      "remaining": "Faltan",
+      "daysTo": "Días restantes",
+      "history": "Historial de aportes",
+      "noHistory": "Sin aportes registrados",
+      "addProgress": "Aportar",
+      "withdraw": "Retirar"
+    },
+    "form": {
+      "addTitle": "Crear objetivo",
+      "editTitle": "Editar objetivo",
+      "name": "Nombre del objetivo",
+      "targetAmount": "Monto meta",
+      "currentAmount": "Monto inicial",
+      "targetDate": "Fecha meta",
+      "emoji": "Emoji",
+      "save": "Guardar objetivo"
+    },
+    "modal": {
+      "addTitle": "Aportar a",
+      "withdrawTitle": "Retirar de",
+      "addTab": "+ Aportar",
+      "withdrawTab": "- Retirar",
+      "addQuestion": "¿Cuánto deseas aportar al fondo?",
+      "withdrawQuestion": "⚠️ Retiro de emergencia: ¿cuánto deseas retirar?",
+      "amount": "Monto",
+      "noteLabel": "Nota / Descripción (Opcional)",
+      "notePlaceholder": "Ej: Bono, ahorro especial...",
+      "confirmAdd": "Confirmar aporte",
+      "confirmWithdraw": "Confirmar retiro",
+      "confirm": "Confirmar"
+    },
+    "delete": {
+      "title": "¿Eliminar objetivo?",
+      "confirm": "¿Confirmas la eliminación de este objetivo?",
+      "tip": "Esta acción es irreversible. Se eliminará todo el historial de este objetivo.",
+      "button": "Eliminar"
+    },
+    "status": {
+      "complete": "Meta alcanzada",
+      "ahead": "Adelantado",
+      "onTrack": "En tiempo",
+      "behind": "Atrasado",
+      "critical": "Muy atrasado",
+      "aheadSub": "+{{pct}}% sobre lo esperado",
+      "onTrackSub": "Vas por buen camino",
+      "behindSub": "{{pct}}% por debajo de lo esperado",
+      "criticalSub": "{{pct}}% por debajo — revisa tu plan"
+    },
+    "projection": {
+      "label": "A este ritmo completarás la meta el:",
+      "early": "({{months}} mes{{suffix}} antes)",
+      "late": "({{months}} mes{{suffix}} después)",
+      "onTime": "(justo a tiempo)"
+    }
+  },
+  "expenses": {
+    "title": "Egresos",
+    "subtitle": "Control de gastos y costos fijos mensuales.",
+    "tabs": {
+      "registry": "Registro de gastos",
+      "fixed": "Costos fijos"
+    },
+    "form": {
+      "addTitle": "Registrar gasto",
+      "editTitle": "Editar gasto",
+      "description": "Descripción",
+      "descPlaceholder": "Ej: Compra de supermercado",
+      "amount": "Monto",
+      "currency": "Moneda",
+      "category": "Categoría",
+      "date": "Fecha",
+      "isNecessary": "Gasto necesario / planificado",
+      "necessaryTip": "Nexus no tendrá en cuenta este gasto para sus recomendaciones.",
+      "update": "Actualizar gasto",
+      "submit": "Registrar gasto"
+    },
+    "lastTransactions": "Últimos movimientos",
+    "empty": "No hay egresos registrados.",
+    "fixed": {
+      "addTitle": "Agregar costo fijo",
+      "name": "Nombre",
+      "namePlaceholder": "Ej: Netflix, Internet...",
+      "dayOfMonth": "Vence el día",
+      "backToCurrent": "Volver al mes actual",
+      "paid": "pagado",
+      "pending": "pendiente",
+      "noConfig": "No hay costos fijos configurados",
+      "noConfigSub": "Agrega tus suscripciones, servicios y gastos mensuales recurrentes.",
+      "addFirst": "Agregar el primero",
+      "isPaid": "Pagado este mes",
+      "dueDay": "Vence el día {{day}}",
+      "totalMonth": "Total de costos fijos del mes",
+      "paidCount": "{{paid}} de {{total}} pagados"
+    }
+  },
+  "income": {
+    "title": "Ingresos",
+    "subtitle": "Gestiona tus fuentes de ingresos.",
+    "form": {
+      "addTitle": "Registrar nuevo ingreso",
+      "source": "Origen / Descripción",
+      "sourcePlaceholder": "Ej: Sueldo, venta de auto, freelance...",
+      "amount": "Monto",
+      "currency": "Moneda",
+      "date": "Fecha",
+      "isRecurring": "Es un ingreso recurrente",
+      "submit": "Guardar ingreso"
+    },
+    "totals": "Total por moneda",
+    "totalLabel": "Total {{cur}}",
+    "history": "Historial reciente",
+    "table": {
+      "description": "Descripción",
+      "date": "Fecha",
+      "amount": "Monto",
+      "actions": "Acciones"
+    },
+    "delete": {
+      "confirm": "¿Confirmas la eliminación de este ingreso?",
+      "button": "Eliminar ingreso"
+    }
+  },
+  "simulation": {
+    "title": "Simulador de",
+    "titleAccent": "vuelo financiero",
+    "subtitle": "Proyecta el impacto de decisiones y eventos externos sin riesgo.",
+    "config": {
+      "title": "Configuración de vuelo",
+      "horizon": "Horizonte temporal",
+      "years": "{{count}} años"
+    },
+    "events": {
+      "title": "Eventos del escenario",
+      "impact": "Impacto: {{value}}",
+      "amount": "Monto: {{value}}",
+      "month": "Mes {{month}}",
+      "empty": "No hay eventos activos.",
+      "emptySub": "Agrega eventos para simular cambios."
+    },
+    "impact": {
+      "title": "Impacto en libertad financiera",
+      "ahead": "Este escenario **adelanta** tu meta significativamente.",
+      "behind": "Este escenario **retrasa** tu meta significativamente."
+    },
+    "strategy": {
+      "title": "Estrategia sugerida",
+      "tip": "Simula un aumento de ahorro del 10% para ver cómo neutraliza shocks de mercado."
+    },
+    "chart": {
+      "title": "Proyección comparativa",
+      "subtitle": "Situación actual vs. escenario simulado",
+      "xAxis": "Años",
+      "tooltip": {
+        "baseline": "Camino actual",
+        "simulated": "Escenario",
+        "label": "Año {{year}}"
+      },
+      "meta": "META FIRE",
+      "diff": "Diferencia final",
+      "impact": "Impacto %"
+    }
+  }
+}

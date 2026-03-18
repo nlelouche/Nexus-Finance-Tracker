@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, ProgressBar } from '../../ui';
 import { formatMoney, toUSD } from '../../../utils/finance';
 import { Transaction, Goal, ExchangeRates } from '../../../types';
@@ -15,10 +16,11 @@ export const RecentActivityList: React.FC<RecentActivityProps> = ({
   txIcons,
   exchangeRates,
 }) => {
+  const { t } = useTranslation();
   return (
     <Card className="h-full">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-black tracking-tight">Últimos Movimientos</h3>
+        <h3 className="text-xl font-black tracking-tight">{t('dashboard.recentActivity.title')}</h3>
       </div>
       <div className="flex flex-col gap-3">
         {transactions.slice(0, 6).map(tx => {
@@ -32,7 +34,7 @@ export const RecentActivityList: React.FC<RecentActivityProps> = ({
                 </div>
                 <div>
                   <p className="font-medium text-sm">{tx.description}</p>
-                  <p className="text-xs text-text-secondary">{tx.category} · {new Date(tx.date + 'T12:00:00').toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}</p>
+                  <p className="text-xs text-text-secondary">{t(`categories.${tx.category}`, { defaultValue: tx.category })} · {new Date(tx.date + 'T12:00:00').toLocaleDateString(t('common.locale', { defaultValue: 'es-AR' }), { day: '2-digit', month: 'short' })}</p>
                 </div>
               </div>
               <div className="text-right">
@@ -54,9 +56,10 @@ export const RecentActivityList: React.FC<RecentActivityProps> = ({
 export const MainGoals: React.FC<RecentActivityProps> = ({
   goals,
 }) => {
+  const { t } = useTranslation();
   return (
     <Card className="h-full border-indigo-500/20 bg-indigo-500/5">
-      <h3 className="text-xl font-black tracking-tight mb-6">Objetivos Principales</h3>
+      <h3 className="text-xl font-black tracking-tight mb-6">{t('dashboard.mainGoals.title')}</h3>
       <div className="flex flex-col gap-6">
         {goals.slice(0, 3).map(goal => {
           const progress = Math.min(100, (goal.currentAmount / goal.targetAmount) * 100);
@@ -69,7 +72,7 @@ export const MainGoals: React.FC<RecentActivityProps> = ({
               <ProgressBar progress={progress} status={progress >= 70 ? 'good' : 'neutral'} />
               <div className="flex justify-between text-[10px] text-text-secondary font-mono mt-2">
                 <span>{formatMoney(goal.currentAmount, goal.currency)}</span>
-                <span>Meta: {formatMoney(goal.targetAmount, goal.currency)}</span>
+                <span>{t('dashboard.mainGoals.target')} {formatMoney(goal.targetAmount, goal.currency)}</span>
               </div>
             </div>
           );

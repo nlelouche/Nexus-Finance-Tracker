@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Card, DatePicker } from '../ui';
+import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { Currency } from '../../types';
 import { Plus, Trash2, X, Check, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -7,12 +8,13 @@ import { Plus, Trash2, X, Check, RotateCcw, ChevronLeft, ChevronRight } from 'lu
 const CATEGORIES = ['Alquiler', 'Comida', 'Servicios', 'Impuestos', 'Tarjetas de Credito', 'Transporte', 'Entretenimiento', 'Suscripciones', 'Salud', 'Otros'];
 const NOW_MONTH = new Date().toISOString().slice(0, 7); // 'YYYY-MM'
 
-const formatMonth = (ym: string) => {
+const formatMonth = (ym: string, locale: string) => {
   const [y, m] = ym.split('-');
-  return new Date(Number(y), Number(m) - 1).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+  return new Date(Number(y), Number(m) - 1).toLocaleDateString(locale, { month: 'long', year: 'numeric' });
 };
 
 export const ExpenseModule = () => {
+  const { t } = useTranslation();
   const { 
     transactions, addTransaction, updateTransaction,
     recurringExpenses, addRecurringExpense, deleteRecurringExpense, 
@@ -98,9 +100,9 @@ export const ExpenseModule = () => {
       <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-rose-600">
-            Egresos
+            {t('expenses.title')}
           </h1>
-          <p className="text-text-secondary mt-2 text-lg">Control de gastos y costos fijos mensuales.</p>
+          <p className="text-text-secondary mt-2 text-lg">{t('expenses.subtitle')}</p>
         </div>
         {activeTab === 'fijos' && (
           <button
@@ -108,7 +110,7 @@ export const ExpenseModule = () => {
             className="btn bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 flex items-center gap-2"
           >
             {showForm ? <X size={18} /> : <Plus size={18} />}
-            {showForm ? 'Cancelar' : 'Nuevo Costo Fijo'}
+            {showForm ? t('common.cancel') : t('expenses.fixed.addTitle')}
           </button>
         )}
       </header>
@@ -119,13 +121,13 @@ export const ExpenseModule = () => {
           onClick={() => setActiveTab('gastos')}
           className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'gastos' ? 'bg-rose-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'text-text-secondary hover:text-text-primary'}`}
         >
-          Registro de Gastos
+          {t('expenses.tabs.registry')}
         </button>
         <button
           onClick={() => setActiveTab('fijos')}
           className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'fijos' ? 'bg-rose-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'text-text-secondary hover:text-text-primary'}`}
         >
-          Costos Fijos
+          {t('expenses.tabs.fixed')}
           {pendingCount > 0 && (
             <span className="ml-2 bg-amber-500 text-black text-xs font-black px-1.5 py-0.5 rounded-full">{pendingCount}</span>
           )}
@@ -136,19 +138,19 @@ export const ExpenseModule = () => {
       {activeTab === 'gastos' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
-            <h3 className="text-lg font-bold mb-6">{editingTxId ? 'Editar Gasto' : 'Registrar Gasto'}</h3>
+            <h3 className="text-lg font-bold mb-6">{editingTxId ? t('expenses.form.editTitle') : t('expenses.form.addTitle')}</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="form-group">
-                <label className="form-label">Descripción</label>
-                <input type="text" className="form-control" placeholder="Ej: Compra supermercado" value={desc} onChange={e => setDesc(e.target.value)} required />
+                <label className="form-label">{t('expenses.form.description')}</label>
+                <input type="text" className="form-control" placeholder={t('expenses.form.descPlaceholder')} value={desc} onChange={e => setDesc(e.target.value)} required />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="form-group">
-                  <label className="form-label">Monto</label>
+                  <label className="form-label">{t('expenses.form.amount')}</label>
                   <input type="number" step="0.01" className="form-control" placeholder="0.00" value={amount} onChange={e => setAmount(e.target.value)} required />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Moneda</label>
+                  <label className="form-label">{t('expenses.form.currency')}</label>
                   <select className="form-control" value={currency} onChange={e => setCurrency(e.target.value as Currency)}>
                     <option value="ARS">ARS</option><option value="USD">USD</option><option value="EUR">EUR</option>
                   </select>
@@ -156,13 +158,13 @@ export const ExpenseModule = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="form-group">
-                  <label className="form-label">Categoría</label>
+                  <label className="form-label">{t('expenses.form.category')}</label>
                   <select className="form-control" value={category} onChange={e => setCategory(e.target.value)}>
                     {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Fecha</label>
+                  <label className="form-label">{t('expenses.form.date')}</label>
                   <DatePicker value={date} onChange={setDate} />
                 </div>
               </div>
@@ -172,13 +174,13 @@ export const ExpenseModule = () => {
                   <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-all ${isNecessary ? 'translate-x-4' : 'translate-x-0'}`} />
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs font-bold text-text-primary uppercase tracking-wider">Inversión Necesaria / Planificada</p>
-                  <p className="text-[10px] text-text-secondary">Evita que Nexus te recrimine por este gasto.</p>
+                  <p className="text-xs font-bold text-text-primary uppercase tracking-wider">{t('expenses.form.isNecessary')}</p>
+                  <p className="text-[10px] text-text-secondary">{t('expenses.form.necessaryTip')}</p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <button type="submit" className={`btn ${editingTxId ? 'btn-primary bg-amber-500 hover:bg-amber-600 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'btn-primary'} flex-1 mt-2`}>
-                  {editingTxId ? 'Actualizar Gasto' : 'Registrar Gasto'}
+                  {editingTxId ? t('expenses.form.update') : t('expenses.form.submit')}
                 </button>
                 {editingTxId && (
                   <button 
@@ -197,30 +199,30 @@ export const ExpenseModule = () => {
           </Card>
 
           <Card>
-            <h3 className="text-lg font-bold mb-4">Últimos movimientos</h3>
+            <h3 className="text-lg font-bold mb-4">{t('expenses.lastTransactions')}</h3>
             {egresos.length === 0 ? (
-              <p className="text-text-secondary text-sm text-center py-8">Sin egresos registrados.</p>
+              <p className="text-text-secondary text-sm text-center py-8">{t('expenses.empty')}</p>
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-1">
-                {egresos.slice(0, 30).map(t => (
-                  <div key={t.id} className="flex items-center justify-between py-3 border-b border-white/5 last:border-0 group">
+                {egresos.slice(0, 30).map(tx => (
+                  <div key={tx.id} className="flex items-center justify-between py-3 border-b border-white/5 last:border-0 group">
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-medium text-text-primary text-sm">{t.description}</p>
+                        <p className="font-medium text-text-primary text-sm">{tx.description}</p>
                         <button 
-                          onClick={() => handleEdit(t)}
+                          onClick={() => handleEdit(tx)}
                           className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/10 text-text-secondary transition-all"
-                          title="Editar"
+                          title={t('common.edit')}
                         >
-                          <Plus size={12} className="rotate-45" /> {/* Use a small icon for edit or pen */}
+                          <Plus size={12} className="rotate-45" />
                         </button>
                       </div>
                       <p className="text-xs text-text-secondary">
-                        {t.category} · {t.date}
-                        {t.isNecessary && <span className="ml-2 text-[10px] font-black bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded uppercase tracking-tighter">Necesario</span>}
+                        {t(`categories.${tx.category}`, { defaultValue: tx.category })} · {tx.date}
+                        {tx.isNecessary && <span className="ml-2 text-[10px] font-black bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded uppercase tracking-tighter">{t('common.necessary')}</span>}
                       </p>
                     </div>
-                    <span className="font-mono font-bold text-rose-400">{formatMoney(t.amount, t.currency)}</span>
+                    <span className="font-mono font-bold text-rose-400">{formatMoney(tx.amount, tx.currency)}</span>
                   </div>
                 ))}
               </div>
@@ -237,15 +239,15 @@ export const ExpenseModule = () => {
           {showForm && (
             <Card className="border-rose-500/30 bg-rose-500/5 animate-in slide-in-from-top-4 duration-300">
               <h3 className="text-base font-bold mb-4 flex items-center gap-2 text-text-primary">
-                <Plus size={18} className="text-rose-400" /> Agregar Costo Fijo
+                <Plus size={18} className="text-rose-400" /> {t('expenses.fixed.addTitle')}
               </h3>
               <form onSubmit={handleAddRecurring} className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="col-span-2">
-                  <label className="form-label">Nombre</label>
-                  <input required type="text" className="form-control" placeholder="Ej: Netflix, Internet..." value={rForm.name} onChange={e => setRForm(f => ({ ...f, name: e.target.value }))} />
+                  <label className="form-label">{t('expenses.fixed.name')}</label>
+                  <input required type="text" className="form-control" placeholder={t('expenses.fixed.namePlaceholder')} value={rForm.name} onChange={e => setRForm(f => ({ ...f, name: e.target.value }))} />
                 </div>
                 <div>
-                  <label className="form-label">Monto</label>
+                  <label className="form-label">{t('expenses.form.amount')}</label>
                   <input required type="number" className="form-control" placeholder="0" value={rForm.amount} onChange={e => setRForm(f => ({ ...f, amount: e.target.value }))} />
                 </div>
                 <div>
@@ -255,17 +257,17 @@ export const ExpenseModule = () => {
                   </select>
                 </div>
                 <div className="col-span-2">
-                  <label className="form-label">Categoría</label>
+                  <label className="form-label">{t('expenses.form.category')}</label>
                   <select className="form-control" value={rForm.category} onChange={e => setRForm(f => ({ ...f, category: e.target.value }))}>
                     {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="form-label">Vence día</label>
+                  <label className="form-label">{t('expenses.fixed.dayOfMonth')}</label>
                   <input type="number" min="1" max="31" className="form-control" value={rForm.dayOfMonth} onChange={e => setRForm(f => ({ ...f, dayOfMonth: e.target.value }))} />
                 </div>
                 <div className="flex items-end">
-                  <button type="submit" className="btn btn-primary w-full">Guardar</button>
+                  <button type="submit" className="btn btn-primary w-full">{t('common.save')}</button>
                 </div>
               </form>
             </Card>
@@ -277,24 +279,24 @@ export const ExpenseModule = () => {
               <button onClick={() => navigateMonth(-1)} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-text-secondary">
                 <ChevronLeft size={18} />
               </button>
-              <span className="font-bold text-text-primary capitalize text-lg">{formatMonth(viewMonth)}</span>
+              <span className="font-bold text-text-primary capitalize text-lg">{formatMonth(viewMonth, t('common.locale'))}</span>
               <button onClick={() => navigateMonth(1)} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-text-secondary">
                 <ChevronRight size={18} />
               </button>
               {viewMonth !== NOW_MONTH && (
                 <button onClick={() => setViewMonth(NOW_MONTH)} className="text-xs text-indigo-400 hover:underline flex items-center gap-1">
-                  <RotateCcw size={12} /> Volver a hoy
+                  <RotateCcw size={12} /> {t('expenses.fixed.backToCurrent')}
                 </button>
               )}
             </div>
             {/* Summary pills */}
             <div className="flex gap-3 text-sm">
               <div className="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold">
-                ✓ {formatMoney(totalFixed, 'ARS')} pagado
+                ✓ {formatMoney(totalFixed, 'ARS')} {t('expenses.fixed.paid')}
               </div>
               {pendingCount > 0 && (
                 <div className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold">
-                  ⏳ {pendingCount} pendiente{pendingCount > 1 ? 's' : ''}
+                  ⏳ {pendingCount} {t('expenses.fixed.pending')}
                 </div>
               )}
             </div>
@@ -304,10 +306,10 @@ export const ExpenseModule = () => {
           {recurringExpenses.length === 0 ? (
             <div className="text-center py-20 border border-dashed border-white/10 rounded-2xl">
               <div className="text-5xl mb-3">📋</div>
-              <h3 className="text-lg font-bold text-text-primary mb-1">No hay costos fijos configurados</h3>
-              <p className="text-text-secondary text-sm mb-4">Agregá tus suscripciones, servicios y gastos mensuales recurrentes.</p>
+              <h3 className="text-lg font-bold text-text-primary mb-1">{t('expenses.fixed.noConfig')}</h3>
+              <p className="text-text-secondary text-sm mb-4">{t('expenses.fixed.noConfigSub')}</p>
               <button onClick={() => setShowForm(true)} className="btn btn-primary">
-                <Plus size={16} className="mr-2 inline" /> Agregar primero
+                <Plus size={16} className="mr-2 inline" /> {t('expenses.fixed.addFirst')}
               </button>
             </div>
           ) : (
@@ -344,10 +346,10 @@ export const ExpenseModule = () => {
                         <span className={`font-bold text-sm ${isPaid ? 'text-text-secondary line-through' : 'text-text-primary'}`}>
                           {exp.name}
                         </span>
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-white/5 text-text-secondary">{exp.category}</span>
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-white/5 text-text-secondary">{t(`categories.${exp.category}`, { defaultValue: exp.category })}</span>
                       </div>
                       <div className="text-xs text-text-secondary mt-0.5">
-                        {isPaid ? '✓ Pagado este mes' : `Vence día ${exp.dayOfMonth}`}
+                        {isPaid ? t('expenses.fixed.isPaid') : t('expenses.fixed.dueDay', { day: exp.dayOfMonth })}
                       </div>
                     </div>
 
@@ -376,7 +378,7 @@ export const ExpenseModule = () => {
           {recurringExpenses.length > 0 && (
             <Card className="bg-white/3 border-white/8">
               <div className="flex justify-between items-center">
-                <span className="text-text-secondary font-medium">Total costos fijos del mes</span>
+                <span className="text-text-secondary font-medium">{t('expenses.fixed.totalMonth')}</span>
                 <span className="text-2xl font-black text-text-primary">
                   {formatMoney(recurringExpenses.reduce((acc, r) => acc + r.amount, 0), 'ARS')}
                 </span>
@@ -388,7 +390,10 @@ export const ExpenseModule = () => {
                 />
               </div>
               <p className="text-xs text-text-secondary mt-1">
-                {recurringExpenses.filter(r => r.paidMonths.some(p => p.month === viewMonth)).length} de {recurringExpenses.length} pagados
+                {t('expenses.fixed.paidCount', { 
+                  paid: recurringExpenses.filter(r => r.paidMonths.some(p => p.month === viewMonth)).length, 
+                  total: recurringExpenses.length 
+                })}
               </p>
             </Card>
           )}

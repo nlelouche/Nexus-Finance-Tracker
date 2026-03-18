@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '../../ui';
 import { useFinanceStore } from '../../../store/useFinanceStore';
 import { calculateRebalance } from '../../../utils/rebalancer';
@@ -7,6 +8,7 @@ import { Activity, Percent, ArrowUpCircle, ArrowDownCircle, MinusCircle, Edit3, 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export const PortfolioRebalancer = () => {
+  const { t } = useTranslation();
   const { investments, allocationTargets, updateAllocationTargets, exchangeRates } = useFinanceStore();
   const [isEditing, setIsEditing] = useState(false);
   const [draftTargets, setDraftTargets] = useState(allocationTargets);
@@ -34,22 +36,22 @@ export const PortfolioRebalancer = () => {
     <div className="flex flex-col gap-8 animate-in fade-in duration-500">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-xl font-black tracking-tight text-text-primary">Asistente de Rebalanceo</h3>
-          <p className="text-sm text-text-secondary mt-1">Comparativa de tu cartera actual vs. tu estrategia ideal.</p>
+          <h3 className="text-xl font-black tracking-tight text-text-primary">{t('investments.rebalancer.title')}</h3>
+          <p className="text-sm text-text-secondary mt-1">{t('investments.rebalancer.subtitle')}</p>
         </div>
         <button 
           onClick={() => isEditing ? handleSave() : setIsEditing(true)}
           disabled={isEditing && totalAllocation !== 100}
           className={`btn flex items-center gap-2 transition-all ${isEditing ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-white/5 hover:bg-white/10'}`}
         >
-          {isEditing ? <><Save size={18}/> Guardar Estrategia</> : <><Edit3 size={18}/> Ajustar Objetivos</>}
+          {isEditing ? <><Save size={18}/> {t('investments.rebalancer.save')}</> : <><Edit3 size={18}/> {t('investments.rebalancer.adjust')}</>}
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Gráfico Comparativo */}
         <Card className="lg:col-span-8 h-[400px]">
-          <h4 className="text-xs font-black uppercase tracking-widest text-text-secondary mb-6">Actual vs. Objetivo (%)</h4>
+          <h4 className="text-xs font-black uppercase tracking-widest text-text-secondary mb-6">{t('investments.rebalancer.chartTitle')}</h4>
           <div className="w-full h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
@@ -71,7 +73,7 @@ export const PortfolioRebalancer = () => {
         {/* Panel de Edición / Status */}
         <Card className="lg:col-span-4 overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
-            <h4 className="text-xs font-black uppercase tracking-widest text-text-secondary">Estrategia</h4>
+            <h4 className="text-xs font-black uppercase tracking-widest text-text-secondary">{t('investments.rebalancer.strategy')}</h4>
             {isEditing && (
                <span className={`text-xs font-black px-2 py-1 rounded ${totalAllocation === 100 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
                 {totalAllocation}%
@@ -113,7 +115,7 @@ export const PortfolioRebalancer = () => {
           {!isEditing && (
              <div className="mt-8 p-4 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl">
                 <p className="text-[10px] text-text-secondary leading-relaxed uppercase font-bold tracking-tight">
-                  Total Cartera: <span className="text-indigo-400">{formatMoney(totalCurrentUSD, 'USD')}</span>
+                  {t('investments.rebalancer.totalPortfolio')}: <span className="text-indigo-400">{formatMoney(totalCurrentUSD, 'USD')}</span>
                 </p>
              </div>
           )}
@@ -123,7 +125,7 @@ export const PortfolioRebalancer = () => {
       {/* Sugerencias de Acción */}
       <section>
         <h4 className="text-xs font-black uppercase tracking-widest text-text-secondary mb-6 flex items-center gap-2">
-          <Activity size={16} /> Recomendaciones de Ajuste
+          <Activity size={16} /> {t('investments.rebalancer.recommendations')}
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {rebalanceData.map((res) => (
@@ -138,7 +140,7 @@ export const PortfolioRebalancer = () => {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h5 className="font-black text-lg">{res.category}</h5>
-                  <p className="text-xs text-text-secondary">Desvío: <span className={res.action !== 'hold' ? 'font-bold text-text-primary' : ''}>{(res.currentPercentage - res.targetPercentage).toFixed(1)}%</span></p>
+                  <p className="text-xs text-text-secondary">{t('investments.rebalancer.deviation')}: <span className={res.action !== 'hold' ? 'font-bold text-text-primary' : ''}>{(res.currentPercentage - res.targetPercentage).toFixed(1)}%</span></p>
                 </div>
                 {res.action === 'buy' && <ArrowUpCircle className="text-emerald-400" size={24} />}
                 {res.action === 'sell' && <ArrowDownCircle className="text-rose-400" size={24} />}
@@ -148,7 +150,7 @@ export const PortfolioRebalancer = () => {
               <div className="flex items-center gap-4 bg-black/20 p-4 rounded-2xl border border-white/5">
                 <div className="flex-1">
                    <div className="text-[10px] font-black uppercase text-text-secondary opacity-50 mb-1">
-                    {res.action === 'buy' ? 'Sugerencia de compra' : res.action === 'sell' ? 'Sugerencia de venta' : 'Estrategia ok'}
+                    {res.action === 'buy' ? t('investments.rebalancer.buySuggestion') : res.action === 'sell' ? t('investments.rebalancer.sellSuggestion') : t('investments.rebalancer.holdSuggestion')}
                    </div>
                    <div className={`text-xl font-black font-mono ${res.action === 'buy' ? 'text-emerald-400' : res.action === 'sell' ? 'text-rose-400' : 'text-text-secondary opacity-50'}`}>
                     {res.action === 'hold' ? '--' : formatMoney(Math.abs(res.diffUSD), 'USD')}

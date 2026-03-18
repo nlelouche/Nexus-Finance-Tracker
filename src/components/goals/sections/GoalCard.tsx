@@ -1,5 +1,5 @@
-import React from 'react';
 import { Calendar, Zap, Edit3, Trash2, DollarSign, ChevronRight, TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { formatMoney, convertCurrency } from '../../../utils/finance';
 import { getDaysRemaining, getMonthsRemaining, getTrackingStatus, getProjection } from '../../../utils/goals';
 import { Goal, Currency, ExchangeRates } from '../../../types';
@@ -23,6 +23,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   expandedHistory,
   setExpandedHistory,
 }) => {
+  const { t } = useTranslation();
   const progress = Math.min(100, (goal.currentAmount / goal.targetAmount) * 100);
   const remaining = goal.targetAmount - goal.currentAmount;
   const months = getMonthsRemaining(goal.targetDate);
@@ -50,10 +51,10 @@ export const GoalCard: React.FC<GoalCardProps> = ({
             <span className="flex items-center gap-1"><Calendar size={12} /> {goal.targetDate}</span>
             {!isComplete && (
               <span className={`flex items-center gap-1 font-bold ${days < 60 ? 'text-rose-400' : 'text-text-secondary'}`}>
-                <Zap size={12} /> {days} días
+                <Zap size={12} /> {days} {t('goals.card.daysTo')}
               </span>
             )}
-            {isComplete && <span className="text-emerald-400 font-bold">✅ Completado</span>}
+            {isComplete && <span className="text-emerald-400 font-bold">✅ {t('common.complete')}</span>}
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -79,10 +80,10 @@ export const GoalCard: React.FC<GoalCardProps> = ({
             <span className="text-3xl font-black text-text-primary">
               {formatMoney(goal.currentAmount, goal.currency)}
             </span>
-            <span className="text-text-secondary text-sm ml-2">ahorrados</span>
+            <span className="text-text-secondary text-sm ml-2">{t('goals.card.reached')}</span>
           </div>
           <span className="text-text-secondary text-sm font-medium">
-            Meta: <strong className="text-text-primary">{formatMoney(goal.targetAmount, goal.currency)}</strong>
+            {t('goals.card.target')}: <strong className="text-text-primary">{formatMoney(goal.targetAmount, goal.currency)}</strong>
           </span>
         </div>
 
@@ -90,12 +91,14 @@ export const GoalCard: React.FC<GoalCardProps> = ({
         {tracking && !isComplete && (
           <div className={`flex flex-col gap-1 mb-3 px-3 py-2 rounded-lg border text-xs ${tracking.bg}`}>
             <div className="flex items-center justify-between">
-              <span className={`font-bold ${tracking.color}`}>{tracking.label}</span>
-              <span className="text-text-secondary">{tracking.sub}</span>
+              <span className={`font-bold ${tracking.color}`}>{t(`goals.status.${tracking.status}`)}</span>
+              <span className="text-text-secondary">
+                {t(`goals.status.${tracking.status}Sub`, { pct: Math.abs(tracking.diffPct).toFixed(0) })}
+              </span>
             </div>
             {projection && (
               <div className="flex items-center justify-between pt-1 border-t border-white/10">
-                <span className="text-text-secondary">A este ritmo terminarás:</span>
+                <span className="text-text-secondary">{t('goals.projection.label')}</span>
                 <span className={`font-bold ${
                   projection.diffMonths > 0
                     ? 'text-emerald-400'
@@ -104,9 +107,16 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                     : 'text-blue-400'
                 }`}>
                   {projection.projectedDate}
-                  {projection.diffMonths > 0 && ` (${projection.diffMonths} mes${projection.diffMonths > 1 ? 'es' : ''} antes 🎉)`}
-                  {projection.diffMonths < 0 && ` (${Math.abs(projection.diffMonths)} mes${Math.abs(projection.diffMonths) > 1 ? 'es' : ''} después ⚠️)`}
-                  {projection.diffMonths === 0 && ' (justo a tiempo ✅)'}
+                  {' '}
+                  {projection.diffMonths > 0 && t('goals.projection.early', { 
+                    months: projection.diffMonths, 
+                    suffix: Math.abs(projection.diffMonths) > 1 ? (t('common.language') === 'es' ? 'es' : 's') : '' 
+                  })}
+                  {projection.diffMonths < 0 && t('goals.projection.late', { 
+                    months: Math.abs(projection.diffMonths), 
+                    suffix: Math.abs(projection.diffMonths) > 1 ? (t('common.language') === 'es' ? 'es' : 's') : '' 
+                  })}
+                  {projection.diffMonths === 0 && t('goals.projection.onTime')}
                 </span>
               </div>
             )}
@@ -131,11 +141,11 @@ export const GoalCard: React.FC<GoalCardProps> = ({
           <span className={`text-sm font-bold ${accent.text}`}>{progress.toFixed(1)}%</span>
           {tracking && !isComplete && (
             <span className="text-xs text-text-secondary/60">
-              Esperado hoy: <strong className="text-text-secondary">{formatMoney(tracking.expectedAmount, goal.currency)}</strong>
+              {t('investments.recalc.expected')}: <strong className="text-text-secondary">{formatMoney(tracking.expectedAmount, goal.currency)}</strong>
             </span>
           )}
           {!tracking && !isComplete && (
-            <span className="text-text-secondary text-xs">Faltan {formatMoney(remaining, goal.currency)}</span>
+            <span className="text-text-secondary text-xs">{t('goals.card.remaining')} {formatMoney(remaining, goal.currency)}</span>
           )}
         </div>
       </div>
@@ -145,7 +155,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
         <div className="flex gap-3">
           <div className="flex-1 bg-white/5 rounded-xl p-3 border border-white/5 text-center">
             <div className="text-xs text-text-secondary mb-1 flex items-center justify-center gap-1">
-              <TrendingUp size={11} /> Mensual necesario
+              <TrendingUp size={11} /> {t('goals.form.targetAmount')} {t('common.monthly')}
             </div>
             <div className={`text-base font-black ${accent.text}`}>
               {formatMoney(monthlyNeeded, goal.currency)}
@@ -158,7 +168,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
           </div>
           <div className="flex-1 bg-white/5 rounded-xl p-3 border border-white/5 text-center">
             <div className="text-xs text-text-secondary mb-1 flex items-center justify-center gap-1">
-              <Calendar size={11} /> Meses restantes
+              <Calendar size={11} /> {t('goals.card.monthsRemaining')}
             </div>
             <div className="text-base font-black text-text-primary">
               {months}
@@ -170,14 +180,14 @@ export const GoalCard: React.FC<GoalCardProps> = ({
       {/* Currency Breakdown */}
       {goal.history && goal.history.length > 0 && (
         <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-          <p className="text-[10px] text-text-secondary uppercase tracking-widest mb-2 font-bold">Resumen de fondos</p>
+          <p className="text-[10px] text-text-secondary uppercase tracking-widest mb-2 font-bold">{t('goals.card.fundSummary')}</p>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             {['USD', 'ARS', 'EUR'].map(cur => {
               const total = goal.history?.filter(h => h.currency === cur).reduce((sum, entry) => sum + entry.amount, 0) || 0;
               if (total === 0) return null;
               return (
                 <span key={cur} className="text-xs font-mono font-bold text-text-primary">
-                  {formatMoney(total, cur as Currency)} <span className="text-text-secondary font-normal opacity-60">en {cur}</span>
+                  {formatMoney(total, cur as Currency)} <span className="text-text-secondary font-normal opacity-60">{t('common.in')} {cur}</span>
                 </span>
               );
             })}
@@ -191,7 +201,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
           onClick={() => setExpandedHistory(expandedHistory === goal.id ? null : goal.id)}
           className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors"
         >
-          {expandedHistory === goal.id ? 'Ocultar historial' : 'Ver historial de aportes'}
+          {expandedHistory === goal.id ? t('common.hideHistory') : t('goals.card.history')}
           <ChevronRight size={12} className={`transition-transform ${expandedHistory === goal.id ? 'rotate-90' : ''}`} />
         </button>
 
@@ -200,8 +210,8 @@ export const GoalCard: React.FC<GoalCardProps> = ({
             {goal.history?.slice().reverse().map(entry => (
               <div key={entry.id} className="flex justify-between items-start py-2 border-b border-white/5 last:border-0">
                 <div className="min-w-0 pr-2">
-                  <p className="text-xs font-bold text-text-primary truncate">{entry.note || 'Sin nota'}</p>
-                  <p className="text-[10px] text-text-secondary">{new Date(entry.date).toLocaleDateString('es-AR')}</p>
+                  <p className="text-xs font-bold text-text-primary truncate">{entry.note || t('common.noNote')}</p>
+                  <p className="text-[10px] text-text-secondary">{new Date(entry.date).toLocaleDateString(t('common.locale'))}</p>
                 </div>
                 <span className={`text-xs font-mono font-bold ${entry.amount > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                   {entry.amount > 0 ? '+' : ''}{formatMoney(entry.amount, entry.currency)}
@@ -209,7 +219,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
               </div>
             ))}
             {(!goal.history || goal.history.length === 0) && (
-              <p className="text-xs text-text-secondary text-center py-4 italic">No hay movimientos registrados</p>
+              <p className="text-xs text-text-secondary text-center py-4 italic">{t('goals.card.noHistory')}</p>
             )}
           </div>
         )}
@@ -222,15 +232,15 @@ export const GoalCard: React.FC<GoalCardProps> = ({
             onClick={() => openModal({ id: goal.id, name: goal.name, currency: goal.currency }, 'add')}
             className="btn bg-white/5 hover:bg-white/10 border border-white/10 text-text-primary flex items-center justify-center gap-2 flex-1"
           >
-            <DollarSign size={16} className={accent.text} /> Aporte
+            <DollarSign size={16} className={accent.text} /> {t('goals.card.addProgress')}
             <ChevronRight size={14} className="ml-auto text-text-secondary" />
           </button>
           <button
             onClick={() => openModal({ id: goal.id, name: goal.name, currency: goal.currency }, 'withdraw')}
             className="btn bg-rose-500/5 hover:bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center gap-2 px-4"
-            title="Retirar fondos de emergencia"
+            title={t('goals.card.withdrawTitle')}
           >
-            <TrendingUp size={16} className="rotate-180" /> Retirar
+            <TrendingUp size={16} className="rotate-180" /> {t('goals.card.withdraw')}
           </button>
         </div>
       )}

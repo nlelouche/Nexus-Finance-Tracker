@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from '../../ui';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { formatMoney } from '../../../utils/finance';
@@ -16,6 +17,7 @@ export const WealthForecast: React.FC<WealthForecastProps> = ({
   fireTarget,
   annualReturn = 0.07
 }) => {
+  const { t } = useTranslation();
   const data = useMemo(() => {
     const points = [];
     const monthsForecast = 120; // 10 years forecast
@@ -45,11 +47,11 @@ export const WealthForecast: React.FC<WealthForecastProps> = ({
     <Card className="mt-6 border-white/10 bg-white/5">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h3 className="text-lg font-black text-text-primary tracking-tight">Proyección de Libertad</h3>
-          <p className="text-xs text-text-secondary">Simulación a 10 años con retorno real del {(annualReturn * 100).toFixed(0)}% anual</p>
+          <h3 className="text-lg font-black text-text-primary tracking-tight">{t('dashboard.forecast.title')}</h3>
+          <p className="text-xs text-text-secondary">{t('dashboard.forecast.subtitle', { rate: (annualReturn * 100).toFixed(0) })}</p>
         </div>
         <div className="text-right">
-          <p className="text-[10px] font-bold text-emerald-400 uppercase">Meta FIRE</p>
+          <p className="text-[10px] font-bold text-emerald-400 uppercase">{t('dashboard.forecast.metaFire')}</p>
           <p className="text-sm font-black text-text-primary">{formatMoney(fireTarget, 'USD')}</p>
         </div>
       </div>
@@ -66,7 +68,7 @@ export const WealthForecast: React.FC<WealthForecastProps> = ({
             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
             <XAxis 
               dataKey="year" 
-              label={{ value: 'Años', position: 'insideBottomRight', offset: -5, fontSize: 10, fill: '#94a3b8' }}
+              label={{ value: t('dashboard.forecast.xAxis'), position: 'insideBottomRight', offset: -5, fontSize: 10, fill: '#94a3b8' }}
               stroke="#ffffff20"
               fontSize={10}
               tick={{ fill: '#94a3b8' }}
@@ -78,10 +80,10 @@ export const WealthForecast: React.FC<WealthForecastProps> = ({
             <Tooltip 
               contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #ffffff10', borderRadius: '12px' }}
               itemStyle={{ color: '#818cf8' }}
-              formatter={(value: any) => [formatMoney(Number(value), 'USD'), 'Patrimonio']}
-              labelFormatter={(label) => `Año ${label}`}
+              formatter={(value: any) => [formatMoney(Number(value), 'USD'), t('dashboard.forecast.tooltip')]}
+              labelFormatter={(label) => t('dashboard.forecast.label', { year: label })}
             />
-            <ReferenceLine y={fireTarget} stroke="#10b981" strokeDasharray="5 5" label={{ value: 'META', position: 'insideTopRight', fill: '#10b981', fontSize: 10 }} />
+            <ReferenceLine y={fireTarget} stroke="#10b981" strokeDasharray="5 5" label={{ value: t('dashboard.forecast.meta'), position: 'insideTopRight', fill: '#10b981', fontSize: 10 }} />
             <Area 
               type="monotone" 
               dataKey="patrimonio" 

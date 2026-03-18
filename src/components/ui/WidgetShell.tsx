@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { GripVertical, Eye, EyeOff } from 'lucide-react';
 
 interface WidgetShellProps {
@@ -10,6 +11,7 @@ interface WidgetShellProps {
 }
 
 export const WidgetShell: React.FC<WidgetShellProps> = ({ id, children, editMode, visible, onToggle }) => {
+  const { t } = useTranslation();
   return (
     <div className={`h-full flex flex-col bg-bg-surface border border-white/5 rounded-2xl overflow-hidden transition-all duration-300 group ${!visible && !editMode ? 'hidden' : 'shadow-xl shadow-black/20'} ${!visible && editMode ? 'ring-2 ring-indigo-500/30' : ''}`}>
       {editMode && (
@@ -34,7 +36,7 @@ export const WidgetShell: React.FC<WidgetShellProps> = ({ id, children, editMode
           <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
             <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
               <EyeOff size={12} className="text-text-secondary" />
-              <span className="text-[10px] font-bold text-text-secondary uppercase tracking-tighter">Widget Oculto</span>
+              <span className="text-[10px] font-bold text-text-secondary uppercase tracking-tighter">{t('dashboard.widgets.hidden')}</span>
             </div>
           </div>
         )}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { RefreshCw, Edit3, Wifi } from 'lucide-react';
 
@@ -12,6 +13,7 @@ const RATE_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 export const ExchangeRateWidget = () => {
+  const { t } = useTranslation();
   const { exchangeRates, updateExchangeRates } = useFinanceStore();
   
   const safeRates = {
@@ -75,10 +77,10 @@ export const ExchangeRateWidget = () => {
     <div className="w-full bg-white/5 backdrop-blur-md border-y border-white/10 px-4 py-2 flex flex-wrap items-center justify-between gap-4 animate-in slide-in-from-top duration-700">
       <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
         <div className="flex flex-col">
-          <span className="text-[10px] font-black uppercase tracking-tighter text-text-secondary opacity-50">Mercado USD</span>
+          <span className="text-[10px] font-black uppercase tracking-tighter text-text-secondary opacity-50">{t('dashboard.exchange.marketUsd')}</span>
           <div className="flex items-center gap-1">
             <Wifi size={10} className={safeRates.lastUpdated ? "text-emerald-400" : "text-amber-400"} />
-            <span className="text-[10px] font-bold text-text-secondary">{lastUpdated || 'Sin conexión'}</span>
+            <span className="text-[10px] font-bold text-text-secondary">{lastUpdated || t('dashboard.exchange.offline')}</span>
           </div>
         </div>
 
@@ -96,7 +98,7 @@ export const ExchangeRateWidget = () => {
         })}
 
         <div className="flex flex-col border-l border-white/10 pl-4 pr-4">
-          <span className="text-[10px] font-black uppercase tracking-tight text-text-secondary">EUR/USD</span>
+          <span className="text-[10px] font-black uppercase tracking-tight text-text-secondary">{t('dashboard.exchange.eurUsd')}</span>
           <span className="text-sm font-black tracking-tighter text-text-primary/80">
             {safeRates.eurToUsd.toFixed(3)}
           </span>
@@ -104,7 +106,7 @@ export const ExchangeRateWidget = () => {
       </div>
 
       <div className="flex items-center gap-2">
-        {error && <span className="text-[10px] text-rose-400 animate-pulse">⚠️ Error</span>}
+        {error && <span className="text-[10px] text-rose-400 animate-pulse">{t('dashboard.exchange.error')}</span>}
         <button
           onClick={handleFetch}
           disabled={loading}
@@ -125,8 +127,8 @@ export const ExchangeRateWidget = () => {
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
           <div className="bg-[#0a0a0b] border border-white/10 p-6 md:p-10 rounded-[40px] w-full max-w-lg shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 duration-300">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="text-2xl font-black tracking-tighter text-text-primary">Ajustar Cotizaciones</h3>
-              <div className="px-3 py-1 bg-white/5 rounded-full border border-white/5 text-[10px] font-black text-text-secondary uppercase tracking-widest">Manual Override</div>
+              <h3 className="text-2xl font-black tracking-tighter text-text-primary">{t('dashboard.exchange.modal.title')}</h3>
+              <div className="px-3 py-1 bg-white/5 rounded-full border border-white/5 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('dashboard.exchange.modal.override')}</div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -165,13 +167,13 @@ export const ExchangeRateWidget = () => {
                 onClick={() => setEditMode(false)}
                 className="flex-1 px-8 py-5 rounded-2xl bg-white/5 hover:bg-white/10 font-black text-sm transition-all border border-white/5 text-text-primary"
               >
-                Cancelar
+                {t('dashboard.exchange.modal.cancel')}
               </button>
               <button 
                 onClick={handleSaveDraft}
                 className="flex-1 px-8 py-5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-black text-sm transition-all shadow-2xl shadow-indigo-600/40 text-white"
               >
-                Confirmar Cambios
+                {t('dashboard.exchange.modal.confirm')}
               </button>
             </div>
           </div>

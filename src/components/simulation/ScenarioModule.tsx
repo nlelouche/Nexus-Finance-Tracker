@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { Card } from '../ui';
 import { Calculator, Plus, Trash2, Play, TrendingDown, TrendingUp, DollarSign, Info } from 'lucide-react';
@@ -8,6 +9,7 @@ import { ScenarioChart } from './sections/ScenarioChart';
 import { Transaction, Investment } from '../../types';
 
 export const ScenarioModule = () => {
+  const { t } = useTranslation();
   const { transactions, investments, exchangeRates } = useFinanceStore();
   
   // Simulation State
@@ -81,9 +83,9 @@ export const ScenarioModule = () => {
           </div>
           <div>
             <h1 className="text-4xl font-black tracking-tighter text-text-primary">
-              Financial <span className="text-indigo-400">Flight Simulator</span>
+              {t('simulation.title')} <span className="text-indigo-400">{t('simulation.titleAccent')}</span>
             </h1>
-            <p className="text-text-secondary font-medium opacity-60">Proyectá el impacto de decisiones y eventos externos sin riesgo.</p>
+            <p className="text-text-secondary font-medium opacity-60">{t('simulation.subtitle')}</p>
           </div>
         </div>
       </header>
@@ -93,27 +95,27 @@ export const ScenarioModule = () => {
         <div className="lg:col-span-4 space-y-6">
           <Card className="border-indigo-500/20 bg-indigo-500/5 p-4">
             <h3 className="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-              <Play size={14} /> Configuración de Vuelo
+              <Play size={14} /> {t('simulation.config.title')}
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="text-[10px] uppercase font-bold text-text-secondary mb-1 block">Horizonte Temporal</label>
+                <label className="text-[10px] uppercase font-bold text-text-secondary mb-1 block">{t('simulation.config.horizon')}</label>
                 <select 
                   value={simulationMonths} 
                   onChange={(e) => setSimulationMonths(Number(e.target.value))}
                   className="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-sm text-text-primary"
                 >
-                  <option value={60}>5 Años</option>
-                  <option value={120}>10 Años</option>
-                  <option value={240}>20 Años</option>
-                  <option value={360}>30 Años</option>
+                  <option value={60}>{t('simulation.config.years', { count: 5 })}</option>
+                  <option value={120}>{t('simulation.config.years', { count: 10 })}</option>
+                  <option value={240}>{t('simulation.config.years', { count: 20 })}</option>
+                  <option value={360}>{t('simulation.config.years', { count: 30 })}</option>
                 </select>
               </div>
             </div>
           </Card>
 
           <div className="flex justify-between items-center mb-2 px-1">
-            <h3 className="text-xs font-bold text-text-secondary uppercase tracking-widest">Eventos del Escenario</h3>
+            <h3 className="text-xs font-bold text-text-secondary uppercase tracking-widest">{t('simulation.events.title')}</h3>
             <div className="flex gap-2">
                <button onClick={() => addEvent('one-time-cashflow')} className="p-1 hover:bg-white/10 rounded text-indigo-400"><Plus size={16} /></button>
             </div>
@@ -134,8 +136,10 @@ export const ScenarioModule = () => {
                     <div>
                       <h4 className="text-sm font-bold text-text-primary">{event.name}</h4>
                       <p className="text-[10px] text-text-secondary">
-                        {event.type === 'market-shock' ? `Impacto: ${(event.amount * 100).toFixed(0)}%` : `Monto: ${formatMoney(event.amount, 'USD')}`}
-                        {' • '} Mes {event.monthOffset}
+                        {event.type === 'market-shock' 
+                          ? t('simulation.events.impact', { value: `${(event.amount * 100).toFixed(0)}%` })
+                          : t('simulation.events.amount', { value: formatMoney(event.amount, 'USD') })}
+                        {' • '} {t('simulation.events.month', { month: event.monthOffset })}
                       </p>
                     </div>
                   </div>
@@ -151,8 +155,8 @@ export const ScenarioModule = () => {
 
             {events.length === 0 && (
               <div className="text-center py-10 opacity-40">
-                <p className="text-sm italic">No hay eventos activos.</p>
-                <p className="text-[10px]">Agregá eventos para simular cambios.</p>
+                <p className="text-sm italic">{t('simulation.events.empty')}</p>
+                <p className="text-[10px]">{t('simulation.events.emptySub')}</p>
               </div>
             )}
           </div>
@@ -166,20 +170,22 @@ export const ScenarioModule = () => {
             <Card className="border-indigo-500/20 bg-indigo-500/5">
               <div className="flex items-center gap-2 mb-2">
                 <div className="p-1.5 bg-indigo-500/20 rounded text-indigo-400"><Info size={14} /></div>
-                <h4 className="text-xs font-bold text-text-secondary uppercase">Impacto en Libertad</h4>
+                <h4 className="text-xs font-bold text-text-secondary uppercase">{t('simulation.impact.title')}</h4>
               </div>
               <p className="text-sm text-text-secondary">
-                Este escenario {simulationData[simulationData.length-1].delta > 0 ? 'adelanta' : 'retrasa'} tu meta significativamente.
+                {simulationData[simulationData.length-1].delta > 0 
+                  ? t('simulation.impact.ahead') 
+                  : t('simulation.impact.behind')}
               </p>
             </Card>
 
             <Card className="border-amber-500/20 bg-amber-500/5">
               <div className="flex items-center gap-2 mb-2">
                 <div className="p-1.5 bg-amber-500/20 rounded text-amber-400"><TrendingUp size={14} /></div>
-                <h4 className="text-xs font-bold text-text-secondary uppercase">Estrategia Sugerida</h4>
+                <h4 className="text-xs font-bold text-text-secondary uppercase">{t('simulation.strategy.title')}</h4>
               </div>
               <p className="text-sm text-text-secondary">
-                Simulá un aumento de ahorro del 10% para ver cómo neutraliza shocks de mercado.
+                {t('simulation.strategy.tip')}
               </p>
             </Card>
           </div>

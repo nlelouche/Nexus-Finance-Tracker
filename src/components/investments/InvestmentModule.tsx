@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Responsive } from 'react-grid-layout/legacy';
 import useMeasure from 'react-use-measure';
 import { WidgetShell } from '../ui/WidgetShell';
@@ -44,6 +45,7 @@ const KPI_ICONS: Record<KPIIconType, React.ReactNode> = {
 };
 
 export const InvestmentModule = () => {
+  const { t } = useTranslation();
   const { 
     addInvestment, updateInvestmentCurrent, injectInvestment, 
     withdrawInvestment, deleteInvestment, updateInvestmentLayout, 
@@ -119,13 +121,13 @@ export const InvestmentModule = () => {
       <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 mb-12">
         <div className="space-y-1">
           <h1 className="text-5xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">
-            Portfolio
+            {t('investments.title')}
           </h1>
           <div className="flex items-center gap-2">
-            <p className="text-text-secondary font-medium opacity-60">Gestión de capital y análisis de rendimiento avanzado.</p>
+            <p className="text-text-secondary font-medium opacity-60">{t('investments.subtitle')}</p>
             {editMode && (
               <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-widest border border-amber-500/20 animate-pulse">
-                Modo Edición
+                {t('dashboard.editMode')}
               </span>
             )}
           </div>
@@ -133,26 +135,26 @@ export const InvestmentModule = () => {
         <div className="flex flex-wrap gap-3">
           {isBulkUpdating ? (
             <>
-              <button className="btn border border-white/10 text-text-secondary hover:bg-white/5" onClick={() => { setIsBulkUpdating(false); setBulkPrices({}); }}>Cancelar</button>
-              <button className="btn-primary px-6 py-3 rounded-2xl font-black text-sm shadow-xl shadow-indigo-600/20 text-white" onClick={handleSaveBulk}>Guardar Todo</button>
+              <button className="btn border border-white/10 text-text-secondary hover:bg-white/5" onClick={() => { setIsBulkUpdating(false); setBulkPrices({}); }}>{t('common.cancel')}</button>
+              <button className="btn-primary px-6 py-3 rounded-2xl font-black text-sm shadow-xl shadow-indigo-600/20 text-white" onClick={handleSaveBulk}>Guardar todo</button>
             </>
           ) : (
             <>
               <button className="btn border border-indigo-500/20 bg-indigo-500/5 text-indigo-400 hover:bg-indigo-500/10 flex items-center gap-2 rounded-2xl px-5 py-3" onClick={handleStartBulk}>
-                <TrendingUp size={18} /> Actualización Lote
+                <TrendingUp size={18} /> {t('investments.bulkUpdate')}
               </button>
               <button className="btn bg-white/5 text-text-primary hover:bg-white/10 border border-white/5 flex items-center gap-2 rounded-2xl px-5 py-3" onClick={() => handleOpenModal('assistant')}>
-                <Calculator size={18} /> Asistente
+                <Calculator size={18} /> {t('investments.assistant')}
               </button>
               <button 
                 className={`btn flex items-center gap-2 rounded-2xl px-5 py-3 border transition-all duration-300 ${editMode ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-white/5 text-text-secondary hover:bg-white/10'}`} 
                 onClick={() => setEditMode(!editMode)}
               >
                 {editMode ? <Check size={18} /> : <LayoutPanelLeft size={18} />}
-                {editMode ? 'Finalizar' : 'Editar Layout'}
+                {editMode ? t('investments.finish') : t('investments.editLayout')}
               </button>
               <button className="btn-primary shadow-xl shadow-indigo-600/20 flex items-center gap-2 rounded-2xl px-6 py-3 font-black text-white" onClick={() => handleOpenModal('create')}>
-                <Plus size={18} /> Nuevo Activo
+                <Plus size={18} /> {t('investments.newAsset')}
               </button>
             </>
           )}
@@ -176,7 +178,7 @@ export const InvestmentModule = () => {
           {/* KPIs */}
           <div key="portfolio-kpis">
             <WidgetShell 
-              id="KPIs de Portfolio" editMode={editMode} 
+              id={t('investments.title')} editMode={editMode} 
               visible={investmentWidgets.find(w => w.id === 'portfolio-kpis')?.visible ?? true}
               onToggle={() => toggleInvestmentWidgetVisibility('portfolio-kpis')}
             >
@@ -196,7 +198,7 @@ export const InvestmentModule = () => {
           {/* Wealth Projection */}
           <div key="wealth-projection">
              <WidgetShell 
-              id="Proyección de Riqueza" editMode={editMode} 
+              id={t('investments.projection.title')} editMode={editMode} 
               visible={investmentWidgets.find(w => w.id === 'wealth-projection')?.visible ?? true}
               onToggle={() => toggleInvestmentWidgetVisibility('wealth-projection')}
             >
@@ -206,30 +208,30 @@ export const InvestmentModule = () => {
                   <div className="space-y-2">
                     <h3 className="text-2xl font-black text-text-primary flex items-center gap-3 tracking-tighter">
                       <div className="p-2 bg-indigo-500/20 rounded-xl text-indigo-400"><TrendingUp size={24} /></div>
-                      Proyección de Riqueza
+                      {t('investments.projection.title')}
                     </h3>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 relative z-10">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">Aporte Mensual (USD)</label>
+                    <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">{t('investments.projection.monthly')}</label>
                     <input type="number" className="form-control h-14 px-6 text-lg font-black bg-white/5 border-white/10 rounded-2xl" value={projMonthly} onChange={e => setProjMonthly(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] ml-1">Tasa Anual Estimada (%)</label>
+                    <label className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] ml-1">{t('investments.projection.annualRate')}</label>
                     <input type="number" step="0.1" className="form-control h-14 px-6 text-lg font-black bg-white/5 border-white/10 rounded-2xl" value={projRate} onChange={e => setProjRate(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">Capital Inicial (Actual)</label>
+                    <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">{t('investments.projection.initial')}</label>
                     <div className="h-14 px-6 flex items-center font-black text-lg bg-white/5 border border-white/5 rounded-2xl opacity-40">{fm(totals.totalCurrent, 'USD')}</div>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
                   {[
-                    { label: 'En 1 Mes', months: 1, color: 'text-blue-400' },
-                    { label: 'En 1 Año', months: 12, color: 'text-emerald-400' },
-                    { label: 'En 2 Años', months: 24, color: 'text-purple-400' },
-                    { label: 'En 5 Años', months: 60, color: 'text-orange-400' }
+                    { label: '1 Mes', months: 1, color: 'text-blue-400' },
+                    { label: '1 Año', months: 12, color: 'text-emerald-400' },
+                    { label: '2 Años', months: 24, color: 'text-purple-400' },
+                    { label: '5 Años', months: 60, color: 'text-orange-400' }
                   ].map((period) => (
                     <div key={period.label} className="bg-white/[0.03] p-6 rounded-[24px] border border-white/5 hover:bg-white/[0.05] transition-colors group/tile">
                       <div className="text-[10px] text-text-secondary font-black uppercase tracking-widest mb-2 opacity-60 group-hover/tile:opacity-100 transition-opacity">{period.label}</div>
@@ -246,7 +248,7 @@ export const InvestmentModule = () => {
           {/* Composition */}
           <div key="asset-composition">
             <WidgetShell 
-              id="Distribución y Composición" editMode={editMode} 
+              id="Distribución y composición" editMode={editMode} 
               visible={investmentWidgets.find(w => w.id === 'asset-composition')?.visible ?? true}
               onToggle={() => toggleInvestmentWidgetVisibility('asset-composition')}
             >
@@ -290,7 +292,7 @@ export const InvestmentModule = () => {
           {/* Table */}
           <div key="asset-table">
             <WidgetShell 
-              id="Listado de Activos" editMode={editMode} 
+              id={t('investments.list.title')} editMode={editMode} 
               visible={investmentWidgets.find(w => w.id === 'asset-table')?.visible ?? true}
               onToggle={() => toggleInvestmentWidgetVisibility('asset-table')}
             >
@@ -298,7 +300,7 @@ export const InvestmentModule = () => {
                 <div className="relative">
                   <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-text-secondary opacity-40" size={20} />
                   <input 
-                    type="text" placeholder="Filtrar activos..." 
+                    type="text" placeholder={t('investments.list.filter')} 
                     className="w-full bg-white/[0.03] border border-white/5 rounded-[24px] py-6 pl-14 pr-6 text-lg font-bold outline-none focus:border-indigo-500/30 transition-all"
                     value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
                   />
@@ -308,11 +310,11 @@ export const InvestmentModule = () => {
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="bg-white/5 text-[10px] text-text-secondary font-black uppercase tracking-[0.2em] border-b border-white/5">
-                          <th className="px-8 py-6">Activo</th>
-                          <th className="px-8 py-6 text-right">Invertido</th>
-                          <th className="px-8 py-6 text-right">Valor Actual</th>
-                          <th className="px-8 py-6 text-right">Rendimiento</th>
-                          <th className="px-8 py-6 text-center">Gestión</th>
+                          <th className="px-8 py-6">{t('investments.list.asset')}</th>
+                          <th className="px-8 py-6 text-right">{t('investments.list.invested')}</th>
+                          <th className="px-8 py-6 text-right">{t('investments.list.current')}</th>
+                          <th className="px-8 py-6 text-right">{t('investments.list.performance')}</th>
+                          <th className="px-8 py-6 text-center">{t('investments.list.management')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5">

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
+import { useTranslation } from 'react-i18next';
 import { ExchangeRateWidget } from '../ui/ExchangeRateWidget';
 import { ShoppingCart, Zap, Briefcase, Receipt, CreditCard, Settings2, Check } from 'lucide-react';
 import { WidgetShell } from '../ui/WidgetShell';
@@ -27,6 +28,7 @@ import 'react-resizable/css/styles.css';
  
 
 export const Dashboard = () => {
+  const { t } = useTranslation();
   const { 
     transactions, investments, goals, exchangeRates,
     dashboardWidgets, updateWidgetLayout, toggleWidgetVisibility 
@@ -97,15 +99,15 @@ export const Dashboard = () => {
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="flex flex-col gap-2">
             <h1 className="text-4xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400">
-              Dashboard
+              {t('dashboard.title')}
             </h1>
             <div className="flex items-center gap-2">
               <p className="text-text-secondary font-medium opacity-60">
-                Tu centro de comando financiero.
+                {t('dashboard.subtitle')}
               </p>
               {editMode && (
                 <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-bold uppercase tracking-widest border border-amber-500/20 animate-pulse">
-                  Modo Edición
+                  {t('dashboard.editMode')}
                 </span>
               )}
             </div>
@@ -116,7 +118,7 @@ export const Dashboard = () => {
             className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-sm transition-all shadow-xl hover:-translate-y-0.5 active:translate-y-0 ${editMode ? 'bg-indigo-600 text-white shadow-indigo-600/20' : 'bg-white/5 text-text-primary hover:bg-white/10 border border-white/5'}`}
           >
             {editMode ? <Check size={18} /> : <Settings2 size={18} />}
-            {editMode ? 'Guardar Cambios' : 'Personalizar Dashboard'}
+            {editMode ? t('dashboard.saveChanges') : t('dashboard.customize')}
           </button>
         </header>
 

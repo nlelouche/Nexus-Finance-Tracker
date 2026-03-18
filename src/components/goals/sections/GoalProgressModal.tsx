@@ -1,5 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Currency } from '../../../types';
 
 interface GoalProgressModalProps {
@@ -29,6 +30,7 @@ export const GoalProgressModal: React.FC<GoalProgressModalProps> = ({
   setProgressNote,
   handleProgress,
 }) => {
+  const { t } = useTranslation();
   if (!progressModal) return null;
 
   return (
@@ -50,7 +52,7 @@ export const GoalProgressModal: React.FC<GoalProgressModalProps> = ({
                   modalMode === 'add' ? 'bg-amber-500 text-black' : 'text-text-secondary hover:bg-white/10'
                 }`}
               >
-                + Aporte
+                {t('goals.modal.addTab')}
               </button>
               <button
                 onClick={() => setModalMode('withdraw')}
@@ -58,7 +60,7 @@ export const GoalProgressModal: React.FC<GoalProgressModalProps> = ({
                   modalMode === 'withdraw' ? 'bg-rose-500 text-white' : 'text-text-secondary hover:bg-white/10'
                 }`}
               >
-                - Retiro
+                {t('goals.modal.withdrawTab')}
               </button>
             </div>
           </div>
@@ -70,8 +72,8 @@ export const GoalProgressModal: React.FC<GoalProgressModalProps> = ({
         <div className="p-6">
           <p className="text-sm text-text-secondary mb-4">
             {modalMode === 'add'
-              ? '¿Cuánto sumás al fondo?'
-              : '⚠️ Retiro de emergencia — ¿cuánto retirás?'
+              ? t('goals.modal.addQuestion')
+              : t('goals.modal.withdrawQuestion')
             }
           </p>
           <div className="flex gap-2 mb-4">
@@ -103,11 +105,11 @@ export const GoalProgressModal: React.FC<GoalProgressModalProps> = ({
           </div>
 
           <div className="form-group mb-6">
-            <label className="text-xs text-text-secondary font-bold uppercase mb-2 block">Nota / Aclaración (Opcional)</label>
+            <label className="text-xs text-text-secondary font-bold uppercase mb-2 block">{t('goals.modal.noteLabel')}</label>
             <input 
               type="text" 
               className="form-control" 
-              placeholder="Ej: Ahorro de aguinaldo, Bono..."
+              placeholder={t('goals.modal.notePlaceholder')}
               value={progressNote}
               onChange={e => setProgressNote(e.target.value)}
             />
@@ -115,7 +117,7 @@ export const GoalProgressModal: React.FC<GoalProgressModalProps> = ({
 
           <div className="flex gap-3">
             <button onClick={() => setProgressModal(null)} className="btn border border-white/10 hover:bg-white/5 flex-1">
-              Cancelar
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleProgress}
@@ -126,7 +128,7 @@ export const GoalProgressModal: React.FC<GoalProgressModalProps> = ({
                   : 'bg-rose-600 hover:bg-rose-500 text-white'
               }`}
             >
-              {modalMode === 'add' ? 'Confirmar aporte' : 'Confirmar retiro'}
+              {modalMode === 'add' ? t('goals.modal.confirmAdd') : t('goals.modal.confirmWithdraw')}
             </button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import type { Currency, Goal } from '../../types';
 import { GOAL_EMOJIS } from '../../utils/goals';
@@ -9,6 +10,7 @@ import { GoalProgressModal } from './sections/GoalProgressModal';
 import { GoalDeleteModal } from './sections/GoalDeleteModal';
 
 export const GoalModule = () => {
+  const { t } = useTranslation();
   const { goals, addGoal, updateGoal, updateGoalProgress, deleteGoal, exchangeRates } = useFinanceStore();
 
   const [showForm, setShowForm] = useState(false);
@@ -101,9 +103,9 @@ export const GoalModule = () => {
       <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10">
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500">
-            Objetivos de Ahorro
+            {t('goals.title')}
           </h1>
-          <p className="text-text-secondary mt-2 text-lg">Tus sueños con fecha y número. Sin excusas.</p>
+          <p className="text-text-secondary mt-2 text-lg">{t('goals.subtitle')}</p>
         </div>
         <button
           onClick={() => {
@@ -114,7 +116,7 @@ export const GoalModule = () => {
           className="btn btn-primary shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-2"
         >
           {showForm ? <X size={18} /> : <Plus size={18} />}
-          {showForm ? 'Cancelar' : 'Nuevo Objetivo'}
+          {showForm ? t('common.cancel') : t('goals.newGoal')}
         </button>
       </header>
 
@@ -130,10 +132,10 @@ export const GoalModule = () => {
       {goals.length === 0 && !showForm && (
         <div className="text-center py-24 bg-white/3 rounded-2xl border border-dashed border-white/10">
           <div className="text-6xl mb-4">🎯</div>
-          <h3 className="text-xl font-bold text-text-primary mb-2">Todavía no tenés objetivos</h3>
-          <p className="text-text-secondary mb-6">Ponele fecha a tus sueños. El primer paso es escribirlos.</p>
+          <h3 className="text-xl font-bold text-text-primary mb-2">{t('goals.empty.title')}</h3>
+          <p className="text-text-secondary mb-6">{t('goals.empty.subtitle')}</p>
           <button onClick={() => setShowForm(true)} className="btn btn-primary">
-            <Plus size={18} className="mr-2 inline" /> Crear mi primer objetivo
+            <Plus size={18} className="mr-2 inline" /> {t('goals.empty.button')}
           </button>
         </div>
       )}

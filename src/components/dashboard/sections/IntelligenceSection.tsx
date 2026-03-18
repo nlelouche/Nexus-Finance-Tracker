@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, TooltipUI as Tooltip } from '../../ui';
 import { Zap, ShieldCheck, TrendingDown, Target, Clock, Info } from 'lucide-react';
 import { calculateBurnRate, calculateRunway, calculateSavingsRate, calculateYearsToFIRE, formatMoney, SAFE_WITHDRAWAL_RATE, fromUSD, toUSD } from '../../../utils/finance';
@@ -16,6 +17,7 @@ export const IntelligenceSection: React.FC<IntelligenceSectionProps> = ({
   netWorthUSD,
   exchangeRates,
 }) => {
+  const { t } = useTranslation();
   const burnRateUSD = useMemo(() => 
     calculateBurnRate(transactions, exchangeRates), 
     [transactions, exchangeRates]
@@ -59,7 +61,7 @@ export const IntelligenceSection: React.FC<IntelligenceSectionProps> = ({
         <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
           <Zap size={18} className="text-indigo-400" />
         </div>
-        <h2 className="text-2xl font-black text-text-primary tracking-tight">Cerebro Financiero</h2>
+        <h2 className="text-2xl font-black text-text-primary tracking-tight">{t('dashboard.intelligence.title')}</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -70,25 +72,25 @@ export const IntelligenceSection: React.FC<IntelligenceSectionProps> = ({
           </div>
           <div className="relative z-10">
             <div className="flex items-center gap-1 mb-1">
-              <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest">Supervivencia (Runway)</p>
-              <Tooltip content="Indica cuántos meses podés mantener tu nivel de vida actual usando solo tus ahorros e inversiones, sin ingresos nuevos.">
+              <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest">{t('dashboard.intelligence.runway.title')}</p>
+              <Tooltip content={t('dashboard.intelligence.runway.tooltip')}>
                 <Info size={16} className="text-indigo-400/80 cursor-help" />
               </Tooltip>
             </div>
             <h3 className="text-4xl font-black text-text-primary mb-2">
               {runwayMonths === Infinity ? '∞' : (
                 <>
-                  {runwayYears} <span className="text-lg font-normal text-text-secondary">años</span>
+                  {runwayYears} <span className="text-lg font-normal text-text-secondary">{t('dashboard.intelligence.runway.years')}</span>
                   {remainingMonths > 0 && (
                     <span className="ml-2">
-                      {remainingMonths} <span className="text-lg font-normal text-text-secondary">meses</span>
+                      {remainingMonths} <span className="text-lg font-normal text-text-secondary">{t('dashboard.intelligence.runway.months')}</span>
                     </span>
                   )}
                 </>
               )}
             </h3>
             <p className="text-sm text-text-secondary leading-tight">
-              Tiempo que podés vivir hoy sin generar un solo peso extra.
+              {t('dashboard.intelligence.runway.desc')}
             </p>
           </div>
         </Card>
@@ -96,8 +98,8 @@ export const IntelligenceSection: React.FC<IntelligenceSectionProps> = ({
         {/* Burn Rate Card */}
         <Card className="border-rose-500/30 bg-rose-500/5">
           <div className="flex items-center gap-1 mb-1">
-            <p className="text-xs font-bold text-rose-400 uppercase tracking-widest">Costo de Vida (Burn Rate)</p>
-            <Tooltip content="Es el promedio de gastos mensuales de los últimos 3 meses convertido a USD. Te dice cuánto 'quemás' por mes para vivir.">
+            <p className="text-xs font-bold text-rose-400 uppercase tracking-widest">{t('dashboard.intelligence.burnRate.title')}</p>
+            <Tooltip content={t('dashboard.intelligence.burnRate.tooltip')}>
               <Info size={16} className="text-rose-400/80 cursor-help" />
             </Tooltip>
           </div>
@@ -106,11 +108,11 @@ export const IntelligenceSection: React.FC<IntelligenceSectionProps> = ({
               {formatMoney(burnRateUSD, 'USD')}
             </h3>
             <span className="text-rose-400 text-xs font-bold pb-1 flex items-center gap-1">
-              <TrendingDown size={14} /> mensual
+              <TrendingDown size={14} /> {t('dashboard.intelligence.burnRate.monthly')}
             </span>
           </div>
           <p className="text-sm text-text-secondary leading-tight">
-            Promedio de gastos de los últimos 3 meses. Tu "burn rate".
+            {t('dashboard.intelligence.burnRate.desc')}
             <span className="block mt-1 font-mono text-[10px] opacity-60">
               ≈ {formatMoney(fromUSD(burnRateUSD, 'ARS', exchangeRates), 'ARS')}
             </span>
@@ -122,8 +124,8 @@ export const IntelligenceSection: React.FC<IntelligenceSectionProps> = ({
           <div className="flex justify-between items-start mb-4">
             <div>
               <div className="flex items-center gap-1 mb-1">
-                <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Independencia Financiera</p>
-                <Tooltip content="Tu progreso hacia el 'FIRE Number'. Cuando llegues al 100%, tus inversiones podrían cubrir tus gastos para siempre (regla del 4%).">
+                <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest">{t('dashboard.intelligence.fire.title')}</p>
+                <Tooltip content={t('dashboard.intelligence.fire.tooltip')}>
                   <Info size={16} className="text-emerald-400/80 cursor-help" />
                 </Tooltip>
               </div>
@@ -142,9 +144,9 @@ export const IntelligenceSection: React.FC<IntelligenceSectionProps> = ({
           </div>
 
           <div className="flex justify-between items-center text-[11px]">
-            <span className="text-text-secondary">Libertad en:</span>
+            <span className="text-text-secondary">{t('dashboard.intelligence.fire.eta')}</span>
             <span className="font-bold text-emerald-400">
-              {yearsToFire === 0 ? '¡YA!' : yearsToFire === Infinity ? 'Nunca (ahorro ≤ 0)' : `${yearsToFire.toFixed(1)} años`}
+              {yearsToFire === 0 ? t('dashboard.intelligence.fire.now') : yearsToFire === Infinity ? t('dashboard.intelligence.fire.never') : t('dashboard.intelligence.fire.years', { years: yearsToFire.toFixed(1) })}
             </span>
           </div>
         </Card>
@@ -168,8 +170,8 @@ export const IntelligenceSection: React.FC<IntelligenceSectionProps> = ({
               </div>
               <div>
                 <div className="flex items-center gap-1 mb-1">
-                  <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Tasa de Ahorro Mensual</p>
-                  <Tooltip content="El % de tus ingresos que no gastás. Cuanto más alto sea, más rápido vas a llegar a tu libertad financiera.">
+                  <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t('dashboard.intelligence.savings.title')}</p>
+                  <Tooltip content={t('dashboard.intelligence.savings.tooltip')}>
                     <Info size={14} className="text-text-secondary/80 cursor-help" />
                   </Tooltip>
                 </div>
@@ -177,9 +179,9 @@ export const IntelligenceSection: React.FC<IntelligenceSectionProps> = ({
               </div>
             </div>
             <div className="text-right">
-              <p className="text-[10px] text-text-secondary uppercase mb-1">Status</p>
+              <p className="text-[10px] text-text-secondary uppercase mb-1">{t('dashboard.intelligence.savings.status')}</p>
               <span className={`text-xs font-bold px-2 py-1 rounded ${savingsRate > 0.3 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                {savingsRate > 0.5 ? 'Elite' : savingsRate > 0.3 ? 'Saludable' : 'Peligro'}
+                {savingsRate > 0.5 ? t('dashboard.intelligence.savings.elite') : savingsRate > 0.3 ? t('dashboard.intelligence.savings.healthy') : t('dashboard.intelligence.savings.danger')}
               </span>
             </div>
           </div>
@@ -193,13 +195,13 @@ export const IntelligenceSection: React.FC<IntelligenceSectionProps> = ({
               </div>
               <div>
                 <div className="flex items-center gap-1 mb-1">
-                  <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Eficiencia Patrimonial</p>
-                  <Tooltip content="Muestra cuántos años de vida tenés cubiertos en tu 'cajón' de inversiones. Es tu NW dividido tu gasto anual.">
+                  <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{t('dashboard.intelligence.efficiency.title')}</p>
+                  <Tooltip content={t('dashboard.intelligence.efficiency.tooltip')}>
                     <Info size={14} className="text-text-secondary/80 cursor-help" />
                   </Tooltip>
                 </div>
                 <h4 className="text-2xl font-black text-text-primary">
-                  {((netWorthUSD / (burnRateUSD * 12)) || 0).toFixed(1)}x <span className="text-xs font-normal text-text-secondary">gastos anuales</span>
+                  {((netWorthUSD / (burnRateUSD * 12)) || 0).toFixed(1)}x <span className="text-xs font-normal text-text-secondary">{t('dashboard.intelligence.efficiency.desc')}</span>
                 </h4>
               </div>
             </div>
@@ -210,8 +212,8 @@ export const IntelligenceSection: React.FC<IntelligenceSectionProps> = ({
       <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/10 flex items-center gap-3">
         <Target size={18} className="text-amber-400" />
         <p className="text-xs text-text-secondary italic">
-          Tip: La regla del 4% asume que retirás el {SAFE_WITHDRAWAL_RATE * 100}% anual de tu cartera ajustado por inflación. 
-          {fireProgress < 100 ? " Seguí laburando, todavía falta un trecho." : " ¡Felicitaciones! Sos técnicamente libre."}
+          {t('dashboard.intelligence.fire.tip', { rate: SAFE_WITHDRAWAL_RATE * 100 })} 
+          {fireProgress < 100 ? t('dashboard.intelligence.fire.tipWork') : t('dashboard.intelligence.fire.tipDone')}
         </p>
       </div>
     </section>

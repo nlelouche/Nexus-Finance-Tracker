@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Plus, Bitcoin } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { InvestmentCategory, InvestmentStrategy, Currency } from '../../../types';
 
 interface CreateAssetModalProps {
@@ -10,6 +11,7 @@ interface CreateAssetModalProps {
 export const CreateAssetModal: React.FC<CreateAssetModalProps> = ({ 
   onClose, onConfirm 
 }) => {
+  const { t } = useTranslation();
   const [newAsset, setNewAsset] = useState({
     name: '',
     category: 'CEDEARs' as InvestmentCategory,
@@ -41,13 +43,13 @@ export const CreateAssetModal: React.FC<CreateAssetModalProps> = ({
             <div className="p-3 bg-indigo-500/20 rounded-2xl text-indigo-400">
               <Plus size={22}/>
             </div>
-            <h3 className="text-xl font-black text-text-primary tracking-tighter">Nuevo Activo</h3>
+            <h3 className="text-xl font-black text-text-primary tracking-tighter">{t('investments.create.title')}</h3>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full text-text-secondary transition-all"><X size={24} /></button>
         </div>
         <div className="p-10 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">Nombre del Activo</label>
+            <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">{t('investments.create.name')}</label>
             <input 
               type="text" 
               className="form-control h-14 px-6 font-bold bg-white/5 border-white/10 rounded-2xl" 
@@ -59,7 +61,7 @@ export const CreateAssetModal: React.FC<CreateAssetModalProps> = ({
           
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">Categoría</label>
+              <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">{t('investments.create.category')}</label>
               <select 
                 className="form-control h-14 px-6 font-bold bg-white/5 border-white/10 rounded-2xl"
                 value={newAsset.category}
@@ -74,7 +76,7 @@ export const CreateAssetModal: React.FC<CreateAssetModalProps> = ({
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">Estrategia</label>
+              <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">{t('investments.create.strategy')}</label>
               <select 
                 className="form-control h-14 px-6 font-bold bg-white/5 border-white/10 rounded-2xl"
                 value={newAsset.strategy}
@@ -93,7 +95,7 @@ export const CreateAssetModal: React.FC<CreateAssetModalProps> = ({
 
           <div className="grid grid-cols-3 gap-6">
             <div className="col-span-2 space-y-2">
-              <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">Costo Total Invertido</label>
+              <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">{t('investments.create.invested')}</label>
               <input 
                 type="number" 
                 className="form-control h-14 px-6 font-black text-xl bg-white/5 border-white/10 rounded-2xl" 
@@ -103,7 +105,7 @@ export const CreateAssetModal: React.FC<CreateAssetModalProps> = ({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">Moneda</label>
+              <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">{t('investments.create.currency')}</label>
               <select 
                 className="form-control h-14 px-6 font-bold bg-white/5 border-white/10 rounded-2xl"
                 value={newAsset.currency}
@@ -117,11 +119,11 @@ export const CreateAssetModal: React.FC<CreateAssetModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">Valor Actual (Opcional)</label>
+            <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">{t('investments.create.current')}</label>
             <input 
               type="number" 
               className="form-control h-14 px-6 font-bold bg-white/5 border-white/10 rounded-2xl" 
-              placeholder="Si está vacío, se usa el de costo"
+              placeholder={t('investments.create.currentPlaceholder')}
               value={newAsset.current}
               onChange={e => setNewAsset({...newAsset, current: e.target.value})}
             />
@@ -153,13 +155,13 @@ export const CreateAssetModal: React.FC<CreateAssetModalProps> = ({
           )}
         </div>
         <div className="p-10 border-t border-white/5 bg-white/[0.01] flex gap-4 justify-end">
-            <button onClick={onClose} className="px-8 py-4 rounded-2xl font-black text-sm bg-white/5 text-text-primary hover:bg-white/10 border border-white/5 transition-all">Cancelar</button>
+            <button onClick={onClose} className="px-8 py-4 rounded-2xl font-black text-sm bg-white/5 text-text-primary hover:bg-white/10 border border-white/5 transition-all">{t('common.cancel')}</button>
             <button 
               onClick={handleConfirm} 
               disabled={!newAsset.name || !newAsset.invested}
               className="px-10 py-4 rounded-2xl font-black text-sm btn-primary shadow-xl shadow-indigo-600/20 disabled:opacity-20 active:scale-95 transition-all text-white"
             >
-              Crear Activo
+              {t('investments.create.button')}
             </button>
         </div>
       </div>

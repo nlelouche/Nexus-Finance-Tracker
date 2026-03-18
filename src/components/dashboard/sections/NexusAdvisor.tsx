@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../../../store/useFinanceStore';
 import { TooltipUI as Tooltip } from '../../ui';
 import { Brain, Sparkles, AlertTriangle, RefreshCw, MessageSquare, Info } from 'lucide-react';
@@ -9,6 +10,7 @@ interface NexusAdvisorProps {
 }
 
 export const NexusAdvisor = ({ onOpenChat }: NexusAdvisorProps) => {
+  const { t, i18n } = useTranslation();
   const { transactions, investments, exchangeRates, aiConfig } = useFinanceStore();
   const [loading, setLoading] = useState(false);
   const [audit, setAudit] = useState<string | null>(null);
@@ -18,8 +20,12 @@ export const NexusAdvisor = ({ onOpenChat }: NexusAdvisorProps) => {
     setLoading(true);
     setError(null);
     
-    const context = buildFinancialContext(transactions, investments, exchangeRates);
-    const prompt = `${context}\n\nTAREA: Como mi Mentor Financiero, realizá una auditoría implacable de mi último mes. Identificá los 3 puntos donde estoy siendo más ineficiente o donde mi "yo del futuro" me putearía. No me des consejos de manual; hablame a mí basándote en MIS categorías [X]. Si algo no te cierra, decímelo de frente.`;
+    const context = buildFinancialContext(transactions, investments, exchangeRates, i18n.language);
+    const isEn = i18n.language.startsWith('en');
+    
+    const prompt = isEn
+      ? `${context}\n\nTASK: As my Financial Mentor, perform a ruthless audit of my last month. Identify the top 3 areas where I am being most inefficient or where my "future self" would be disappointed. Do not give me generic textbook advice; speak directly to me based on MY specific categories. If something looks fundamentally wrong or suspicious, tell me straight to my face.`
+      : `${context}\n\nTAREA: Como mi Mentor Financiero, realiza una auditoría implacable de mi último mes. Identifica los 3 puntos donde estoy siendo más ineficiente o donde mi "yo del futuro" se decepcionaría. No me des consejos genéricos de manual; háblame basándote en MIS categorías específicas. Si algo no tiene sentido o es un desastre, dímelo de frente.`;
 
     const result = await callOllama(prompt, aiConfig);
     
@@ -44,12 +50,12 @@ export const NexusAdvisor = ({ onOpenChat }: NexusAdvisorProps) => {
               <Sparkles className="text-indigo-400" size={20} />
             </div>
             <div>
-              <h3 className="text-lg font-black text-text-primary tracking-tight">Nexus AI Advisor</h3>
-              <p className="text-[10px] text-text-secondary uppercase font-bold tracking-widest">Auditoría de Hábitos en Tiempo Real</p>
+              <h3 className="text-lg font-black text-text-primary tracking-tight">{t('dashboard.advisor.title')}</h3>
+              <p className="text-[10px] text-text-secondary uppercase font-bold tracking-widest">{t('dashboard.advisor.subtitle')}</p>
             </div>
           </div>
           
-          <Tooltip content="Ejecuta una auditoría financiera usando tu IA local (Ollama).">
+          <Tooltip content={t('dashboard.advisor.tooltip')}>
             <div className="p-1.5 bg-white/5 rounded-full text-text-secondary cursor-help">
               <Info size={14} />
             </div>
@@ -67,8 +73,8 @@ export const NexusAdvisor = ({ onOpenChat }: NexusAdvisorProps) => {
               <Brain className="text-indigo-400/50" size={32} />
             </div>
             <div>
-              <p className="text-sm font-medium text-text-secondary mb-1">Nexus está listo para analizar tu laburo financiero.</p>
-              <p className="text-[10px] text-text-secondary/60">Se usará el modelo local para máxima privacidad.</p>
+              <p className="text-sm font-medium text-text-secondary mb-1">{t('dashboard.advisor.ready')}</p>
+              <p className="text-[10px] text-text-secondary/60">{t('dashboard.advisor.privacy')}</p>
             </div>
             <button 
               onClick={performAudit}
@@ -76,7 +82,7 @@ export const NexusAdvisor = ({ onOpenChat }: NexusAdvisorProps) => {
               className="px-6 py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-500/50 text-white rounded-xl font-bold text-sm transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/20"
             >
               {loading ? <RefreshCw className="animate-spin" size={16} /> : <Play size={16} />}
-              {loading ? 'Analizando...' : 'Iniciar Auditoría'}
+              {loading ? t('dashboard.advisor.analyzing') : t('dashboard.advisor.start')}
             </button>
           </div>
         ) : (
@@ -92,14 +98,14 @@ export const NexusAdvisor = ({ onOpenChat }: NexusAdvisorProps) => {
                 className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-text-primary border border-white/10 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
               >
                 <RefreshCw className={loading ? 'animate-spin' : ''} size={14} />
-                Recalcular Auditoría
+                {t('dashboard.advisor.recalc')}
               </button>
               <button 
                 onClick={onOpenChat}
                 className="flex-1 py-3 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 border border-indigo-500/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
               >
                 <MessageSquare size={14} />
-                Chat con Nexus
+                {t('dashboard.advisor.chat')}
               </button>
             </div>
           </div>

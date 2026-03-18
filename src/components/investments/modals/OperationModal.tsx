@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Upload, Download, TrendingUp, Bitcoin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Investment } from '../../../types';
 
 interface OperationModalProps {
@@ -12,6 +13,7 @@ interface OperationModalProps {
 export const OperationModal: React.FC<OperationModalProps> = ({ 
   type, asset, onClose, onConfirm 
 }) => {
+  const { t } = useTranslation();
   const [amount, setAmount] = useState('');
   const [cryptoAmount, setCryptoAmount] = useState('');
 
@@ -41,13 +43,13 @@ export const OperationModal: React.FC<OperationModalProps> = ({
             {type === 'inject' && <div className={`p-2 rounded-xl bg-emerald-500/20 ${headerIconColor}`}><Upload size={24}/></div>}
             {type === 'withdraw' && <div className={`p-2 rounded-xl bg-rose-500/20 ${headerIconColor}`}><Download size={24}/></div>}
             {type === 'm2m' && <div className={`p-2 rounded-xl bg-indigo-500/20 ${headerIconColor}`}><TrendingUp size={24}/></div>}
-            {type === 'inject' ? 'Inyectar Capital' : type === 'withdraw' ? 'Retirar Capital' : 'Actualizar Valor'}
+            {t(`investments.operation.${type}.title`)}
           </h3>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full text-text-secondary transition-all"><X size={24} /></button>
         </div>
         <div className="p-10">
           <p className="text-text-secondary font-medium mb-8">
-            {type === 'inject' ? 'Abonar fondos a ' : type === 'withdraw' ? 'Liquidar fondos de ' : 'Actualizar valor de mercado de '}
+            {t(`investments.operation.${type}.desc`)}{' '}
             <strong className="text-text-primary text-lg font-black">{asset.name}</strong>.
           </p>
 
@@ -72,7 +74,7 @@ export const OperationModal: React.FC<OperationModalProps> = ({
 
             <div className="space-y-3">
               <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">
-                {type === 'm2m' ? 'Nuevo Valor de Mercado' : `Equivalente en ${asset.currency}`}
+                {type === 'm2m' ? t('investments.operation.m2m.label') : `${t('investments.operation.amount')} ${asset.currency}`}
               </label>
               <div className="relative">
                 <input 
@@ -86,16 +88,16 @@ export const OperationModal: React.FC<OperationModalProps> = ({
               </div>
               {type === 'm2m' && (
                 <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest opacity-40 mt-3">
-                  * El sistema recalculará el rendimiento basado en este valor.
+                  {t('investments.operation.m2m.tip')}
                 </p>
               )}
             </div>
           </div>
 
           <div className="flex gap-4 justify-end mt-12">
-            <button onClick={onClose} className="px-8 py-4 rounded-2xl font-black text-sm bg-white/5 text-text-primary hover:bg-white/10 border border-white/5 transition-all">Cancelar</button>
+            <button onClick={onClose} className="px-8 py-4 rounded-2xl font-black text-sm bg-white/5 text-text-primary hover:bg-white/10 border border-white/5 transition-all">{t('common.cancel')}</button>
             <button onClick={handleConfirm} className={`px-10 py-4 rounded-2xl font-black text-sm text-white shadow-xl transition-all active:scale-95 ${submitColor}`}>
-              {type === 'm2m' ? 'Actualizar' : 'Confirmar'}
+              {type === 'm2m' ? t('investments.operation.update') : t('investments.operation.confirm')}
             </button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { Card } from '../ui';
 import { X, Send, User, Sparkles, Brain } from 'lucide-react';
@@ -16,6 +17,7 @@ interface NexusChatProps {
 }
 
 export const NexusChat = ({ isOpen, onClose, initialMessage }: NexusChatProps) => {
+  const { t, i18n } = useTranslation();
   const { transactions, investments, exchangeRates, aiConfig } = useFinanceStore();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -26,7 +28,7 @@ export const NexusChat = ({ isOpen, onClose, initialMessage }: NexusChatProps) =
     if (initialMessage && messages.length === 0) {
       setMessages([{ role: 'assistant', content: initialMessage }]);
     } else if (messages.length === 0) {
-      setMessages([{ role: 'assistant', content: '¡Hola! Soy Nexus. ¿En qué quilombo financiero te puedo ayudar hoy? Tengo acceso a tus datos locales para darte la posta.' }]);
+      setMessages([{ role: 'assistant', content: t('ai.chat.greeting') }]);
     }
   }, [initialMessage, isOpen]);
 
@@ -45,15 +47,27 @@ export const NexusChat = ({ isOpen, onClose, initialMessage }: NexusChatProps) =
     setIsLoading(true);
 
     try {
-      const context = buildFinancialContext(transactions, investments, exchangeRates);
+      const context = buildFinancialContext(transactions, investments, exchangeRates, i18n.language);
+      const isEn = i18n.language.startsWith('en');
       
       // Build conversation history for the prompt
       const history = messages
         .slice(-5) // Send last 5 messages for context
-        .map(m => `${m.role === 'user' ? 'Usuario' : 'Nexus'}: ${m.content}`)
+        .map(m => `${m.role === 'user' ? (isEn ? 'User' : 'Usuario') : 'Nexus'}: ${m.content}`)
         .join('\n');
 
-      const prompt = `
+      const prompt = isEn ? `
+${context}
+
+CHAT HISTORY:
+${history}
+
+NEW USER QUESTION:
+${userMessage}
+
+RESPONSE:
+(Answer concisely, professionally, and directly as a Senior Financial Mentor. Use the context data if relevant to the question. Reply ALWAYS in English.)
+` : `
 ${context}
 
 HISTORIAL DE CHAT:
@@ -63,18 +77,18 @@ NUEVA PREGUNTA DEL USUARIO:
 ${userMessage}
 
 RESPUESTA:
-(Responde de forma concisa, profesional y con personalidad rioplatense. Usa los datos del contexto si es relevante para la pregunta.)
+(Responde de forma concisa, profesional y directa como un Mentor Financiero Senior. Usa los datos del contexto si es relevante para la pregunta. Responde SIEMPRE en Español Neutro.)
 `;
 
       const result = await callOllama(prompt, aiConfig);
       
       if (result.error) {
-        setMessages(prev => [...prev, { role: 'assistant', content: `Perdón, tuve un problema: ${result.error}` }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: t('ai.chat.errorApi', { error: result.error }) }]);
       } else {
         setMessages(prev => [...prev, { role: 'assistant', content: result.content }]);
       }
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Se rompió algo conectando con la IA. Fijate si Ollama está prendido.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: t('ai.chat.errorConn') }]);
     } finally {
       setIsLoading(false);
     }
@@ -92,10 +106,10 @@ RESPUESTA:
               <Sparkles className="text-indigo-400" size={16} />
             </div>
             <div>
-              <h3 className="text-sm font-black text-white">Nexus Advisor</h3>
+              <h3 className="text-sm font-black text-white">{t('ai.chat.title')}</h3>
               <div className="flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider">Local Insight Active</span>
+                <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider">{t('ai.chat.status')}</span>
               </div>
             </div>
           </div>
@@ -149,7 +163,7 @@ RESPUESTA:
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Preguntale lo que sea a Nexus..."
+              placeholder={t('ai.chat.placeholder')}
               className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-xs text-white placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all"
             />
             <button 
@@ -160,7 +174,7 @@ RESPUESTA:
               <Send size={16} />
             </button>
           </div>
-          <p className="text-[9px] text-center text-text-secondary mt-2 opacity-50">Privacidad garantizada. Nexus corre localmente.</p>
+          <p className="text-[9px] text-center text-text-secondary mt-2 opacity-50">{t('ai.chat.privacy')}</p>
         </div>
       </Card>
     </div>
