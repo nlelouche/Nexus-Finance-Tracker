@@ -3,7 +3,7 @@ import { useFinanceStore } from '../../store/useFinanceStore';
 import { useTranslation } from 'react-i18next';
 import { 
   Download, Upload, Trash2, AlertTriangle, CheckCircle, 
-  ShieldAlert, Database, Bot, RefreshCw 
+  ShieldAlert, Database, Bot, RefreshCw, Camera 
 } from 'lucide-react';
 import { downloadJSON, validateBackupSchema, readFileAsJSON } from '../../utils/backup';
 
@@ -105,14 +105,19 @@ export const AdminModule = () => {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         {[
-          { label: t('nav.dashboard'), value: store.transactions.length },
-          { label: t('nav.investments'), value: store.investments.length },
-          { label: t('nav.goals'), value: store.goals.length },
-          { label: t('admin.clear.title'), value: store.recurringExpenses.length },
+          { label: t('nav.investments'), value: store.investments.length, icon: <RefreshCw size={14} className="text-emerald-400" /> },
+          { label: t('nav.snapshots'), value: store.snapshots.length, icon: <Camera size={14} className="text-indigo-400" /> },
+          { label: t('nav.goals'), value: store.goals.length, icon: <RefreshCw size={14} className="text-amber-400" /> },
+          { label: 'Registros', value: store.transactions.length, icon: <Database size={14} className="text-slate-400" /> },
         ].map(stat => (
-          <div key={stat.label} className="bg-bg-card border border-white/8 rounded-xl p-4 text-center">
-            <div className="text-2xl font-black text-text-primary">{stat.value}</div>
-            <div className="text-xs text-text-secondary mt-1">{stat.label}</div>
+          <div key={stat.label} className="bg-bg-card border border-white/8 rounded-xl p-5 text-left flex items-start justify-between">
+            <div>
+               <div className="text-xs text-text-secondary uppercase font-black tracking-widest mb-2 opacity-50">{stat.label}</div>
+               <div className="text-2xl font-black text-text-primary">{stat.value}</div>
+            </div>
+            <div className="p-2 rounded-lg bg-white/5">
+              {stat.icon}
+            </div>
           </div>
         ))}
       </div>
