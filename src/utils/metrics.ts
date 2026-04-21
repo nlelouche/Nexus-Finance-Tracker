@@ -47,6 +47,28 @@ export function calculateAssetTWRR(history?: InvestmentHistoryEntry[]) {
   return { twrr, annualTwrr, isShortPeriod };
 }
 
+export function calculateInvestedUSD(investment: any, exchangeRates: any): number {
+  if (investment.history && investment.history.length > 0) {
+    return investment.history.reduce((hSum: number, entry: any) => {
+      if (entry.type === 'creation' || entry.type === 'injection') {
+        const rate = entry.exchangeRate || (investment.currency === 'ARS' ? exchangeRates.usdToCripto : 1);
+        return hSum + (entry.amount / rate);
+      }
+      if (entry.type === 'withdrawal') {
+        const rate = entry.exchangeRate || (investment.currency === 'ARS' ? exchangeRates.usdToCripto : 1);
+        return hSum - (entry.amount / rate);
+      }
+      return hSum;
+    }, 0);
+  }
+  
+  // Fallback
+  if (investment.currency === 'USD') return Number(investment.invested) || 0;
+  if (investment.currency === 'ARS') return (Number(investment.invested) || 0) / exchangeRates.usdToCripto;
+  if (investment.currency === 'EUR') return (Number(investment.invested) || 0) * exchangeRates.eurToUsd;
+  return Number(investment.invested) || 0;
+}
+
 /**
  * Calcula la diferencia de valor y días entre las últimas dos actualizaciones de precio (valuation/creation).
  */

@@ -17,8 +17,9 @@
     "expenses": "Egresos",
     "investments": "Inversiones",
     "goals": "Objetivos",
-    "simulation": "Simulador",
-    "admin": "Administración",
+    "simulation": "Simulaciones",
+    "admin": "Consola Nexus",
+    "snapshots": "Snapshots",
     "darkMode": "Modo oscuro",
     "lightMode": "Modo claro",
     "language": "Idioma"
@@ -221,9 +222,11 @@
         "label": "Nuevo valor de mercado",
         "tip": "* El sistema recalculará el rendimiento basado en este valor."
       },
-      "amount": "Equivalente en",
+      "amount": "Monto en",
       "confirm": "Confirmar",
-      "update": "Actualizar"
+      "update": "Actualizar",
+      "finalValueAfter": "Valor Total Final (Calibración)",
+      "finalValueTip": "* Ajusta este valor si el precio de mercado cambió justo antes de tu aporte. Esto mantendrá tu % de ganancia real intacto."
     },
     "settings": {
       "title": "Ajustes del activo",
@@ -454,5 +457,23 @@
       "diff": "Diferencia final",
       "impact": "Impacto %"
     }
+  },
+  "snapshots": {
+    "title": "Snapshots & Progresión",
+    "subtitle": "Congela el estado de tu fondo para analizar cómo creces mes a mes.",
+    "button": "Tomar Snapshot",
+    "empty": "Sin Snapshots aún",
+    "emptyDesc": "Toma tu primer snapshot para empezar a registrar tu trayectoria histórica.",
+    "patrimony": "Patrimonio",
+    "netGain": "Ganancia Neta",
+    "vsPrevious": "vs Anterior",
+    "periodVariation": "Variación del Periodo",
+    "marketGrowth": "Crecimiento (Mercado)",
+    "effortDeposits": "Depósitos (Esfuerzo)",
+    "totalChange": "Cambio Total",
+    "assetsSummary": "Resumen de Activos en este punto",
+    "exportJson": "Exportar JSON",
+    "deleteConfirm": "¿Eliminar snapshot?",
+    "promptName": "Nombre del Snapshot (opcional):"
   }
 }

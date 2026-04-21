@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Home, ArrowDownLeft, ArrowUpRight, TrendingUp, Target, Moon, ShieldCheck, Rocket, Globe } from 'lucide-react';
+import { Home, ArrowDownLeft, ArrowUpRight, TrendingUp, Target, Moon, ShieldCheck, Rocket, Globe, Camera } from 'lucide-react';
 
 export function Sidebar() {
   const { t, i18n } = useTranslation();
@@ -70,6 +70,12 @@ export function Sidebar() {
 
       <div className="mt-auto flex flex-col gap-2">
         <div className="border-t border-white/5 mb-2" />
+        <Link
+          to="/snapshots"
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 text-sm ${isActive('/snapshots') ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-white/10 text-white shadow-inner' : 'text-text-secondary hover:text-white hover:bg-white/5 border border-transparent'}`}
+        >
+          <Camera size={16} /> Snapshots
+        </Link>
         <Link
           to="/admin"
           className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 text-sm ${isActive('/admin') ? 'bg-gradient-to-r from-slate-500/20 to-slate-400/10 border border-white/10 text-white shadow-inner' : 'text-text-secondary hover:text-white hover:bg-white/5 border border-transparent'}`}

@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { FinanceState, Transaction } from '../types';
-import { convertCurrency } from '../utils/finance';
+import { convertCurrency, toUSD } from '../utils/finance';
+import { calculateInvestedUSD } from '../utils/metrics';
 
 // Mock data inicial basada en el mockup.html
 const INITIAL_TRANSACTIONS: Transaction[] = [
@@ -59,6 +60,7 @@ export const useFinanceStore = create<FinanceState>()(
       transactions: INITIAL_TRANSACTIONS,
       investments: INITIAL_INVESTMENTS,
       goals: INITIAL_GOALS,
+      snapshots: [],
       recurringExpenses: INITIAL_RECURRING,
       targetAllocations: INITIAL_TARGET_ALLOCATIONS,
       baseCurrency: 'USD',
@@ -135,10 +137,10 @@ export const useFinanceStore = create<FinanceState>()(
         })
       })),
       
-      injectInvestment: (id, amount, cryptoAmount) => set((state) => ({
+      injectInvestment: (id, amount, cryptoAmount, newTotalCurrent) => set((state) => ({
         investments: state.investments.map(i => {
           if (i.id !== id) return i;
-          const newCurrent = i.current + amount;
+          const newCurrent = newTotalCurrent !== undefined ? newTotalCurrent : i.current + amount;
           const entry = { 
             date: new Date().toISOString(), 
             type: 'injection' as const, 
@@ -150,16 +152,16 @@ export const useFinanceStore = create<FinanceState>()(
             ...i,
             invested: i.invested + amount,
             current: newCurrent,
-            cryptoAmount: cryptoAmount && i.cryptoAmount !== undefined ? i.cryptoAmount + cryptoAmount : i.cryptoAmount,
+            cryptoAmount: cryptoAmount !== undefined && i.cryptoAmount !== undefined ? i.cryptoAmount + cryptoAmount : i.cryptoAmount,
             history: [...(i.history || []), entry]
           };
         })
       })),
       
-      withdrawInvestment: (id, amount, cryptoAmount) => set((state) => ({
+      withdrawInvestment: (id, amount, cryptoAmount, newTotalCurrent) => set((state) => ({
         investments: state.investments.map(i => {
           if (i.id !== id) return i;
-          const newCurrent = Math.max(0, i.current - amount);
+          const newCurrent = newTotalCurrent !== undefined ? newTotalCurrent : Math.max(0, i.current - amount);
           const entry = { 
             date: new Date().toISOString(), 
             type: 'withdrawal' as const, 
@@ -171,7 +173,7 @@ export const useFinanceStore = create<FinanceState>()(
             ...i,
             invested: Math.max(0, i.invested - amount),
             current: newCurrent,
-            cryptoAmount: cryptoAmount && i.cryptoAmount !== undefined ? Math.max(0, i.cryptoAmount - cryptoAmount) : i.cryptoAmount,
+            cryptoAmount: cryptoAmount !== undefined && i.cryptoAmount !== undefined ? Math.max(0, i.cryptoAmount - cryptoAmount) : i.cryptoAmount,
             history: [...(i.history || []), entry]
           };
         })
@@ -211,6 +213,28 @@ export const useFinanceStore = create<FinanceState>()(
           }
           return { ...i, history: newHistory };
         })
+      })),
+
+      takeSnapshot: (name) => set((state) => {
+        const totalCurrentUSD = state.investments.reduce((sum, inv) => sum + toUSD(inv.current, inv.currency, state.exchangeRates), 0);
+        const totalInvestedUSD = state.investments.reduce((sum, inv) => sum + calculateInvestedUSD(inv, state.exchangeRates), 0);
+        
+        const newSnapshot = {
+          id: crypto.randomUUID(),
+          date: new Date().toISOString(),
+          name: name || `Snapshot ${new Date().toLocaleDateString()}`,
+          investments: JSON.parse(JSON.stringify(state.investments)), // Deep copy
+          totalCurrentUSD,
+          totalInvestedUSD,
+          totalGainUSD: totalCurrentUSD - totalInvestedUSD,
+          exchangeRates: { ...state.exchangeRates }
+        };
+        
+        return { snapshots: [newSnapshot, ...(state.snapshots || [])] };
+      }),
+
+      deleteSnapshot: (id) => set((state) => ({
+        snapshots: state.snapshots.filter(s => s.id !== id)
       })),
       
       addGoal: (goal) => set((state) => ({
@@ -359,6 +383,7 @@ export const useFinanceStore = create<FinanceState>()(
           aiConfig: state.aiConfig,
           dashboardWidgets: state.dashboardWidgets,
           investmentWidgets: state.investmentWidgets,
+          snapshots: state.snapshots,
         };
       },
 
@@ -368,8 +393,14 @@ export const useFinanceStore = create<FinanceState>()(
     }),
     {
       name: 'nexus-finance-storage',
-      version: 4,
+      version: 5,
       migrate: (persistedState: any, version: number) => {
+        if (version < 5) {
+           return {
+             ...persistedState,
+             snapshots: persistedState.snapshots || []
+           };
+        }
         if (version < 4) {
           return {
             ...persistedState,

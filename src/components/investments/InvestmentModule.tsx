@@ -85,11 +85,11 @@ export const InvestmentModule = () => {
     setSelectedAssetId(null);
   };
 
-  const handleConfirmOperation = (amount: number, cryptoAmount?: number) => {
-    if (!selectedAssetId) return;
-    if (activeModal === 'inject') injectInvestment(selectedAssetId, amount, cryptoAmount);
-    else if (activeModal === 'withdraw') withdrawInvestment(selectedAssetId, amount, cryptoAmount);
-    else if (activeModal === 'm2m') updateInvestmentCurrent(selectedAssetId, amount);
+  const handleOperationConfirm = (amount: number, cryptoAmount?: number, newTotalValue?: number) => {
+    if (!selectedAsset) return;
+    if (activeModal === 'inject') injectInvestment(selectedAsset.id, amount, cryptoAmount, newTotalValue);
+    if (activeModal === 'withdraw') withdrawInvestment(selectedAsset.id, amount, cryptoAmount, newTotalValue);
+    if (activeModal === 'm2m') updateInvestmentCurrent(selectedAsset.id, amount);
     handleCloseModal();
   };
 
@@ -403,7 +403,7 @@ export const InvestmentModule = () => {
 
       {/* Modals */}
       {(activeModal === 'inject' || activeModal === 'withdraw' || activeModal === 'm2m') && selectedAsset && (
-        <OperationModal type={activeModal} asset={selectedAsset} onClose={handleCloseModal} onConfirm={handleConfirmOperation} />
+        <OperationModal type={activeModal} asset={selectedAsset} onClose={handleCloseModal} onConfirm={handleOperationConfirm} />
       )}
       {activeModal === 'settings' && selectedAsset && (
         <SettingsModal asset={selectedAsset} onClose={handleCloseModal} onDelete={deleteInvestment} categoryIcons={ICONS} />

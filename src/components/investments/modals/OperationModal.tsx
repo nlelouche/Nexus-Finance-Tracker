@@ -7,22 +7,35 @@ interface OperationModalProps {
   type: 'inject' | 'withdraw' | 'm2m';
   asset: Investment;
   onClose: () => void;
-  onConfirm: (amount: number, cryptoAmount?: number) => void;
+  onConfirm: (amount: number, cryptoAmount?: number, newTotalValue?: number) => void;
 }
 
 export const OperationModal: React.FC<OperationModalProps> = ({ 
   type, asset, onClose, onConfirm 
 }) => {
   const { t } = useTranslation();
+  const isCrypto = asset.category === 'Cripto' && asset.cryptoSymbol;
+
   const [amount, setAmount] = useState('');
   const [cryptoAmount, setCryptoAmount] = useState('');
+  // Sugerencia inicial del nuevo total
+  const [newTotalValue, setNewTotalValue] = useState('');
 
-  const isCrypto = asset.category === 'Cripto' && asset.cryptoSymbol;
+  const handleAmountChange = (val: string) => {
+    setAmount(val);
+    const numVal = parseFloat(val) || 0;
+    if (type === 'inject') {
+      setNewTotalValue((asset.current + numVal).toString());
+    } else if (type === 'withdraw') {
+      setNewTotalValue((Math.max(0, asset.current - numVal)).toString());
+    }
+  };
 
   const handleConfirm = () => {
     const numAmount = parseFloat(amount) || 0;
     const numCrypto = parseFloat(cryptoAmount) || 0;
-    onConfirm(numAmount, numCrypto);
+    const numTotal = parseFloat(newTotalValue) || 0;
+    onConfirm(numAmount, numCrypto, type !== 'm2m' ? numTotal : undefined);
     onClose();
   };
 
@@ -82,16 +95,37 @@ export const OperationModal: React.FC<OperationModalProps> = ({
                   className="form-control h-16 px-10 text-2xl font-black bg-white/5 border-white/10 rounded-2xl focus:ring-2 focus:ring-indigo-500/50" 
                   placeholder="0.00"
                   value={amount}
-                  onChange={e => setAmount(e.target.value)}
+                  onChange={e => handleAmountChange(e.target.value)}
                 />
                 <div className="absolute left-6 top-1/2 -translate-y-1/2 text-text-secondary font-black text-xl opacity-40">$</div>
               </div>
+            </div>
+
+            {(type === 'inject' || type === 'withdraw') && (
+              <div className="space-y-3 p-6 rounded-3xl bg-white/5 border border-white/5 animate-in slide-in-from-top-2">
+                <label className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] ml-1">
+                  {t('investments.operation.finalValueAfter')}
+                </label>
+                <div className="relative">
+                  <input 
+                    type="number" 
+                    className="form-control h-14 px-10 text-xl font-black bg-white/5 border-white/10 rounded-xl focus:ring-2 focus:ring-indigo-500/50" 
+                    placeholder="0.00"
+                    value={newTotalValue}
+                    onChange={e => setNewTotalValue(e.target.value)}
+                  />
+                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-text-secondary font-black text-lg opacity-40">$</div>
+                </div>
+                <p className="text-[9px] text-text-secondary font-medium opacity-60">
+                   {t('investments.operation.finalValueTip')}
+                </p>
+              </div>
+            )}
               {type === 'm2m' && (
                 <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest opacity-40 mt-3">
                   {t('investments.operation.m2m.tip')}
                 </p>
               )}
-            </div>
           </div>
 
           <div className="flex gap-4 justify-end mt-12">

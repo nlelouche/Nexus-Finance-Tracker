@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { toUSD, formatMoney } from '../utils/finance';
-import { calculateAssetTWRR, calculateLastUpdateDelta } from '../utils/metrics';
+import { calculateAssetTWRR, calculateLastUpdateDelta, calculateInvestedUSD } from '../utils/metrics';
 
 export type KPIIconType = 'wallet' | 'dollar' | 'trending' | 'brain' | 'strategies' | 'clock' | 'chart';
 
@@ -20,23 +20,7 @@ export const useInvestmentData = (searchTerm: string) => {
     
     // Calcular capital invertido histórico (Base de Costo USD)
     const totalInvested = investments.reduce((sum, inv) => {
-      // Intentamos reconstruir el costo en USD desde la historia
-      if (inv.history && inv.history.length > 0) {
-        const historicalCostUSD = inv.history.reduce((hSum, entry) => {
-          if (entry.type === 'creation' || entry.type === 'injection') {
-            const rate = entry.exchangeRate || (inv.currency === 'ARS' ? exchangeRates.usdToCripto : 1);
-            return hSum + (entry.amount / rate);
-          }
-          if (entry.type === 'withdrawal') {
-            const rate = entry.exchangeRate || (inv.currency === 'ARS' ? exchangeRates.usdToCripto : 1);
-            return hSum - (entry.amount / rate);
-          }
-          return hSum;
-        }, 0);
-        return sum + historicalCostUSD;
-      }
-      // Fallback si no hay historia (usar tasa actual)
-      return sum + toUSD(Number(inv.invested) || 0, inv.currency, exchangeRates);
+      return sum + calculateInvestedUSD(inv, exchangeRates);
     }, 0);
 
     const totalGain = totalCurrent - totalInvested;

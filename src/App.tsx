@@ -9,6 +9,7 @@ import { InvestmentModule } from './components/investments/InvestmentModule';
 import { GoalModule } from './components/goals/GoalModule';
 import { AdminModule } from './components/admin/AdminModule';
 import { ScenarioModule } from './components/simulation/ScenarioModule';
+import { SnapshotModule } from './components/snapshots/SnapshotModule';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/objetivos" element={<GoalModule />} />
             <Route path="/simulador" element={<ScenarioModule />} />
             <Route path="/admin" element={<AdminModule />} />
+            <Route path="/snapshots" element={<SnapshotModule />} />
           </Routes>
         </main>
       </div>

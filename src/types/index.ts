@@ -96,6 +96,17 @@ export interface ExchangeRates {
   lastUpdated: string | null;
 }
 
+export interface Snapshot {
+  id: string;
+  date: string;
+  name?: string;
+  investments: Investment[];
+  totalCurrentUSD: number;
+  totalInvestedUSD: number;
+  totalGainUSD: number;
+  exchangeRates: ExchangeRates;
+}
+
 export interface FinanceState {
   transactions: Transaction[];
   investments: Investment[];
@@ -118,12 +129,16 @@ export interface FinanceState {
   // Acciones Inversiones
   addInvestment: (inv: Omit<Investment, 'id'>) => void;
   updateInvestmentCurrent: (id: string, newCurrent: number) => void;
-  injectInvestment: (id: string, amount: number, cryptoAmount?: number) => void;
-  withdrawInvestment: (id: string, amount: number, cryptoAmount?: number) => void;
+  injectInvestment: (id: string, amount: number, cryptoAmount?: number, newTotalCurrent?: number) => void;
+  withdrawInvestment: (id: string, amount: number, cryptoAmount?: number, newTotalCurrent?: number) => void;
   fixInvestmentInitial: (id: string, newInvested: number) => void;
   deleteInvestment: (id: string) => void;
   rebaseAllInvestments: () => void;
   updateInvestmentHistoryRate: (id: string, entryIndex: number, newRate: number) => void;
+  
+  // Acciones Snapshots
+  takeSnapshot: (name?: string) => void;
+  deleteSnapshot: (id: string) => void;
 
   // Acciones Goals
   addGoal: (goal: Omit<Goal, 'id'>) => void;
