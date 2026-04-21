@@ -239,6 +239,21 @@
       "performance": "Performance",
       "management": "Management"
     },
+    "actions": {
+      "m2m": "Update market value",
+      "inject": "Inject capital",
+      "withdraw": "Withdraw capital",
+      "settings": "Asset settings",
+      "undo": "Undo last movement",
+      "undoDisabled": "No movements to undo",
+      "undoConfirm": "Undo the last movement for this asset? This will revert the value, invested capital, and remove the last history entry."
+    },
+    "history": {
+      "creation": "Initial creation",
+      "valuation": "Value update",
+      "injection": "Capital injection",
+      "withdrawal": "Capital withdrawal"
+    },
     "operation": {
       "inject": {
         "title": "Inject Capital",
@@ -321,7 +336,7 @@
     "effortDeposits": "Deposits (Effort)",
     "wealthChange": "Wealth Change",
     "totalChange": "Total Change",
-    "flowSummary": "Flow and market summary",
+    "flowSummary": "Period Capital Flow",
     "firstRecord": "First historical record available",
     "assetsSummary": "Asset Summary at this point",
     "accumulatedStatus": "Accumulated Status",
@@ -332,6 +347,9 @@
     "category": "Category",
     "invested": "Invested",
     "current": "Current",
+    "flowType": "Type",
+    "flowDate": "Date",
+    "noFlows": "No capital movements in this period",
     "exportJson": "Export JSON",
     "deleteConfirm": "Delete snapshot?",
     "promptName": "Snapshot Name (optional):"

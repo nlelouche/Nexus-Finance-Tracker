@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { Card, Button } from '../ui';
-import { Camera, Trash2, Download, ArrowUpRight, ArrowDownRight, History, Info, ChevronRight, ChevronDown } from 'lucide-react';
+import { Camera, Trash2, Download, ArrowUpRight, ArrowDownRight, History, Info, ChevronRight, ChevronDown, ArrowDownLeft, ArrowUpLeft, TrendingUp } from 'lucide-react';
 import { formatMoney, formatShort } from '../../utils/finance';
 import { Snapshot } from '../../types';
 
@@ -191,6 +191,120 @@ export const SnapshotModule = () => {
                         )}
                       </div>
                     </div>
+
+                    {/* Flujo de Capital del Período */}
+                    {(() => {
+                      // Recolectar todas las inyecciones/retiros del período
+                      const periodStart = nextSnap ? new Date(nextSnap.date) : null;
+                      const periodEnd = new Date(snap.date);
+
+                      type FlowEvent = {
+                        date: Date;
+                        assetName: string;
+                        type: 'injection' | 'withdrawal';
+                        amount: number;
+                        currency: string;
+                        exchangeRate?: number;
+                      };
+
+                      const flows: FlowEvent[] = [];
+                      snap.investments.forEach(inv => {
+                        (inv.history || []).forEach(entry => {
+                          if (entry.type !== 'injection' && entry.type !== 'withdrawal') return;
+                          const entryDate = new Date(entry.date);
+                          if (periodStart && entryDate <= periodStart) return;
+                          if (entryDate > periodEnd) return;
+                          flows.push({
+                            date: entryDate,
+                            assetName: inv.name,
+                            type: entry.type,
+                            amount: entry.amount,
+                            currency: inv.currency,
+                            exchangeRate: entry.exchangeRate,
+                          });
+                        });
+                      });
+
+                      flows.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+                      const totalInjected = flows.filter(f => f.type === 'injection').reduce((s, f) => s + f.amount, 0);
+                      const totalWithdrawn = flows.filter(f => f.type === 'withdrawal').reduce((s, f) => s + f.amount, 0);
+
+                      return (
+                        <div className="bg-white/5 rounded-[32px] overflow-hidden border border-white/5 mb-8">
+                          <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.01]">
+                            <h5 className="text-sm font-black text-text-primary uppercase tracking-widest flex items-center gap-3">
+                              <TrendingUp size={18} className="text-amber-400" />
+                              {t('snapshots.flowSummary')}
+                            </h5>
+                            <div className="flex items-center gap-6">
+                              {totalInjected > 0 && (
+                                <div className="flex items-center gap-2">
+                                  <ArrowDownLeft size={14} className="text-emerald-400" />
+                                  <span className="text-xs font-black text-emerald-400">
+                                    +{formatMoney(totalInjected, 'USD')}
+                                  </span>
+                                </div>
+                              )}
+                              {totalWithdrawn > 0 && (
+                                <div className="flex items-center gap-2">
+                                  <ArrowUpLeft size={14} className="text-rose-400" />
+                                  <span className="text-xs font-black text-rose-400">
+                                    -{formatMoney(totalWithdrawn, 'USD')}
+                                  </span>
+                                </div>
+                              )}
+                              {flows.length === 0 && (
+                                <span className="text-[10px] font-bold text-text-secondary opacity-30 italic">
+                                  {t('snapshots.noFlows')}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {flows.length > 0 && (
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-left">
+                                <thead>
+                                  <tr className="bg-white/[0.02]">
+                                    <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('snapshots.asset')}</th>
+                                    <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('snapshots.flowType')}</th>
+                                    <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest text-right">{t('snapshots.amount')}</th>
+                                    <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest text-right">{t('snapshots.flowDate')}</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                  {flows.map((flow, i) => (
+                                    <tr key={i} className="hover:bg-white/[0.02] transition-colors">
+                                      <td className="px-8 py-4 font-black text-text-primary text-sm">{flow.assetName}</td>
+                                      <td className="px-8 py-4">
+                                        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black px-2 py-1 rounded-lg border ${
+                                          flow.type === 'injection'
+                                            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                            : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                                        }`}>
+                                          {flow.type === 'injection'
+                                            ? <ArrowDownLeft size={10} />
+                                            : <ArrowUpLeft size={10} />}
+                                          {t(`investments.history.${flow.type}`)}
+                                        </span>
+                                      </td>
+                                      <td className={`px-8 py-4 text-right font-black text-sm ${
+                                        flow.type === 'injection' ? 'text-emerald-400' : 'text-rose-400'
+                                      }`}>
+                                        {flow.type === 'injection' ? '+' : '-'}{formatMoney(flow.amount, flow.currency as any)}
+                                      </td>
+                                      <td className="px-8 py-4 text-right text-[10px] font-bold text-text-secondary opacity-50">
+                                        {flow.date.toLocaleString()}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     {/* Tabla Completa de Activos */}
                     <div className="bg-white/5 rounded-[32px] overflow-hidden border border-white/5">

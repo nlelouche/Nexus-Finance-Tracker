@@ -135,6 +135,7 @@ export interface FinanceState {
   deleteInvestment: (id: string) => void;
   rebaseAllInvestments: () => void;
   updateInvestmentHistoryRate: (id: string, entryIndex: number, newRate: number) => void;
+  undoLastInvestmentEntry: (id: string) => void;
   
   // Acciones Snapshots
   takeSnapshot: (name?: string) => void;

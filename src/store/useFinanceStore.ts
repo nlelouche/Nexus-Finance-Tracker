@@ -215,6 +215,44 @@ export const useFinanceStore = create<FinanceState>()(
         })
       })),
 
+      undoLastInvestmentEntry: (id) => set((state) => ({
+        investments: state.investments.map(i => {
+          if (i.id !== id || !i.history || i.history.length < 2) return i;
+          const history = [...i.history];
+          const lastEntry = history[history.length - 1];
+          const prevEntry = history[history.length - 2];
+
+          // Revert current value to what it was before the last entry
+          let newCurrent = prevEntry.valueAfter;
+          let newInvested = i.invested;
+          let newCryptoAmount = i.cryptoAmount;
+
+          if (lastEntry.type === 'injection') {
+            newInvested = Math.max(0, i.invested - lastEntry.amount);
+            // Revert cryptoAmount proportionally if present
+            if (newCryptoAmount !== undefined && i.current > 0) {
+              const ratio = lastEntry.amount / i.current;
+              newCryptoAmount = Math.max(0, newCryptoAmount - newCryptoAmount * ratio);
+            }
+          } else if (lastEntry.type === 'withdrawal') {
+            newInvested = i.invested + lastEntry.amount;
+            if (newCryptoAmount !== undefined && i.current > 0) {
+              const ratio = lastEntry.amount / i.current;
+              newCryptoAmount = newCryptoAmount + newCryptoAmount * ratio;
+            }
+          }
+          // For 'valuation' and 'creation' only current changes
+
+          return {
+            ...i,
+            current: newCurrent,
+            invested: newInvested,
+            cryptoAmount: newCryptoAmount,
+            history: history.slice(0, -1),
+          };
+        })
+      })),
+
       takeSnapshot: (name) => set((state) => {
         const totalCurrentUSD = state.investments.reduce((sum, inv) => sum + toUSD(inv.current, inv.currency, state.exchangeRates), 0);
         const totalInvestedUSD = state.investments.reduce((sum, inv) => sum + calculateInvestedUSD(inv, state.exchangeRates), 0);

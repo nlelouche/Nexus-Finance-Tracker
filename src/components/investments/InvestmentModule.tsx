@@ -11,7 +11,7 @@ import { useFinanceStore } from '../../store/useFinanceStore';
 import { 
   TrendingUp, Bitcoin, Building, Layers, Search, Plus, 
   Calculator, LayoutPanelLeft, Check, Wallet, DollarSign, Brain,
-  Clock, BarChart3, RefreshCcw
+  Clock, BarChart3, RefreshCcw, Undo2
 } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { projectFuture } from '../../utils/metrics';
@@ -52,7 +52,7 @@ export const InvestmentModule = () => {
   const { 
     addInvestment, updateInvestmentCurrent, injectInvestment, 
     withdrawInvestment, deleteInvestment, updateInvestmentLayout, 
-    toggleInvestmentWidgetVisibility, rebaseAllInvestments
+    toggleInvestmentWidgetVisibility, rebaseAllInvestments, undoLastInvestmentEntry
   } = useFinanceStore();
 
   const [ref, bounds] = useMeasure();
@@ -378,14 +378,43 @@ export const InvestmentModule = () => {
                               </td>
                               <td className="px-8 py-5">
                                 <div className={`flex justify-center gap-2 ${isBulkUpdating ? 'opacity-20 pointer-events-none' : ''}`}>
-                                  {['m2m', 'inject', 'withdraw', 'settings'].map((m: any) => (
-                                    <button key={m} className={`p-3 rounded-xl hover:-translate-y-0.5 transition-all bg-white/5 border border-white/5 text-text-secondary`} onClick={() => handleOpenModal(m, inv.id)}>
+                                  {(['m2m', 'inject', 'withdraw', 'settings'] as const).map((m) => (
+                                    <button key={m} className="p-3 rounded-xl hover:-translate-y-0.5 transition-all bg-white/5 border border-white/5 text-text-secondary" onClick={() => handleOpenModal(m, inv.id)} title={t(`investments.actions.${m}`)}>
                                       {m === 'm2m' && <TrendingUp size={16} />}
                                       {m === 'inject' && <TrendingUp size={16} className="rotate-90" />}
                                       {m === 'withdraw' && <TrendingUp size={16} className="-rotate-90" />}
                                       {m === 'settings' && <Plus size={16} className="rotate-45" />}
                                     </button>
                                   ))}
+                                  {/* Undo last movement */}
+                                  {(() => {
+                                    const canUndo = (inv.history?.length ?? 0) >= 2;
+                                    const lastEntry = inv.history?.[inv.history.length - 1];
+                                    const tooltipMsg = canUndo && lastEntry
+                                      ? `${t('investments.actions.undo')}: ${t(`investments.history.${lastEntry.type}`)} (${new Date(lastEntry.date).toLocaleString()})`
+                                      : t('investments.actions.undoDisabled');
+                                    return (
+                                      <button
+                                        className={`p-3 rounded-xl transition-all border ${
+                                          canUndo
+                                            ? 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:-translate-y-0.5 hover:bg-amber-500/20 hover:shadow-[0_0_12px_rgba(245,158,11,0.3)]'
+                                            : 'bg-white/[0.02] border-white/5 text-text-secondary opacity-20 cursor-not-allowed'
+                                        }`}
+                                        disabled={!canUndo}
+                                        title={tooltipMsg}
+                                        onClick={() => {
+                                          if (!canUndo || !lastEntry) return;
+                                          const confirmed = window.confirm(
+                                            `${t('investments.actions.undoConfirm')}\n\n` +
+                                            `${t(`investments.history.${lastEntry.type}`)}: ${new Date(lastEntry.date).toLocaleString()}`
+                                          );
+                                          if (confirmed) undoLastInvestmentEntry(inv.id);
+                                        }}
+                                      >
+                                        <Undo2 size={16} />
+                                      </button>
+                                    );
+                                  })()}
                                 </div>
                               </td>
                             </tr>

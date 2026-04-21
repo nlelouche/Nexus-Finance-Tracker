@@ -241,6 +241,21 @@
       "performance": "Rendimiento",
       "management": "Gestión"
     },
+    "actions": {
+      "m2m": "Actualizar valor de mercado",
+      "inject": "Inyectar capital",
+      "withdraw": "Retirar capital",
+      "settings": "Ajustes del activo",
+      "undo": "Deshacer último movimiento",
+      "undoDisabled": "Sin movimientos para deshacer",
+      "undoConfirm": "¿Deshacer el último movimiento de este activo? Esta acción revertirá el valor, el capital invertido y eliminará el último entry del historial."
+    },
+    "history": {
+      "creation": "Creación inicial",
+      "valuation": "Actualización de valor",
+      "injection": "Inyección de capital",
+      "withdrawal": "Retiro de capital"
+    },
     "operation": {
       "inject": {
         "title": "Inyectar capital",
@@ -537,7 +552,7 @@
     "effortDeposits": "Depósitos (Esfuerzo)",
     "wealthChange": "Cambio Patrimonio",
     "totalChange": "Cambio Total",
-    "flowSummary": "Resumen de flujos y mercado",
+    "flowSummary": "Flujo de Capital del Período",
     "firstRecord": "Primer registro histórico disponible",
     "assetsSummary": "Resumen de Activos en este punto",
     "accumulatedStatus": "Estado Acumulado",
@@ -548,6 +563,9 @@
     "category": "Categoría",
     "invested": "Invertido",
     "current": "Actual",
+    "flowType": "Tipo",
+    "flowDate": "Fecha",
+    "noFlows": "Sin movimientos de capital en este período",
     "exportJson": "Exportar JSON",
     "deleteConfirm": "¿Eliminar snapshot?",
     "promptName": "Nombre del Snapshot (opcional):"
