@@ -204,7 +204,14 @@ export const InvestmentModule = () => {
                     <div className="absolute top-4 right-4 opacity-10 text-text-primary">{KPI_ICONS[kpi.iconId] || <TrendingUp size={20} />}</div>
                     <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-3 ${kpi.color}`}>{kpi.label}</p>
                     <h2 className="text-4xl font-black text-text-primary tracking-tighter">{kpi.value}</h2>
-                    <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-60 mt-2">{kpi.sub}</p>
+                    <div className="flex items-center justify-between mt-2">
+                       <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest opacity-60">{kpi.sub}</p>
+                       {kpi.extra && (
+                         <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg border ${kpi.extra.status === 'better' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
+                           {kpi.extra.label}
+                         </span>
+                       )}
+                    </div>
                   </div>
                 ))}
               </div>

@@ -227,6 +227,11 @@
     },
     "settings": {
       "title": "Ajustes del activo",
+      "baseRate": {
+        "title": "Dólar de Costo Base (USD)",
+        "placeholder": "Ej: 1100",
+        "tip": "* Ajusta el tipo de cambio al que compraste originalmente para recalcular el rendimiento real en dólares."
+      },
       "dangerZone": "Zona de peligro",
       "delete": {
         "button": "Eliminar permanentemente",

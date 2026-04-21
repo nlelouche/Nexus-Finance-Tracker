@@ -1,7 +1,8 @@
 import React from 'react';
 import { X, Settings, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Investment, InvestmentCategory } from '../../../types';
+import { Investment, InvestmentCategory, ExchangeRates } from '../../../types';
+import { useFinanceStore } from '../../../store/useFinanceStore';
 
 interface SettingsModalProps {
   asset: Investment;
@@ -14,6 +15,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   asset, onClose, onDelete, categoryIcons 
 }) => {
   const { t } = useTranslation();
+  const { updateInvestmentHistoryRate, exchangeRates } = useFinanceStore();
+
+  const initialEntry = asset.history?.[0];
+  const [rate, setRate] = React.useState(initialEntry?.exchangeRate || (asset.currency === 'ARS' ? exchangeRates.usdToCripto : 1));
+
+  const handleUpdateRate = () => {
+    updateInvestmentHistoryRate(asset.id, 0, rate);
+    onClose();
+  };
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl animate-in fade-in duration-300">
       <div className="bg-bg-surface border border-white/10 w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden relative">
@@ -35,6 +45,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <h4 className="text-2xl font-black text-text-primary tracking-tighter">{asset.name}</h4>
               <p className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-40">{asset.category} • {asset.strategy}</p>
             </div>
+          </div>
+          <div className="pt-8 border-t border-white/5 space-y-4">
+            <div className="flex justify-between items-center mb-2">
+              <h5 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">{t('investments.settings.baseRate.title')}</h5>
+              <span className="text-[10px] font-bold text-text-secondary opacity-40 px-2 py-0.5 bg-white/5 rounded-lg border border-white/5">USD / {asset.currency}</span>
+            </div>
+            <div className="flex gap-3">
+              <input 
+                type="number" step="0.01"
+                className="flex-1 bg-white/[0.03] border border-white/10 rounded-2xl py-4 px-6 text-sm font-black text-text-primary focus:border-indigo-500 outline-none transition-all"
+                value={rate} onChange={e => setRate(Number(e.target.value))}
+                placeholder={t('investments.settings.baseRate.placeholder')}
+              />
+              <button 
+                onClick={handleUpdateRate}
+                className="px-6 py-4 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 transition-all font-black text-xs"
+              >
+                {t('common.save')}
+              </button>
+            </div>
+            <p className="text-[9px] text-text-secondary font-medium italic opacity-60">
+              {t('investments.settings.baseRate.tip')}
+            </p>
           </div>
 
           <div className="pt-8 border-t border-white/5">

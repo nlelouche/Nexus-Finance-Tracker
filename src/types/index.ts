@@ -123,6 +123,7 @@ export interface FinanceState {
   fixInvestmentInitial: (id: string, newInvested: number) => void;
   deleteInvestment: (id: string) => void;
   rebaseAllInvestments: () => void;
+  updateInvestmentHistoryRate: (id: string, entryIndex: number, newRate: number) => void;
 
   // Acciones Goals
   addGoal: (goal: Omit<Goal, 'id'>) => void;

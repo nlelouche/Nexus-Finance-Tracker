@@ -201,6 +201,17 @@ export const useFinanceStore = create<FinanceState>()(
           };
         })
       })),
+
+      updateInvestmentHistoryRate: (id, index, newRate) => set((state) => ({
+        investments: state.investments.map(i => {
+          if (i.id !== id || !i.history) return i;
+          const newHistory = [...i.history];
+          if (newHistory[index]) {
+            newHistory[index] = { ...newHistory[index], exchangeRate: newRate };
+          }
+          return { ...i, history: newHistory };
+        })
+      })),
       
       addGoal: (goal) => set((state) => ({
         goals: [...state.goals, { ...goal, id: crypto.randomUUID() }]

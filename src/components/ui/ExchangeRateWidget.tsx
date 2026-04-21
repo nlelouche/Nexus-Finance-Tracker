@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../../store/useFinanceStore';
@@ -30,6 +30,15 @@ export const ExchangeRateWidget = () => {
   const [error, setError] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [draft, setDraft] = useState(safeRates);
+  
+  const STALE_TIME = 2 * 60 * 60 * 1000; // 2 horas en ms
+
+  React.useEffect(() => {
+    const isStale = !safeRates.lastUpdated || (new Date().getTime() - new Date(safeRates.lastUpdated).getTime() > STALE_TIME);
+    if (isStale && !loading) {
+      handleFetch();
+    }
+  }, []);
 
   const handleFetch = async () => {
     setLoading(true);

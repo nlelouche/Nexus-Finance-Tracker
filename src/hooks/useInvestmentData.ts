@@ -119,7 +119,15 @@ export const useInvestmentData = (searchTerm: string) => {
     const annual = totalWeightUSD > 0 ? weightedAnnualTwrr / totalWeightUSD : null;
     const absolute = totalWeightUSD > 0 ? weightedAbsoluteTwrr / totalWeightUSD : 0;
 
-    return { annual, absolute, hasValidData };
+    return { 
+      annual, 
+      absolute, 
+      hasValidData,
+      benchmarks: {
+        spy: 0.102, // 10.2% S&P 500
+        btc: 0.45   // 45% BTC
+      }
+    };
   }, [investments, exchangeRates]);
 
   // ── Configuración de KPIs para la UI (No JSX here) ─────────────────
@@ -142,7 +150,11 @@ export const useInvestmentData = (searchTerm: string) => {
         : `${t('investments.kpis.absolute')} (USD)`,
       iconId: 'brain' as KPIIconType, 
       color: 'text-purple-400', 
-      bg: 'bg-purple-500/10' 
+      bg: 'bg-purple-500/10',
+      extra: portfolioMetrics.annual !== null ? {
+        label: 'vs S&P 500 (10.2%)',
+        status: portfolioMetrics.annual > 0.102 ? 'better' : 'worse'
+      } : undefined
     },
     { 
       label: t('investments.kpis.totalGain'), 
