@@ -28,8 +28,8 @@ export const PortfolioRebalancer = () => {
 
   const chartData = rebalanceData.map(item => ({
     name: item.category,
-    Actual: Number(item.currentPercentage.toFixed(1)),
-    Objetivo: item.targetPercentage
+    [t('investments.rebalancer.actual')]: Number(item.currentPercentage.toFixed(1)),
+    [t('investments.rebalancer.target')]: item.targetPercentage
   }));
 
   return (
@@ -63,8 +63,8 @@ export const PortfolioRebalancer = () => {
                   cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                 />
                 <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-                <Bar dataKey="Actual" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Objetivo" fill="#a855f7" radius={[4, 4, 0, 0]} />
+                <Bar dataKey={t('investments.rebalancer.actual')} fill="#6366f1" radius={[4, 4, 0, 0]} />
+                <Bar dataKey={t('investments.rebalancer.target')} fill="#a855f7" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

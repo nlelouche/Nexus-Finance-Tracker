@@ -5,10 +5,15 @@
     "complete": "Completed",
     "necessary": "Necessary",
     "delete": "Delete",
+    "in": "In",
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
-    "locale": "en-US"
+    "hideHistory": "Hide history",
+    "noNote": "No note",
+    "monthly": "monthly",
+    "locale": "en-US",
+    "language": "en"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -20,7 +25,19 @@
     "admin": "Admin",
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
-    "language": "Language"
+    "language": "Language",
+    "categories": {
+      "Alquiler": "Rent",
+      "Comida": "Food",
+      "Servicios": "Services",
+      "Impuestos": "Taxes",
+      "Tarjetas de Credito": "Credit Cards",
+      "Transporte": "Transport",
+      "Entretenimiento": "Entertainment",
+      "Suscripciones": "Subscriptions",
+      "Salud": "Health",
+      "Otros": "Others"
+    }
   },
   "admin": {
     "title": "Admin Panel",
@@ -169,6 +186,30 @@
   "investments": {
     "title": "Portfolio",
     "subtitle": "Capital management and advanced performance analysis.",
+    "kpis": {
+      "portfolioValue": "Portfolio Value",
+      "marketValue": "Market Value",
+      "realPerformance": "Real Performance (TWRR)",
+      "annualized": "Annualized",
+      "absolute": "Absolute",
+      "totalGain": "Historical Gain",
+      "days": "days",
+      "lastDelta": "Last Change",
+      "noData": "No data",
+      "returnSuffix": "return",
+      "investingSince": "investing for",
+      "waitingCheckpoint": "Waiting for checkpoint",
+      "sinceUpdate": "since last update",
+      "vsSP500": "vs S&P 500 (10.2%)"
+    },
+    "recalc": {
+      "expected": "Expected"
+    },
+    "rebase": {
+      "button": "Rebase Gains",
+      "title": "Reset Cost Basis",
+      "confirm": "Are you sure you want to rebase all investments? Your invested capital will become equal to the current value, resetting gain/loss calculations to 0%. This cannot be undone."
+    },
     "bulkUpdate": "Bulk Update",
     "assistant": "Assistant",
     "editLayout": "Edit Layout",
@@ -176,9 +217,18 @@
     "finish": "Finish",
     "projection": {
       "title": "Wealth Projection",
+      "subtitle": "Estimate growth based on your savings and returns.",
       "monthly": "Monthly Contribution (USD)",
-      "annualRate": "Estimated Annual Rate (%)",
-      "initial": "Initial Capital (Current)"
+      "annualRate": "Target Annual Rate (%)",
+      "initial": "Initial Wealth (USD)",
+      "period1m": "1 Month",
+      "period1y": "1 Year",
+      "period2y": "2 Years",
+      "period5y": "5 Years"
+    },
+    "composition": {
+      "title": "Distribution & Composition",
+      "activeAssets": "Active Assets"
     },
     "list": {
       "title": "Asset List",
@@ -205,11 +255,19 @@
         "tip": "* The system will recalculate performance based on this value."
       },
       "amount": "Equivalent in",
-      "confirm": "Confirmar",
-      "update": "Actualizar"
+      "confirm": "Confirm",
+      "update": "Update",
+      "cryptoAmount": "Quantity",
+      "finalValueAfter": "Final Total Value (Calibration)",
+      "finalValueTip": "* Adjust this value if the market price changed just before your contribution. This will keep your real gain % intact."
     },
     "settings": {
       "title": "Asset Settings",
+      "baseRate": {
+        "title": "Base Cost Dollar (USD)",
+        "placeholder": "e.g. 1100",
+        "tip": "* Adjust the exchange rate at which you originally purchased to recalculate the real yield in dollars."
+      },
       "dangerZone": "Danger Zone",
       "delete": {
         "button": "Delete Permanently",
@@ -231,84 +289,83 @@
     "rebalancer": {
       "title": "Portfolio Rebalancer",
       "subtitle": "Comparison of your current portfolio vs. your ideal strategy.",
-      "save": "Save Strategy",
-      "adjust": "Adjust Objectives",
+      "save": "Save changes",
+      "adjust": "Adjust Strategy",
       "chartTitle": "Actual vs. Objective (%)",
-      "strategy": "Strategy",
-      "totalPortfolio": "Total Portfolio",
-      "recommendations": "Adjustment Recommendations",
+      "strategy": "Current Strategy",
+      "totalPortfolio": "Total Managed Portfolio",
+      "recommendations": "Action Recommendations",
       "deviation": "Deviation",
       "buySuggestion": "Buy Suggestion",
       "sellSuggestion": "Sell Suggestion",
       "holdSuggestion": "Strategy OK",
+      "actual": "Actual",
+      "target": "Target",
       "close": "Close Assistant"
     }
   },
+  "snapshots": {
+    "title": "Snapshots",
+    "subtitle": "Freeze your fund's status to analyze monthly growth.",
+    "button": "Take Snapshot",
+    "empty": "No Snapshots yet",
+    "emptyDesc": "Take your first snapshot to start recording your historical trajectory.",
+    "patrimony": "Wealth",
+    "netWealth": "Total Wealth",
+    "investedCapital": "Invested Capital",
+    "historicalGain": "Historical Gain",
+    "netGain": "Net Gain",
+    "vsPrevious": "vs Previous",
+    "periodVariation": "Period Variation",
+    "marketGrowth": "Market Growth",
+    "effortDeposits": "Deposits (Effort)",
+    "wealthChange": "Wealth Change",
+    "totalChange": "Total Change",
+    "flowSummary": "Flow and market summary",
+    "firstRecord": "First historical record available",
+    "assetsSummary": "Asset Summary at this point",
+    "accumulatedStatus": "Accumulated Status",
+    "sortBy": "Sort by:",
+    "amount": "Amount",
+    "gain": "Gain",
+    "asset": "Asset",
+    "category": "Category",
+    "invested": "Invested",
+    "current": "Current",
+    "exportJson": "Export JSON",
+    "deleteConfirm": "Delete snapshot?",
+    "promptName": "Snapshot Name (optional):"
+  },
   "goals": {
-    "title": "Savings Goals",
-    "subtitle": "Define your goals with date and amount.",
-    "newGoal": "New Goal",
-    "empty": {
-      "title": "No goals yet",
-      "subtitle": "Assign a date to your goals. The first step is to define them.",
-      "button": "Create my first goal"
-    },
     "card": {
-      "target": "Target",
       "reached": "Reached",
-      "remaining": "Remaining",
+      "target": "Target",
       "daysTo": "Days to go",
-      "history": "Contribution History",
-      "noHistory": "No history recorded",
-      "addProgress": "Add Funds",
-      "withdraw": "Withdraw"
-    },
-    "form": {
-      "addTitle": "Create Goal",
-      "editTitle": "Edit Goal",
-      "name": "Goal Name",
-      "targetAmount": "Target Amount",
-      "currentAmount": "Initial Amount",
-      "targetDate": "Target Date",
-      "emoji": "Emoji",
-      "save": "Save Goal"
-    },
-    "modal": {
-      "addTitle": "Add funds to",
-      "withdrawTitle": "Withdraw from",
-      "addTab": "+ Add",
-      "withdrawTab": "- Withdraw",
-      "addQuestion": "How much do you want to add?",
-      "withdrawQuestion": "⚠️ Emergency withdrawal: how much do you want to withdraw?",
-      "amount": "Amount",
-      "noteLabel": "Note / Description (Optional)",
-      "notePlaceholder": "e.g. Bonus, special savings...",
-      "confirmAdd": "Confirm deposit",
-      "confirmWithdraw": "Confirm withdrawal",
-      "confirm": "Confirm"
-    },
-    "delete": {
-      "title": "Delete goal?",
-      "confirm": "Are you sure you want to delete this goal?",
-      "tip": "This action is irreversible. All history for this goal will be lost.",
-      "button": "Delete"
+      "remaining": "Remaining",
+      "history": "Contribution history",
+      "noHistory": "No contributions yet",
+      "addProgress": "Add progress",
+      "withdraw": "Withdraw",
+      "withdrawTitle": "Withdraw capital from this goal",
+      "monthsRemaining": "Months remaining",
+      "fundSummary": "Fund summary"
     },
     "status": {
-      "complete": "Goal Reached",
       "ahead": "Ahead",
-      "onTrack": "On Track",
+      "aheadSub": "+{{pct}}% above expected",
       "behind": "Behind",
-      "critical": "Critical",
-      "aheadSub": "+{{pct}}% ahead of schedule",
-      "onTrackSub": "You are on track",
-      "behindSub": "{{pct}}% behind schedule",
-      "criticalSub": "{{pct}}% behind — review your plan"
+      "behindSub": "-{{pct}}% below expected",
+      "onTime": "On time",
+      "onTimeSub": "Ideal pace"
     },
     "projection": {
-      "label": "At this rate, you will reach your goal on:",
-      "early": "({{months}} month{{suffix}} early)",
-      "late": "({{months}} month{{suffix}} late)",
-      "onTime": "(just on time)"
+      "label": "Estimated projection",
+      "early": "{{months}} month{{suffix}} early",
+      "late": "{{months}} month{{suffix}} late",
+      "onTime": "Exactly on time"
+    },
+    "form": {
+      "targetAmount": "Target amount"
     }
   },
   "expenses": {
@@ -334,21 +391,43 @@
     },
     "lastTransactions": "Recent Activity",
     "empty": "No expenses recorded.",
+    "analysis": "Expense Analysis",
+    "intel": "Data Intelligence",
+    "compliance": "Compliance",
     "fixed": {
       "addTitle": "Add Fixed Cost",
       "name": "Name",
-      "namePlaceholder": "e.g. Netflix, Internet...",
-      "dayOfMonth": "Due Day",
+      "namePlaceholder": "Service name",
+      "dayOfMonth": "Day",
       "backToCurrent": "Back to current month",
-      "paid": "paid",
-      "pending": "pending",
-      "noConfig": "No fixed costs configured",
-      "noConfigSub": "Add your subscriptions, services, and recurring monthly expenses.",
-      "addFirst": "Add first",
-      "isPaid": "Paid this month",
+      "paid": "Paid",
+      "pending": "Pending",
+      "noConfig": "No bills configured",
+      "noConfigSub": "Keep track of your recurring expenses to never miss a payment.",
+      "addFirst": "Add my first bill",
+      "isPaid": "Paid",
       "dueDay": "Due on day {{day}}",
-      "totalMonth": "Total monthly fixed costs",
-      "paidCount": "{{paid}} of {{total}} paid"
+      "totalMonth": "Total Monthly Exposure",
+      "paidCount": "{{paid}} of {{total}} bills paid"
+    },
+    "stats": {
+      "noData": "No data to analyze",
+      "noDataSub": "No expenses recorded in this period to generate statistics.",
+      "totalExpense": "Total Expense",
+      "activeMonitoring": "Active monitoring",
+      "average": "Average per Transaction",
+      "processed": "movements processed",
+      "maxConcentration": "Max Concentration",
+      "wealthOutput": "Capital Outflow Status",
+      "auditInProgress": "Audit in Progress",
+      "impact": "Impact",
+      "detailedAnalysis": "Detailed Merchant Analysis",
+      "merchantSub": "X-ray of your most recurring expenses",
+      "history": "Transaction History",
+      "endHistory": "End of monthly history",
+      "distribution": "Distribution by Category",
+      "merchants": "Top Merchants",
+      "calculationBase": "Calculated based on"
     }
   },
   "income": {

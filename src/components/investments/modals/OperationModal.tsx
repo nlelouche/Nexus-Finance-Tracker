@@ -69,7 +69,9 @@ export const OperationModal: React.FC<OperationModalProps> = ({
           <div className="space-y-8">
             {(type === 'inject' || type === 'withdraw') && isCrypto && (
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">Cantidad — {asset.cryptoSymbol}</label>
+                <label className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] ml-1">
+                  {t('investments.operation.cryptoAmount')} — {asset.cryptoSymbol}
+                </label>
                 <div className="relative">
                   <input 
                     type="number" 

@@ -145,7 +145,7 @@ export const InvestmentModule = () => {
           {isBulkUpdating ? (
             <>
               <button className="btn border border-white/10 text-text-secondary hover:bg-white/5" onClick={() => { setIsBulkUpdating(false); setBulkPrices({}); }}>{t('common.cancel')}</button>
-              <button className="btn-primary px-6 py-3 rounded-2xl font-black text-sm shadow-xl shadow-indigo-600/20 text-white" onClick={handleSaveBulk}>Guardar todo</button>
+              <button className="btn-primary px-6 py-3 rounded-2xl font-black text-sm shadow-xl shadow-indigo-600/20 text-white" onClick={handleSaveBulk}>{t('common.save')}</button>
             </>
           ) : (
             <>
@@ -251,10 +251,10 @@ export const InvestmentModule = () => {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
                   {[
-                    { label: '1 Mes', months: 1, color: 'text-blue-400' },
-                    { label: '1 Año', months: 12, color: 'text-emerald-400' },
-                    { label: '2 Años', months: 24, color: 'text-purple-400' },
-                    { label: '5 Años', months: 60, color: 'text-orange-400' }
+                    { label: t('investments.projection.period1m'), months: 1, color: 'text-blue-400' },
+                    { label: t('investments.projection.period1y'), months: 12, color: 'text-emerald-400' },
+                    { label: t('investments.projection.period2y'), months: 24, color: 'text-purple-400' },
+                    { label: t('investments.projection.period5y'), months: 60, color: 'text-orange-400' }
                   ].map((period) => (
                     <div key={period.label} className="bg-white/[0.03] p-6 rounded-[24px] border border-white/5 hover:bg-white/[0.05] transition-colors group/tile">
                       <div className="text-[10px] text-text-secondary font-black uppercase tracking-widest mb-2 opacity-60 group-hover/tile:opacity-100 transition-opacity">{period.label}</div>
@@ -271,7 +271,7 @@ export const InvestmentModule = () => {
           {/* Composition */}
           <div key="asset-composition">
             <WidgetShell 
-              id="Distribución y composición" editMode={editMode} 
+              id={t('investments.composition.title')} editMode={editMode} 
               visible={investmentWidgets.find(w => w.id === 'asset-composition')?.visible ?? true}
               onToggle={() => toggleInvestmentWidgetVisibility('asset-composition')}
             >

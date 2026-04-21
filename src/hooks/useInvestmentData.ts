@@ -119,7 +119,7 @@ export const useInvestmentData = (searchTerm: string) => {
     { 
       label: t('investments.kpis.portfolioValue'), 
       value: formatMoney(totals.totalCurrent, 'USD'), 
-      sub: 'Valor de Mercado', 
+      sub: t('investments.kpis.marketValue'), 
       iconId: 'wallet' as KPIIconType, 
       color: 'text-indigo-400', 
       bg: 'bg-indigo-500/10' 
@@ -136,14 +136,14 @@ export const useInvestmentData = (searchTerm: string) => {
       color: 'text-purple-400', 
       bg: 'bg-purple-500/10',
       extra: portfolioMetrics.annual !== null ? {
-        label: 'vs S&P 500 (10.2%)',
+        label: t('investments.kpis.vsSP500'),
         status: portfolioMetrics.annual > 0.102 ? 'better' : 'worse'
       } : undefined
     },
     { 
       label: t('investments.kpis.totalGain'), 
       value: formatMoney(totals.totalGain, 'USD'), 
-      sub: `${totals.totalPct >= 0 ? '+' : ''}${totals.totalPct.toFixed(2)}% de retorno · ${totals.totalDaysInvesting} ${t('investments.kpis.days')}`, 
+      sub: `${totals.totalPct >= 0 ? '+' : ''}${totals.totalPct.toFixed(2)}% ${t('investments.kpis.returnSuffix')} · ${totals.totalDaysInvesting} ${t('investments.kpis.days')}`, 
       iconId: 'trending' as KPIIconType, 
       color: totals.totalGain >= 0 ? 'text-emerald-400' : 'text-rose-400', 
       bg: totals.totalGain >= 0 ? 'bg-emerald-500/10' : 'bg-rose-500/10' 
@@ -154,8 +154,8 @@ export const useInvestmentData = (searchTerm: string) => {
         ? `${updateMetrics.totalDeltaUSD >= 0 ? '+' : ''}${formatMoney(updateMetrics.totalDeltaUSD, 'USD')}`
         : t('investments.kpis.noData'), 
       sub: updateMetrics.hasData 
-        ? `En ${updateMetrics.maxDays} ${t('investments.kpis.days')} desde el update` 
-        : 'Esperando segundo checkpoint', 
+        ? `${t('common.in')} ${updateMetrics.maxDays} ${t('investments.kpis.days')} ${t('investments.kpis.sinceUpdate')}` 
+        : t('investments.kpis.waitingCheckpoint'), 
       iconId: 'chart' as KPIIconType, 
       color: updateMetrics.totalDeltaUSD >= 0 ? 'text-emerald-400' : 'text-rose-400', 
       bg: updateMetrics.totalDeltaUSD >= 0 ? 'bg-emerald-500/10' : 'bg-rose-500/10' 

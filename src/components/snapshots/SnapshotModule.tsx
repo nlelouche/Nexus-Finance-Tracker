@@ -131,21 +131,21 @@ export const SnapshotModule = () => {
                       {/* Bloque 1: Estado Acumulado en el Punto del Snapshot */}
                       <div className="bg-white/5 rounded-[32px] p-8 border border-white/5">
                         <h5 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                          <History size={14} /> Estado Acumulado
+                          <History size={14} /> {t('snapshots.accumulatedStatus')}
                         </h5>
                         <div className="flex justify-between items-end">
                            <div className="space-y-4">
                               <div>
-                                <p className="text-[10px] font-bold text-text-secondary uppercase opacity-40 mb-1">Patrimonio Total</p>
+                                <p className="text-[10px] font-bold text-text-secondary uppercase opacity-40 mb-1">{t('snapshots.netWealth')}</p>
                                 <p className="text-2xl font-black text-text-primary tracking-tighter">{formatMoney(snap.totalCurrentUSD, 'USD')}</p>
                               </div>
                               <div>
-                                <p className="text-[10px] font-bold text-text-secondary uppercase opacity-40 mb-1">Capital Invertido</p>
+                                <p className="text-[10px] font-bold text-text-secondary uppercase opacity-40 mb-1">{t('snapshots.investedCapital')}</p>
                                 <p className="text-lg font-black text-text-primary/80 tracking-tighter">{formatMoney(snap.totalInvestedUSD, 'USD')}</p>
                               </div>
                            </div>
                            <div className="text-right">
-                              <p className="text-[10px] font-bold text-text-secondary uppercase opacity-40 mb-1">Ganancia Histórica</p>
+                              <p className="text-[10px] font-bold text-text-secondary uppercase opacity-40 mb-1">{t('snapshots.historicalGain')}</p>
                               <p className={`text-4xl font-black tracking-tighter ${snap.totalGainUSD >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                                 {snap.totalGainUSD >= 0 ? '+' : ''}{((snap.totalGainUSD / snap.totalInvestedUSD) * 100).toFixed(1)}%
                               </p>
@@ -159,24 +159,24 @@ export const SnapshotModule = () => {
                       {/* Bloque 2: Variación vs Snapshot Anterior */}
                       <div className="bg-white/5 rounded-[32px] p-8 border border-white/5">
                         <h5 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                          <Info size={14} /> Variación del Periodo
+                          <Info size={14} /> {t('snapshots.periodVariation')}
                         </h5>
                         {nextSnap ? (
                           <div className="space-y-6">
                             <div className="flex justify-between items-center">
-                               <span className="text-xs font-bold text-text-secondary opacity-60">Crecimiento (Mercado)</span>
+                               <span className="text-xs font-bold text-text-secondary opacity-60">{t('snapshots.marketGrowth')}</span>
                                <span className={`text-lg font-black ${deltaGain >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                                  {deltaGain >= 0 ? '+' : ''}{formatMoney(deltaGain, 'USD')}
                                </span>
                             </div>
                             <div className="flex justify-between items-center">
-                               <span className="text-xs font-bold text-text-secondary opacity-60">Nuevos Aportes (Esfuerzo)</span>
+                               <span className="text-xs font-bold text-text-secondary opacity-60">{t('snapshots.effortDeposits')}</span>
                                <span className="text-lg font-black text-blue-400">
                                  {deltaInvested >= 0 ? '+' : ''}{formatMoney(deltaInvested, 'USD')}
                                </span>
                             </div>
                             <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-                               <span className="text-[10px] font-black text-text-primary uppercase tracking-widest">Cambio Patrimonio</span>
+                               <span className="text-[10px] font-black text-text-primary uppercase tracking-widest">{t('snapshots.wealthChange')}</span>
                                <div className="text-right">
                                   <p className={`text-xl font-black ${deltaValue >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                                     {deltaValue >= 0 ? '+' : ''}{formatMoney(deltaValue, 'USD')}
@@ -186,7 +186,7 @@ export const SnapshotModule = () => {
                           </div>
                         ) : (
                           <div className="flex flex-col items-center justify-center h-full text-center pb-8">
-                             <p className="text-xs font-bold text-text-secondary opacity-30 italic">Primer registro histórico disponible</p>
+                             <p className="text-xs font-bold text-text-secondary opacity-30 italic">{t('snapshots.firstRecord')}</p>
                           </div>
                         )}
                       </div>
@@ -200,7 +200,7 @@ export const SnapshotModule = () => {
                           {t('snapshots.assetsSummary')}
                         </h5>
                         <div className="flex gap-2">
-                           <span className="text-[10px] font-bold text-text-secondary opacity-30 uppercase tracking-tighter mr-2 pt-1">Ordenar por:</span>
+                           <span className="text-[10px] font-bold text-text-secondary opacity-30 uppercase tracking-tighter mr-2 pt-1">{t('snapshots.sortBy')}</span>
                            {(['current', 'gain'] as const).map(key => (
                              <button 
                                 key={key}
@@ -211,7 +211,7 @@ export const SnapshotModule = () => {
                                     : 'bg-white/5 text-text-secondary border-transparent hover:bg-white/10'
                                 }`}
                              >
-                               {key === 'current' ? 'Monto' : 'Ganancia'}
+                               {key === 'current' ? t('snapshots.amount') : t('snapshots.gain')}
                                {sortConfig.key === key && (sortConfig.order === 'desc' ? ' ↓' : ' ↑')}
                              </button>
                            ))}
@@ -222,11 +222,11 @@ export const SnapshotModule = () => {
                         <table className="w-full text-left">
                           <thead>
                             <tr className="bg-white/[0.02]">
-                              <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">Activo</th>
-                              <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">Categoría</th>
-                              <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest text-right">Invertido</th>
-                              <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest text-right">Actual</th>
-                              <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest text-right">Ganancia</th>
+                              <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('snapshots.asset')}</th>
+                              <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest">{t('snapshots.category')}</th>
+                              <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest text-right">{t('snapshots.invested')}</th>
+                              <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest text-right">{t('snapshots.current')}</th>
+                              <th className="px-8 py-4 text-[10px] font-black text-text-secondary uppercase tracking-widest text-right">{t('snapshots.gain')}</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-white/5">

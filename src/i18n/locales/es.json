@@ -5,11 +5,16 @@
     "complete": "Completado",
     "necessary": "Necesario",
     "delete": "Eliminar",
+    "in": "En",
     "confirm": "Confirmar",
     "loading": "Cargando...",
     "error": "Error",
     "success": "Éxito",
-    "locale": "es-AR"
+    "hideHistory": "Ocultar historial",
+    "noNote": "Sin nota",
+    "monthly": "mensual",
+    "locale": "es-AR",
+    "language": "es"
   },
   "nav": {
     "dashboard": "Tablero",
@@ -22,7 +27,19 @@
     "snapshots": "Snapshots",
     "darkMode": "Modo oscuro",
     "lightMode": "Modo claro",
-    "language": "Idioma"
+    "language": "Idioma",
+    "categories": {
+      "Alquiler": "Alquiler",
+      "Comida": "Comida",
+      "Servicios": "Servicios",
+      "Impuestos": "Impuestos",
+      "Tarjetas de Credito": "Tarjetas",
+      "Transporte": "Transporte",
+      "Entretenimiento": "Entretenimiento",
+      "Suscripciones": "Suscripciones",
+      "Salud": "Salud",
+      "Otros": "Otros"
+    }
   },
   "admin": {
     "title": "Panel de Administración",
@@ -69,7 +86,7 @@
     "forecast": {
       "title": "Proyección de libertad",
       "subtitle": "Simulación a 10 años con retorno real del {{rate}}% anual",
-      "metaFire": "Meta FIRE",
+      "metaFIRE": "Meta FIRE",
       "xAxis": "Años",
       "tooltip": "Patrimonio",
       "label": "Año {{year}}",
@@ -172,15 +189,23 @@
     "title": "Portafolio",
     "subtitle": "Gestión de capital y análisis de rendimiento avanzado.",
     "kpis": {
-      "portfolioValue": "Patrimonio Total",
-      "realPerformance": "Rendimiento Real",
-      "totalGain": "Rendimiento Total",
-      "investedCapital": "Capital Invertido",
-      "lastDelta": "Último Cambio Diferencial",
-      "absolute": "Absoluto",
+      "portfolioValue": "Valor del Portafolio",
+      "marketValue": "Valor de Mercado",
+      "realPerformance": "Rendimiento Real (TWRR)",
       "annualized": "Anualizado",
-      "noData": "Esperando actualización",
-      "days": "días"
+      "absolute": "Absoluto",
+      "totalGain": "Ganancia Histórica",
+      "days": "días",
+      "lastDelta": "Último Cambio",
+      "noData": "Sin datos",
+      "returnSuffix": "de retorno",
+      "investingSince": "invirtiendo hace",
+      "waitingCheckpoint": "Esperando segundo checkpoint",
+      "sinceUpdate": "desde el update",
+      "vsSP500": "vs S&P 500 (10.2%)"
+    },
+    "recalc": {
+      "expected": "Esperado"
     },
     "rebase": {
       "button": "Rebasar Ganancias",
@@ -193,10 +218,19 @@
     "newAsset": "Nuevo activo",
     "finish": "Finalizar",
     "projection": {
-      "title": "Proyección de riqueza",
-      "monthly": "Aporte mensual (USD)",
-      "annualRate": "Tasa anual estimada (%)",
-      "initial": "Capital inicial (Actual)"
+      "title": "Proyección de Patrimonio",
+      "subtitle": "Estima el crecimiento futuro basado en tus ahorros y tasas.",
+      "monthly": "Aporte Mensual (USD)",
+      "annualRate": "Tasa Anual Objetivo (%)",
+      "initial": "Capital Inicial (USD)",
+      "period1m": "1 Mes",
+      "period1y": "1 Año",
+      "period2y": "2 Años",
+      "period5y": "5 Años"
+    },
+    "composition": {
+      "title": "Distribución y composición",
+      "activeAssets": "Activos Activos"
     },
     "list": {
       "title": "Lista de activos",
@@ -225,6 +259,7 @@
       "amount": "Monto en",
       "confirm": "Confirmar",
       "update": "Actualizar",
+      "cryptoAmount": "Cantidad",
       "finalValueAfter": "Valor Total Final (Calibración)",
       "finalValueTip": "* Ajusta este valor si el precio de mercado cambió justo antes de tu aporte. Esto mantendrá tu % de ganancia real intacto."
     },
@@ -256,16 +291,18 @@
     "rebalancer": {
       "title": "Rebalanceador de portafolio",
       "subtitle": "Comparativa de tu cartera actual vs. tu estrategia ideal.",
-      "save": "Guardar estrategia",
-      "adjust": "Ajustar objetivos",
+      "save": "Guardar cambios",
+      "adjust": "Ajustar Estrategia",
       "chartTitle": "Actual vs. Objetivo (%)",
-      "strategy": "Estrategia",
-      "totalPortfolio": "Total cartera",
-      "recommendations": "Recomendaciones de ajuste",
-      "deviation": "Desvío",
+      "strategy": "Estrategia Actual",
+      "totalPortfolio": "Patrimonio Administrado",
+      "recommendations": "Recomendaciones de Acción",
+      "deviation": "Desviación",
       "buySuggestion": "Sugerencia de compra",
       "sellSuggestion": "Sugerencia de venta",
       "holdSuggestion": "Estrategia correcta",
+      "actual": "Actual",
+      "target": "Objetivo",
       "close": "Cerrar asistente"
     }
   },
@@ -286,7 +323,10 @@
       "history": "Historial de aportes",
       "noHistory": "Sin aportes registrados",
       "addProgress": "Aportar",
-      "withdraw": "Retirar"
+      "withdraw": "Retirar",
+      "withdrawTitle": "Retirar capital de esta meta",
+      "monthsRemaining": "Meses restantes",
+      "fundSummary": "Resumen del fondo"
     },
     "form": {
       "addTitle": "Crear objetivo",
@@ -359,21 +399,43 @@
     },
     "lastTransactions": "Últimos movimientos",
     "empty": "No hay egresos registrados.",
+    "analysis": "Análisis de Egresos",
+    "intel": "Inteligencia de Datos",
+    "compliance": "Cumplimiento",
     "fixed": {
       "addTitle": "Agregar costo fijo",
       "name": "Nombre",
-      "namePlaceholder": "Ej: Netflix, Internet...",
-      "dayOfMonth": "Vence el día",
+      "namePlaceholder": "Nombre del servicio",
+      "dayOfMonth": "Día",
       "backToCurrent": "Volver al mes actual",
-      "paid": "pagado",
-      "pending": "pendiente",
-      "noConfig": "No hay costos fijos configurados",
-      "noConfigSub": "Agrega tus suscripciones, servicios y gastos mensuales recurrentes.",
-      "addFirst": "Agregar el primero",
-      "isPaid": "Pagado este mes",
+      "paid": "Pagado",
+      "pending": "Pendientes",
+      "noConfig": "Sin facturas configuradas",
+      "noConfigSub": "Lleva el control de tus gastos recurrentes para no olvidar ningún pago.",
+      "addFirst": "Cargar mi primera factura",
+      "isPaid": "Pagado",
       "dueDay": "Vence el día {{day}}",
-      "totalMonth": "Total de costos fijos del mes",
-      "paidCount": "{{paid}} de {{total}} pagados"
+      "totalMonth": "Exposición Total Mensual",
+      "paidCount": "{{paid}} de {{total}} facturas pagadas"
+    },
+    "stats": {
+      "noData": "Sin datos para analizar",
+      "noDataSub": "No hay egresos registrados en este período para generar estadísticas.",
+      "totalExpense": "Gasto Total",
+      "activeMonitoring": "Monitoreo activo",
+      "average": "Promedio por Transacción",
+      "processed": "movimientos procesados",
+      "maxConcentration": "Concentración Máxima",
+      "wealthOutput": "Estado de Salida de Capital",
+      "auditInProgress": "Auditoría en Progreso",
+      "impact": "Impacto",
+      "detailedAnalysis": "Análisis Detallado por Comercio",
+      "merchantSub": "Radiografía de tus gastos más recurrentes",
+      "history": "Historial de Operaciones",
+      "endHistory": "Fin del historial del mes",
+      "distribution": "Distribución por Categoría",
+      "merchants": "Principales Comercios",
+      "calculationBase": "Visualización calculada en base a"
     }
   },
   "income": {
@@ -465,13 +527,27 @@
     "empty": "Sin Snapshots aún",
     "emptyDesc": "Toma tu primer snapshot para empezar a registrar tu trayectoria histórica.",
     "patrimony": "Patrimonio",
+    "netWealth": "Patrimonio Total",
+    "investedCapital": "Capital Invertido",
+    "historicalGain": "Ganancia Histórica",
     "netGain": "Ganancia Neta",
     "vsPrevious": "vs Anterior",
     "periodVariation": "Variación del Periodo",
     "marketGrowth": "Crecimiento (Mercado)",
     "effortDeposits": "Depósitos (Esfuerzo)",
+    "wealthChange": "Cambio Patrimonio",
     "totalChange": "Cambio Total",
+    "flowSummary": "Resumen de flujos y mercado",
+    "firstRecord": "Primer registro histórico disponible",
     "assetsSummary": "Resumen de Activos en este punto",
+    "accumulatedStatus": "Estado Acumulado",
+    "sortBy": "Ordenar por:",
+    "amount": "Monto",
+    "gain": "Ganancia",
+    "asset": "Activo",
+    "category": "Categoría",
+    "invested": "Invertido",
+    "current": "Actual",
     "exportJson": "Exportar JSON",
     "deleteConfirm": "¿Eliminar snapshot?",
     "promptName": "Nombre del Snapshot (opcional):"

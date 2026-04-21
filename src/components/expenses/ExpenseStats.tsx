@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card } from '../ui';
+import { useTranslation } from 'react-i18next';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { ShoppingCart, Zap, Receipt, CreditCard, Utensils, Car, Film, Heart, Repeat, Gift } from 'lucide-react';
 import { formatMoney, convertCurrency } from '../../utils/finance';
@@ -38,6 +39,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 };
 
 export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMonth }: ExpenseStatsProps) => {
+  const { t } = useTranslation();
   const [expandedVendor, setExpandedVendor] = React.useState<string | null>(null);
 
   // Filtrar movimientos por mes y tipo expense
@@ -96,8 +98,8 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
         <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
           <Receipt className="text-text-secondary opacity-20" size={32} />
         </div>
-        <h3 className="text-lg font-bold text-text-primary mb-1">Sin datos para analizar</h3>
-        <p className="text-sm text-text-secondary max-w-xs">No hay egresos registrados en este período para generar estadísticas.</p>
+        <h3 className="text-lg font-bold text-text-primary mb-1">{t('expenses.stats.noData')}</h3>
+        <p className="text-sm text-text-secondary max-w-xs">{t('expenses.stats.noDataSub')}</p>
       </Card>
     );
   }
@@ -110,11 +112,11 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
         <div className="relative p-5 rounded-3xl bg-white/[0.03] border border-white/10 overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 blur-[50px] -mr-16 -mt-16 rounded-full" />
           <div className="relative z-10">
-            <p className="text-[10px] text-rose-400 font-bold uppercase tracking-[0.2em] mb-2">Gasto Total ({baseCurrency})</p>
+            <p className="text-[10px] text-rose-400 font-bold uppercase tracking-[0.2em] mb-2">{t('expenses.stats.totalExpense')} ({baseCurrency})</p>
             <p className="text-3xl font-black text-white tracking-tighter">{formatMoney(totalBase, baseCurrency)}</p>
             <div className="mt-3 flex items-center gap-2">
                <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.6)]" />
-               <span className="text-[10px] text-text-secondary uppercase font-bold tracking-widest opacity-60">Monitoreo activo</span>
+               <span className="text-[10px] text-text-secondary uppercase font-bold tracking-widest opacity-60">{t('expenses.stats.activeMonitoring')}</span>
             </div>
           </div>
         </div>
@@ -123,11 +125,11 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
         <div className="relative p-5 rounded-3xl bg-white/[0.03] border border-white/10 overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-[50px] -mr-16 -mt-16 rounded-full" />
           <div className="relative z-10">
-            <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-[0.2em] mb-2">Promedio por Transacción</p>
+            <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-[0.2em] mb-2">{t('expenses.stats.average')}</p>
             <p className="text-3xl font-black text-white tracking-tighter">{formatMoney(totalBase / monthTx.length, baseCurrency)}</p>
             <p className="text-[10px] text-text-secondary mt-3 font-medium opacity-60 flex items-center gap-2">
                <Zap size={10} className="text-indigo-400" />
-               {monthTx.length} movimientos procesados
+               {monthTx.length} {t('expenses.stats.processed')}
             </p>
           </div>
         </div>
@@ -136,8 +138,8 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
         <div className="relative p-5 rounded-3xl bg-white/[0.03] border border-white/10 overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-[50px] -mr-16 -mt-16 rounded-full" />
           <div className="relative z-10">
-            <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.2em] mb-2">Concentración Máxima</p>
-            <p className="text-3xl font-black text-white tracking-tighter truncate">{categoryData[0]?.name || 'N/A'}</p>
+            <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.2em] mb-2">{t('expenses.stats.maxConcentration')}</p>
+            <p className="text-3xl font-black text-white tracking-tighter truncate">{t(`nav.categories.${categoryData[0]?.name}`, { defaultValue: categoryData[0]?.name })}</p>
             <p className="text-[10px] text-text-secondary mt-3 font-medium opacity-60">
               Representa el <span className="text-emerald-400 font-bold">{totalBase > 0 ? ((categoryData[0]?.value / totalBase) * 100).toFixed(0) : 0}%</span> de tu salida
             </p>
@@ -151,7 +153,7 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
           <div className="p-5 border-b border-white/5 flex justify-between items-center">
             <h3 className="text-sm font-bold text-text-primary flex items-center gap-2">
                <div className="p-1 px-2 rounded bg-rose-500/20 text-rose-400 text-[10px]">COMO</div>
-               Distribución por Categoría
+               {t('expenses.stats.distribution')}
             </h3>
           </div>
           <div className="p-6">
@@ -177,7 +179,7 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
                     ))}
                   </Pie>
                   <Tooltip 
-                    formatter={(value: any) => formatMoney(value, baseCurrency)}
+                    formatter={(value: any, name: any) => [formatMoney(value, baseCurrency), t(`nav.categories.${name}`, { defaultValue: name })]}
                     contentStyle={{ 
                       backgroundColor: '#111', 
                       border: '1px solid rgba(255,255,255,0.1)',
@@ -203,7 +205,7 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
                        <span className="p-1 rounded bg-white/5 text-text-secondary">
                           {CATEGORY_ICONS[cat.name] || CATEGORY_ICONS.default}
                        </span>
-                       <span className="text-[11px] font-medium text-text-primary truncate">{cat.name}</span>
+                       <span className="text-[11px] font-medium text-text-primary truncate">{t(`nav.categories.${cat.name}`, { defaultValue: cat.name })}</span>
                     </div>
                     <span className="text-[10px] font-mono text-text-secondary">{((cat.value / totalBase) * 100).toFixed(0)}%</span>
                   </div>
@@ -221,7 +223,7 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
           <div className="p-5 border-b border-white/5 flex justify-between items-center">
             <h3 className="text-sm font-bold text-text-primary flex items-center gap-2">
                <div className="p-1 px-2 rounded bg-orange-500/20 text-orange-400 text-[10px]">DONDE</div>
-               Principales Comercios
+               {t('expenses.stats.merchants')}
             </h3>
           </div>
           <div className="p-6 space-y-5">
@@ -262,8 +264,8 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
                  <ShoppingCart size={20} />
               </div>
               <div>
-                 <h3 className="text-base font-bold text-white">Análisis Detallado por Comercio</h3>
-                 <p className="text-[10px] text-text-secondary uppercase tracking-widest font-medium">Radiografía de tus gastos más recurrentes</p>
+                 <h3 className="text-base font-bold text-white">{t('expenses.stats.detailedAnalysis')}</h3>
+                 <p className="text-[10px] text-text-secondary uppercase tracking-widest font-medium">{t('expenses.stats.merchantSub')}</p>
               </div>
            </div>
         </div>
@@ -306,7 +308,7 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
                          />
                       </div>
                       <div className="flex justify-between mt-2">
-                         <span className="text-[9px] text-text-secondary font-bold uppercase">Impacto</span>
+                         <span className="text-[9px] text-text-secondary font-bold uppercase">{t('expenses.stats.impact')}</span>
                          <span className="text-[9px] font-black text-orange-400">{((v.value / totalBase) * 100).toFixed(1)}%</span>
                       </div>
                     </>
@@ -314,7 +316,7 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
 
                   {isExpanded && (
                     <div className="mt-4 pt-4 border-t border-white/5 space-y-2 animate-in slide-in-from-top-2 duration-300">
-                      <p className="text-[9px] font-black text-text-secondary uppercase tracking-[0.2em] mb-3">Historial de Operaciones</p>
+                      <p className="text-[9px] font-black text-text-secondary uppercase tracking-[0.2em] mb-3">{t('expenses.stats.history')}</p>
                       {v.items.map((item) => (
                         <div key={item.id} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0 hover:bg-white/[0.02] px-1 rounded transition-colors group/item">
                           <div className="flex items-center gap-3">
@@ -325,7 +327,7 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
                         </div>
                       ))}
                       <div className="mt-4 p-2 rounded-xl bg-orange-500/10 border border-orange-500/20 text-center">
-                         <p className="text-[9px] font-bold text-orange-400 uppercase tracking-widest">Fin del historial del mes</p>
+                         <p className="text-[9px] font-bold text-orange-400 uppercase tracking-widest">{t('expenses.stats.endHistory')}</p>
                       </div>
                     </div>
                   )}
@@ -339,15 +341,15 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
       <Card className="p-6 bg-white/[0.02] border-white/5 border-t-2 border-t-rose-500/40">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
           <div>
-            <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.3em] mb-1">Estado de Salida de Capital</h4>
+            <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-[0.3em] mb-1">{t('expenses.stats.wealthOutput')}</h4>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-              <span className="text-xl font-black text-text-primary">Gasto Acumulado: {formatMoney(totalBase, baseCurrency)}</span>
+              <span className="text-xl font-black text-text-primary">{t('expenses.stats.totalExpense')}: {formatMoney(totalBase, baseCurrency)}</span>
             </div>
           </div>
           <div className="text-right">
             <span className="px-3 py-1 rounded-full bg-rose-500/10 text-rose-400 text-[10px] font-bold uppercase tracking-widest border border-rose-500/20">
-              Auditoría en Progreso
+              {t('expenses.stats.auditInProgress')}
             </span>
           </div>
         </div>
@@ -361,13 +363,14 @@ export const ExpenseStats = ({ transactions, exchangeRates, baseCurrency, viewMo
         
         <div className="flex justify-between mt-3 px-1">
           <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest">
-            {monthTx.length} registros en {viewMonth}
+            {monthTx.length} {t('expenses.stats.processed')} {viewMonth}
           </p>
           <p className="text-[10px] text-text-secondary font-medium">
-            Visualización calculada en base a {baseCurrency}
+            {t('expenses.stats.calculationBase')} {baseCurrency}
           </p>
         </div>
       </Card>
     </div>
   );
 };
+

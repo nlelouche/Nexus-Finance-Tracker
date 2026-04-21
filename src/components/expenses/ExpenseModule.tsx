@@ -153,7 +153,7 @@ export const ExpenseModule = () => {
               className="btn bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 flex items-center gap-2"
             >
               {showForm ? <X size={18} /> : (editingRecurringId ? <Pencil size={18} /> : <Plus size={18} />)}
-              {showForm ? t('common.cancel') : (editingRecurringId ? 'Editando...' : t('expenses.fixed.addTitle'))}
+              {showForm ? t('common.cancel') : (editingRecurringId ? t('common.edit') : t('expenses.fixed.addTitle'))}
             </button>
           )}
         </div>
@@ -190,7 +190,7 @@ export const ExpenseModule = () => {
             <div className="min-w-[140px] text-center">
                <span className="font-black text-white capitalize text-lg tracking-tight">{formatMonth(viewMonth, t('common.locale'))}</span>
             </div>
-            <button onClick={() => navigateMonth(1)} className="p-2.5 rounded-xl bg-white/5 hover:bg-rose-500/20 border border-white/10 text-white transition-all">
+            <button onClick={() => navigateMonth(1)} className="p-2.5 rounded-xl bg-rose-500/20 border border-white/10 text-white transition-all">
               <ChevronRight size={20} />
             </button>
           </div>
@@ -212,8 +212,8 @@ export const ExpenseModule = () => {
                   <BarChart3 size={20} />
                </div>
                <div>
-                  <h2 className="text-xl font-bold text-white">Análisis de Egresos</h2>
-                  <p className="text-[10px] text-text-secondary uppercase tracking-[0.2em] font-bold">Inteligencia de Datos · {formatMonth(viewMonth, t('common.locale'))}</p>
+                  <h2 className="text-xl font-bold text-white">{t('expenses.analysis')}</h2>
+                  <p className="text-[10px] text-text-secondary uppercase tracking-[0.2em] font-bold">{t('expenses.intel')} · {formatMonth(viewMonth, t('common.locale'))}</p>
                </div>
             </div>
             <ExpenseStats 
@@ -248,7 +248,7 @@ export const ExpenseModule = () => {
                   <div className="form-group">
                     <label className="form-label">{t('expenses.form.category')}</label>
                     <select className="form-control" value={category} onChange={e => setCategory(e.target.value)}>
-                      {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                      {CATEGORIES.map(c => <option key={c} value={c}>{t(`nav.categories.${c}`, { defaultValue: c })}</option>)}
                     </select>
                   </div>
                   <div className="form-group">
@@ -279,7 +279,7 @@ export const ExpenseModule = () => {
                       }}
                       className="btn bg-white/5 border border-white/10 text-text-secondary hover:bg-white/10 mt-2"
                     >
-                      Cancelar
+                      {t('common.cancel')}
                     </button>
                   )}
                 </div>
@@ -306,7 +306,7 @@ export const ExpenseModule = () => {
                           </button>
                         </div>
                         <p className="text-xs text-text-secondary">
-                          {t(`categories.${tx.category}`, { defaultValue: tx.category })} · {tx.date}
+                          {t(`nav.categories.${tx.category}`, { defaultValue: tx.category })} · {tx.date}
                           {tx.isNecessary && <span className="ml-2 text-[10px] font-black bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded uppercase tracking-tighter">{t('common.necessary')}</span>}
                         </p>
                       </div>
@@ -340,7 +340,7 @@ export const ExpenseModule = () => {
                   <input required type="number" className="form-control" placeholder="0" value={rForm.amount} onChange={e => setRForm(f => ({ ...f, amount: e.target.value }))} />
                 </div>
                 <div>
-                  <label className="form-label">Moneda</label>
+                  <label className="form-label">{t('expenses.form.currency')}</label>
                   <select className="form-control" value={rForm.currency} onChange={e => setRForm(f => ({ ...f, currency: e.target.value as Currency }))}>
                     <option value="ARS">ARS</option><option value="USD">USD</option><option value="EUR">EUR</option>
                   </select>
@@ -348,7 +348,7 @@ export const ExpenseModule = () => {
                 <div className="col-span-2">
                   <label className="form-label">{t('expenses.form.category')}</label>
                   <select className="form-control" value={rForm.category} onChange={e => setRForm(f => ({ ...f, category: e.target.value }))}>
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    {CATEGORIES.map(c => <option key={c} value={c}>{t(`nav.categories.${c}`, { defaultValue: c })}</option>)}
                   </select>
                 </div>
                 <div>
@@ -434,7 +434,7 @@ export const ExpenseModule = () => {
                           {exp.name}
                         </span>
                         <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 text-text-secondary font-black uppercase tracking-tighter">
-                          {t(`categories.${exp.category}`, { defaultValue: exp.category })}
+                          {t(`nav.categories.${exp.category}`, { defaultValue: exp.category })}
                         </span>
                       </div>
                       <div className="text-[11px] text-text-secondary mt-0.5 font-medium">
@@ -482,7 +482,7 @@ export const ExpenseModule = () => {
                 </div>
                 <div className="w-full md:w-1/2">
                    <div className="flex justify-between items-end mb-3">
-                     <span className="text-xs font-bold text-text-secondary">Cumplimiento</span>
+                     <span className="text-xs font-bold text-text-secondary">{t('expenses.compliance')}</span>
                      <span className="text-xs font-black text-emerald-400">
                         {Math.round((recurringExpenses.filter(r => r.paidMonths.some(p => p.month === viewMonth)).length / recurringExpenses.length) * 100)}%
                      </span>
