@@ -170,6 +170,22 @@
   "investments": {
     "title": "Portafolio",
     "subtitle": "Gestión de capital y análisis de rendimiento avanzado.",
+    "kpis": {
+      "portfolioValue": "Patrimonio Total",
+      "realPerformance": "Rendimiento Real",
+      "totalGain": "Rendimiento Total",
+      "investedCapital": "Capital Invertido",
+      "lastDelta": "Último Cambio Diferencial",
+      "absolute": "Absoluto",
+      "annualized": "Anualizado",
+      "noData": "Esperando actualización",
+      "days": "días"
+    },
+    "rebase": {
+      "button": "Rebasar Ganancias",
+      "title": "Reiniciar base de costo",
+      "confirm": "¿Estás seguro de que deseas rebasar todas las inversiones? Tu capital invertido pasará a ser igual al valor actual, reiniciando los cálculos de ganancia/perdida a 0%. Esto no se puede deshacer."
+    },
     "bulkUpdate": "Actualización por lote",
     "assistant": "Asistente",
     "editLayout": "Editar diseño",

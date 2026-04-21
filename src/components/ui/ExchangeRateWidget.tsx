@@ -38,7 +38,7 @@ export const ExchangeRateWidget = () => {
       // ARS dollar types (dolarapi.com — free, no auth)
       const [dolarRes, eurRes] = await Promise.all([
         fetch('https://dolarapi.com/v1/dolares'),
-        fetch('https://api.frankfurter.app/latest?from=USD&to=EUR'),
+        fetch('https://api.frankfurter.dev/v1/latest?from=USD&to=EUR'),
       ]);
 
       if (!dolarRes.ok) throw new Error('dolarapi.com no respondió');

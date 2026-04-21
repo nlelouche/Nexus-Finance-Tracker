@@ -113,7 +113,8 @@ export const useFinanceStore = create<FinanceState>()(
           date: new Date().toISOString(),
           type: 'creation' as const,
           amount: inv.invested,
-          valueAfter: inv.current
+          valueAfter: inv.current,
+          exchangeRate: inv.currency === 'ARS' ? state.exchangeRates.usdToCripto : (inv.currency === 'EUR' ? 1 / state.exchangeRates.eurToUsd : 1)
         };
         return {
           investments: [...state.investments, { ...inv, id, history: [initialHistoryEntry] }]
@@ -123,7 +124,13 @@ export const useFinanceStore = create<FinanceState>()(
       updateInvestmentCurrent: (id, newCurrent) => set((state) => ({
         investments: state.investments.map(i => {
           if (i.id !== id) return i;
-          const entry = { date: new Date().toISOString(), type: 'valuation' as const, amount: 0, valueAfter: newCurrent };
+          const entry = { 
+            date: new Date().toISOString(), 
+            type: 'valuation' as const, 
+            amount: 0, 
+            valueAfter: newCurrent,
+            exchangeRate: i.currency === 'ARS' ? state.exchangeRates.usdToCripto : (i.currency === 'EUR' ? 1 / state.exchangeRates.eurToUsd : 1)
+          };
           return { ...i, current: newCurrent, history: [...(i.history || []), entry] };
         })
       })),
@@ -132,7 +139,13 @@ export const useFinanceStore = create<FinanceState>()(
         investments: state.investments.map(i => {
           if (i.id !== id) return i;
           const newCurrent = i.current + amount;
-          const entry = { date: new Date().toISOString(), type: 'injection' as const, amount, valueAfter: newCurrent };
+          const entry = { 
+            date: new Date().toISOString(), 
+            type: 'injection' as const, 
+            amount, 
+            valueAfter: newCurrent,
+            exchangeRate: i.currency === 'ARS' ? state.exchangeRates.usdToCripto : (i.currency === 'EUR' ? 1 / state.exchangeRates.eurToUsd : 1)
+          };
           return {
             ...i,
             invested: i.invested + amount,
@@ -147,7 +160,13 @@ export const useFinanceStore = create<FinanceState>()(
         investments: state.investments.map(i => {
           if (i.id !== id) return i;
           const newCurrent = Math.max(0, i.current - amount);
-          const entry = { date: new Date().toISOString(), type: 'withdrawal' as const, amount, valueAfter: newCurrent };
+          const entry = { 
+            date: new Date().toISOString(), 
+            type: 'withdrawal' as const, 
+            amount, 
+            valueAfter: newCurrent,
+            exchangeRate: i.currency === 'ARS' ? state.exchangeRates.usdToCripto : (i.currency === 'EUR' ? 1 / state.exchangeRates.eurToUsd : 1)
+          };
           return {
             ...i,
             invested: Math.max(0, i.invested - amount),
@@ -164,6 +183,23 @@ export const useFinanceStore = create<FinanceState>()(
       
       deleteInvestment: (id) => set((state) => ({
         investments: state.investments.filter(i => i.id !== id)
+      })),
+      
+      rebaseAllInvestments: () => set((state) => ({
+        investments: state.investments.map(i => {
+          const entry = { 
+            date: new Date().toISOString(), 
+            type: 'creation' as const, 
+            amount: i.current, 
+            valueAfter: i.current,
+            exchangeRate: i.currency === 'ARS' ? state.exchangeRates.usdToCripto : (i.currency === 'EUR' ? 1 / state.exchangeRates.eurToUsd : 1)
+          };
+          return {
+            ...i,
+            invested: i.current,
+            history: [entry]
+          };
+        })
       })),
       
       addGoal: (goal) => set((state) => ({

@@ -35,6 +35,7 @@ export interface InvestmentHistoryEntry {
   type: 'creation' | 'valuation' | 'injection' | 'withdrawal';
   amount: number;      // El monto del flujo de capital (no el cambio de valoración)
   valueAfter: number;  // Valor total del asset luego de este evento
+  exchangeRate?: number; // Tipo de cambio USD en ese momento (opcional para retrocompatibilidad)
 }
 
 export interface Investment {
@@ -121,6 +122,7 @@ export interface FinanceState {
   withdrawInvestment: (id: string, amount: number, cryptoAmount?: number) => void;
   fixInvestmentInitial: (id: string, newInvested: number) => void;
   deleteInvestment: (id: string) => void;
+  rebaseAllInvestments: () => void;
 
   // Acciones Goals
   addGoal: (goal: Omit<Goal, 'id'>) => void;

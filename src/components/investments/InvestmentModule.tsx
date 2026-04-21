@@ -10,7 +10,8 @@ import 'react-resizable/css/styles.css';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { 
   TrendingUp, Bitcoin, Building, Layers, Search, Plus, 
-  Calculator, LayoutPanelLeft, Check, Wallet, DollarSign, Brain 
+  Calculator, LayoutPanelLeft, Check, Wallet, DollarSign, Brain,
+  Clock, BarChart3, RefreshCcw
 } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { projectFuture } from '../../utils/metrics';
@@ -41,7 +42,9 @@ const KPI_ICONS: Record<KPIIconType, React.ReactNode> = {
   dollar: <DollarSign size={20} />,
   trending: <TrendingUp size={20} />,
   brain: <Brain size={20} />,
-  strategies: <Layers size={20} />
+  strategies: <Layers size={20} />,
+  clock: <Clock size={20} />,
+  chart: <BarChart3 size={20} />
 };
 
 export const InvestmentModule = () => {
@@ -49,7 +52,7 @@ export const InvestmentModule = () => {
   const { 
     addInvestment, updateInvestmentCurrent, injectInvestment, 
     withdrawInvestment, deleteInvestment, updateInvestmentLayout, 
-    toggleInvestmentWidgetVisibility 
+    toggleInvestmentWidgetVisibility, rebaseAllInvestments
   } = useFinanceStore();
 
   const [ref, bounds] = useMeasure();
@@ -106,6 +109,12 @@ export const InvestmentModule = () => {
     setBulkPrices({});
   };
 
+  const handleRebase = () => {
+    if (window.confirm(t('investments.rebase.confirm'))) {
+      rebaseAllInvestments();
+    }
+  };
+
   const handleLayoutChange = (current: any) => {
     if (editMode) {
       const updated = investmentWidgets.map((w: any) => {
@@ -142,6 +151,13 @@ export const InvestmentModule = () => {
             <>
               <button className="btn border border-indigo-500/20 bg-indigo-500/5 text-indigo-400 hover:bg-indigo-500/10 flex items-center gap-2 rounded-2xl px-5 py-3" onClick={handleStartBulk}>
                 <TrendingUp size={18} /> {t('investments.bulkUpdate')}
+              </button>
+              <button 
+                className="btn border border-amber-500/20 bg-amber-500/5 text-amber-500 hover:bg-amber-500/10 flex items-center gap-2 rounded-2xl px-5 py-3" 
+                onClick={handleRebase}
+                title={t('investments.rebase.title')}
+              >
+                <RefreshCcw size={18} /> {t('investments.rebase.button')}
               </button>
               <button className="btn bg-white/5 text-text-primary hover:bg-white/10 border border-white/5 flex items-center gap-2 rounded-2xl px-5 py-3" onClick={() => handleOpenModal('assistant')}>
                 <Calculator size={18} /> {t('investments.assistant')}

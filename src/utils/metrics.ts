@@ -13,11 +13,16 @@ export function calculateAssetTWRR(history?: InvestmentHistoryEntry[]) {
   const totalDays = Math.max(1, (lastDate - firstDate) / (1000 * 60 * 60 * 24));
 
   for (let i = 1; i < sorted.length; i++) {
-    const startValue = sorted[i - 1].valueAfter;
-    const event = sorted[i];
+    const prev = sorted[i - 1];
+    const curr = sorted[i];
 
-    const cashFlow = event.type === 'injection' ? event.amount : (event.type === 'withdrawal' ? -event.amount : 0);
-    const endValueBeforeFlow = event.valueAfter - cashFlow;
+    // Dolarizar si tenemos el rate, sino usar nominal (retrocompatibilidad)
+    const ratePrev = prev.exchangeRate || 1;
+    const rateCurr = curr.exchangeRate || 1;
+
+    const startValue = prev.valueAfter / ratePrev;
+    const cashFlow = (curr.type === 'injection' ? curr.amount : (curr.type === 'withdrawal' ? -curr.amount : 0)) / rateCurr;
+    const endValueBeforeFlow = (curr.valueAfter / rateCurr) - cashFlow;
 
     if (startValue > 0) {
       const periodReturn = (endValueBeforeFlow - startValue) / startValue;
@@ -40,6 +45,33 @@ export function calculateAssetTWRR(history?: InvestmentHistoryEntry[]) {
   }
 
   return { twrr, annualTwrr, isShortPeriod };
+}
+
+/**
+ * Calcula la diferencia de valor y días entre las últimas dos actualizaciones de precio (valuation/creation).
+ */
+export function calculateLastUpdateDelta(history?: InvestmentHistoryEntry[]) {
+  if (!history || history.length < 2) return { deltaAmount: 0, daysDiff: 0, hasCheckpoints: false };
+
+  // Ordenar por fecha ASC
+  const sorted = [...history]
+    .filter(h => h.type === 'valuation' || h.type === 'creation' || h.type === 'injection' || h.type === 'withdrawal')
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  if (sorted.length < 2) return { deltaAmount: 0, daysDiff: 0, hasCheckpoints: false };
+
+  const last = sorted[sorted.length - 1];
+  const previous = sorted[sorted.length - 2];
+
+  // El delta de monto es simplemente la diferencia de valor final, 
+  // PERO restando cualquier inyección/retiro que haya ocurrido en el último evento 
+  // para obtener solo la ganancia por mercado.
+  const cashFlow = last.type === 'injection' ? last.amount : (last.type === 'withdrawal' ? -last.amount : 0);
+  const deltaAmount = last.valueAfter - (previous.valueAfter + cashFlow);
+  
+  const daysDiff = Math.round((new Date(last.date).getTime() - new Date(previous.date).getTime()) / (1000 * 60 * 60 * 24));
+
+  return { deltaAmount, daysDiff, hasCheckpoints: true };
 }
 
 // Proyecciones
